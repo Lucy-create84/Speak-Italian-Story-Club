@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speak Italian: Story Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#2d6a4f;--green-l:#e8f4ef;--green-m:#52b788;
+  --gold:#b5883e;--gold-l:#fdf3e0;
+  --red:#c1121f;--red-l:#fce8e9;
+  --bg:#faf8f4;--card:#fff;--text:#1a1a1a;--muted:#6b6b6b;
+  --border:#e8e4dc;--shadow:0 2px 12px rgba(0,0,0,.06);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+
+/* ── AUTH SCREEN ── */
+#authScreen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;background:var(--bg);
+}
+.auth-card{
+  background:#fff;border-radius:20px;padding:36px 32px;
+  max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.1);
+  border:1px solid var(--border);
+}
+.auth-logo{font-family:'Playfair Display',serif;font-size:22px;color:var(--green);text-align:center;margin-bottom:6px}
+.auth-logo span{color:var(--green-m)}
+.auth-tagline{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.auth-field input{
+  width:100%;border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;
+  background:#fff;color:var(--text);transition:border .15s;
+}
+.auth-field input:focus{outline:none;border-color:var(--green)}
+.auth-btn{
+  width:100%;background:var(--green);color:#fff;border:none;
+  border-radius:10px;padding:13px;font-size:14px;font-weight:500;
+  transition:all .2s;margin-top:4px;
+}
+.auth-btn:hover{background:#235c43}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+.auth-err{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px}
+.auth-note{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
+
+/* ── SETUP NOTICE ── */
+#setupNotice{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;
+  align-items:center;justify-content:center;padding:20px;
+}
+#setupNotice.on{display:flex}
+.setup-card{
+  background:#fff;border-radius:16px;padding:28px;max-width:480px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.setup-card h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:10px;color:var(--green)}
+.setup-card p{font-size:13px;line-height:1.7;color:var(--text);margin-bottom:10px}
+.setup-card code{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12px;font-family:monospace}
+.setup-card .url-field{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;font-family:monospace;width:100%;margin-bottom:8px}
+.setup-close{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;float:right}
+
+/* ── MAIN APP (hidden until logged in) ── */
+#app{display:none}
+#app.on{display:block}
+
+/* ── HEADER ── */
+.hdr{background:var(--green);color:#fff;padding:18px 20px 14px}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.logo{font-family:'Playfair Display',serif;font-size:21px;font-style:italic}
+.logo span{color:#a8d5ba}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:500}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);border-radius:20px;padding:5px 11px;font-size:12px;transition:all .2s}
+.logout-btn:hover{background:rgba(255,255,255,.25);color:#fff}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);padding:6px 13px;border-radius:20px;font-size:12px;white-space:nowrap;transition:all .2s}
+.nb:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.on{background:#fff;color:var(--green);font-weight:500;border-color:#fff}
+
+/* ── SCREENS ── */
+.scr{display:none;padding:18px 16px 60px}
+.scr.on{display:block}
+
+/* ── TYPOGRAPHY ── */
+.stitle{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:3px}
+.ssub{font-size:12px;color:var(--muted);margin-bottom:16px}
+
+/* ── PROGRESS BAR ── */
+.pbar{display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.ptrack{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pfill{height:100%;background:var(--green-m);border-radius:3px;transition:width .4s}
+.plbl{font-size:11px;color:var(--muted);min-width:58px;text-align:right}
+
+/* ── PILLS ── */
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.pill{border:1px solid var(--border);background:#fff;color:var(--muted);padding:5px 13px;border-radius:20px;font-size:12px;transition:all .2s}
+.pill:hover{border-color:var(--green);color:var(--green)}
+.pill.on{background:var(--green-l);border-color:var(--green);color:var(--green);font-weight:500}
+
+/* ── CARD GRID ── */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:13px}
+.scard{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.scard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:var(--green-m)}
+.cthumb{height:82px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.cthumb.stories{background:linear-gradient(135deg,#e8f4ef,#d0eadf)}
+.cthumb.geo{background:linear-gradient(135deg,#fdf3e0,#fae8b8)}
+.cthumb.fable{background:linear-gradient(135deg,#fce8e9,#f9cdd0)}
+.cthumb.myth{background:linear-gradient(135deg,#e8edf8,#cdd6f0)}
+.cthumb.culture{background:linear-gradient(135deg,#f3e8f8,#e4c8f0)}
+.cbody{padding:11px 13px}
+.ccat{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+.ctitle{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:5px;line-height:1.3}
+.cmeta{display:flex;align-items:center;gap:7px}
+.badge{font-size:10px;padding:3px 7px;border-radius:10px;font-weight:500}
+.bg{background:var(--green-l);color:var(--green)}
+.bb{background:#e8edf8;color:#2a4a8e}
+.bo{background:var(--gold-l);color:var(--gold)}
+.rtime{font-size:11px;color:var(--muted);margin-left:auto}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .ei{font-size:40px;margin-bottom:10px}
+.empty-state p{font-size:14px}
+
+/* ── READER ── */
+.rhdr{display:flex;align-items:center;gap:9px;margin-bottom:15px}
+.backbtn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--text);transition:all .15s}
+.backbtn:hover{background:var(--border)}
+.rtitle{font-family:'Playfair Display',serif;font-size:20px;flex:1;line-height:1.2}
+
+/* ── AUDIO PLAYER ── */
+.aplayer{background:var(--green);color:#fff;border-radius:14px;padding:15px 17px;margin-bottom:18px}
+.atop{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.playbtn{width:42px;height:42px;border-radius:50%;background:#fff;border:none;font-size:15px;flex-shrink:0;transition:transform .15s;display:flex;align-items:center;justify-content:center}
+.playbtn:hover{transform:scale(1.05)}
+.ainfo{flex:1}
+.atitle2{font-weight:500;font-size:13px}
+.asub{font-size:11px;opacity:.75;margin-top:2px}
+.spdbtn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 9px;border-radius:12px;font-size:11px}
+.waveform{height:26px;display:flex;align-items:center;gap:2px;margin-bottom:7px;cursor:pointer}
+.wbar{flex:1;background:rgba(255,255,255,.3);border-radius:2px;transition:background .1s}
+.wbar.p{background:rgba(255,255,255,.85)}
+.tline{display:flex;justify-content:space-between;font-size:10px;opacity:.7}
+
+/* ── TOGGLES ── */
+.tbar{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 15px;margin-bottom:13px}
+.tlbl{font-size:13px;font-weight:500}
+.tsub{font-size:11px;color:var(--muted);margin-top:2px}
+.tswitch{width:40px;height:22px;background:var(--border);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tswitch.on{background:var(--green)}
+.tswitch::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.tswitch.on::after{left:21px}
+
+/* ── SAVE BAR ── */
+.savebar{display:flex;align-items:center;justify-content:space-between;background:var(--gold-l);border:1px solid #e8d099;border-radius:10px;padding:11px 15px;margin-bottom:15px}
+.savebar span{font-size:13px}
+.savecount{color:var(--gold);font-weight:500}
+
+/* ── STORY TEXT ── */
+.stxt{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;line-height:1.9;font-size:15px}
+.sw{cursor:pointer;border-radius:3px;padding:0 2px;transition:background .15s;display:inline}
+.sw-known{border-bottom:1px dotted var(--green-m)}
+.sw:hover{background:var(--gold-l)}
+.sw.saved{background:var(--green-l);color:var(--green)}
+
+/* ── TOOLTIP ── */
+.tip{position:fixed;background:#1a1a1a;color:#fff;padding:11px 13px;border-radius:12px;font-size:12px;min-width:170px;max-width:230px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);pointer-events:none;display:none}
+.tipw{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:3px}
+.tipph{color:rgba(255,255,255,.6);font-size:11px;margin-bottom:5px;font-style:italic}
+.tiptr{color:#a8d5ba;font-size:13px;margin-bottom:6px}
+.tipau{font-size:11px;opacity:.65}
+
+/* ── FLASHCARDS ── */
+.fcstats{display:flex;gap:11px;margin-bottom:18px}
+.fcs{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center}
+.fcsn{font-size:22px;font-weight:500;color:var(--green)}
+.fcsl{font-size:11px;color:var(--muted);margin-top:2px}
+.fcard{background:#fff;border:1px solid var(--border);border-radius:18px;padding:38px 28px;text-align:center;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s;margin-bottom:18px;position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--green-m)}
+.fcard:active{transform:scale(.98)}
+.fcit{font-family:'Playfair Display',serif;font-size:30px;margin-bottom:7px}
+.fcph{color:var(--muted);font-style:italic;font-size:13px;margin-bottom:10px}
+.fchi{font-size:12px;color:var(--muted)}
+.fctr{font-size:19px;color:var(--green);font-weight:500;margin-top:14px;display:none}
+.fcbtns{display:flex;gap:11px}
+.fcb{flex:1;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:500;transition:all .15s}
+.fcb:active{transform:scale(.97)}
+.fcb.wrong{background:var(--red-l);color:var(--red)}
+.fcb.wrong:hover{background:#f8d0d2}
+.fcb.right{background:var(--green-l);color:var(--green)}
+.fcb.right:hover{background:#c8e8d7}
+.nodeck{text-align:center;padding:40px 20px;color:var(--muted)}
+.nodeck .ni{font-size:36px;margin-bottom:10px}
+
+/* ── PODCASTS ── */
+.plist{display:flex;flex-direction:column;gap:11px}
+.pitem{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.pmain{display:flex;align-items:center;gap:13px;padding:13px 15px;cursor:default}
+.picon{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#e8edf8,#cdd6f0);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pinfo{flex:1;min-width:0}
+.ptitle{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:3px}
+.pdesc{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta2{display:flex;align-items:center;gap:7px;margin-top:4px}
+.ppbtn{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;font-size:13px;color:#fff;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.ppbtn:hover{background:#235c43;transform:scale(1.05)}
+.ttoggle{padding:9px 15px;border-top:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12px;color:var(--muted)}
+.tbody{display:none;padding:13px 15px;border-top:1px solid var(--border);font-size:13px;line-height:1.85}
+.tbody.on{display:block}
+
+/* ── PROGRESS ── */
+.wkchart{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:13px}
+.wklbl{font-weight:500;margin-bottom:13px;font-size:14px}
+.bars{display:flex;gap:7px;align-items:flex-end;height:75px}
+.daycol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.daybar{border-radius:3px;width:100%;background:var(--green-m)}
+.dayname{font-size:10px;color:var(--muted)}
+.vocprog{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+.vplbl{font-weight:500;margin-bottom:11px;font-size:14px}
+.vprow{margin-bottom:9px}
+.vphead{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.vptrack{height:7px;background:var(--border);border-radius:3px;overflow:hidden}
+.vpfill{height:100%;border-radius:3px}
+
+/* ── ADMIN PANEL ── */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;overflow-y:auto}
+.admin-overlay.on{display:block}
+.admin-box{background:#fff;margin:30px auto;max-width:680px;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.admin-hdr{background:var(--green);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between}
+.admin-hdr h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:400}
+.admin-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.admin-close:hover{background:rgba(255,255,255,.35)}
+.admin-tabs{display:flex;border-bottom:1px solid var(--border)}
+.atab{flex:1;padding:11px;background:none;border:none;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.atab.on{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+.admin-body{padding:20px 22px}
+.afield{margin-bottom:14px}
+.afield label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.afield input,.afield select,.afield textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--text);transition:border .15s}
+.afield input:focus,.afield select:focus,.afield textarea:focus{outline:none;border-color:var(--green)}
+.afield textarea{resize:vertical;min-height:90px}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.aprimary{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;transition:all .15s}
+.aprimary:hover{background:#235c43}
+.asecondary{background:none;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;color:var(--text);transition:all .15s}
+.asecondary:hover{background:var(--border)}
+.abtnrow{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.alist{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.aitem{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 13px}
+.aitem-info{flex:1;min-width:0}
+.aitem-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aitem-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.aitem-del{background:var(--red-l);border:none;color:var(--red);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
+.aitem-del:hover{background:#f8d0d2}
+.aitem-edit{background:var(--gold-l);border:none;color:var(--gold);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
+.aitem-edit:hover{background:#fae8b8}
+.anotice{background:var(--green-l);border:1px solid #a8d5ba;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--green);margin-bottom:14px}
+.anotice strong{font-weight:500}
+.atip{font-size:11px;color:var(--muted);margin-top:4px}
+.vocab-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.vocab-row input{flex:1;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif}
+.vocab-row input:focus{outline:none;border-color:var(--green)}
+.vocab-del{background:var(--red-l);border:none;color:var(--red);border-radius:6px;width:28px;height:28px;font-size:14px;display:flex;align-items:center;justify-content:center}
+.add-vocab-btn{background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;width:100%;font-size:12px;color:var(--muted);margin-top:4px;transition:all .15s}
+.add-vocab-btn:hover{border-color:var(--green);color:var(--green)}
+.admin-trigger{display:none}
+
+/* ── LOADING ── */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--muted)}
+
+/* ── USER BADGE ── */
+.user-email{font-size:10px;color:rgba(255,255,255,.6);text-align:right;padding:0 20px 8px;margin-top:-8px}
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP NOTICE (shown if Supabase not configured) ═══ -->
+<div id="setupNotice">
+  <div class="setup-card">
+    <h3>🛠 Supabase Setup Required</h3>
+    <p>To enable email login and cloud-synced progress, you need to connect this app to your free Supabase project.</p>
+    <p><strong>Step 1:</strong> Go to <a href="https://supabase.com" target="_blank" style="color:var(--green)">supabase.com</a> and create a free project.</p>
+    <p><strong>Step 2:</strong> In your project dashboard, go to <strong>Settings → API</strong> and copy your <code>Project URL</code> and <code>anon public</code> key.</p>
+    <p><strong>Step 3:</strong> Open this HTML file in a text editor and replace the two placeholders near the top of the script:</p>
+    <input class="url-field" readonly value="const SUPABASE_URL = 'YOUR_SUPABASE_URL'">
+    <input class="url-field" readonly value="const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'">
+    <p><strong>Step 4:</strong> Run the SQL below in your Supabase SQL Editor to create the required tables.</p>
+    <button class="setup-close" onclick="document.getElementById('setupNotice').classList.remove('on')">Got it, I'll set it up</button>
+  </div>
+</div>
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">Speak Italian<span>: Story Club</span></div>
+    <div class="auth-tagline">Sign in to access your Italian reading practice.</div>
+    <div style="margin-bottom:24px"></div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="loginPw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in</button>
+    <div class="auth-err" id="loginErr"></div>
+    <div class="auth-note">Access is invite-only. If you are a paid subscriber and haven't received your invite email yet, reply to your latest Coffee Break issue and Lucy will send it.</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="logo">Speak Italian<span>: Story Club</span></div>
+      <div class="hdr-right">
+        <div class="streak">🔥 <span id="streakNum">0</span></div>
+        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+    <div class="user-email" id="userEmailDisplay"></div>
+    <div class="nav">
+      <button class="nb on" onclick="nav('library',this)">Library</button>
+      <button class="nb" onclick="nav('flashcards',this)">Flashcards</button>
+      <button class="nb" onclick="nav('podcasts',this)">Podcasts</button>
+      <button class="nb" onclick="nav('progress',this)">Progress</button>
+    </div>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="scr on" id="scr-library">
+    <div style="margin:4px 0 14px">
+      <div class="stitle">Your library</div>
+      <div class="ssub">Pick a text. Read, listen, learn.</div>
+    </div>
+    <div class="pbar">
+      <div class="ptrack"><div class="pfill" id="libProgress" style="width:0%"></div></div>
+      <div class="plbl" id="libLabel">0 / 0 read</div>
+    </div>
+    <div class="pills" id="catPills"></div>
+    <div class="cgrid" id="cardGrid"></div>
+  </div>
+
+  <!-- READER -->
+  <div class="scr" id="scr-reader">
+    <div class="rhdr">
+      <button class="backbtn" onclick="nav('library',document.querySelectorAll('.nb')[0])">← Back</button>
+      <div class="rtitle" id="readerTitle"></div>
+    </div>
+    <div class="aplayer">
+      <div class="atop">
+        <button class="playbtn" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="ainfo">
+          <div class="atitle2" id="playerTitle"></div>
+          <div class="asub" id="playerLevel"></div>
+        </div>
+        <button class="spdbtn" id="spdBtn" onclick="cycleSpeed()">1×</button>
+      </div>
+      <div class="waveform" id="waveform" onclick="seekAudio(event)"></div>
+      <div class="tline"><span id="elapsed">0:00</span><span id="dur">0:00</span></div>
+      <audio id="audioEl" onended="audioEnded()" ontimeupdate="audioTick()" onloadedmetadata="audioDur()"></audio>
+    </div>
+    <div class="tbar">
+      <div><div class="tlbl">Show translations</div><div class="tsub">Tap any word for meaning</div></div>
+      <div class="tswitch on" id="tswitch" onclick="this.classList.toggle('on');showTrans=!showTrans"></div>
+    </div>
+    <div class="savebar">
+      <span>Tap words to save them to your flashcard deck</span>
+      <span class="savecount" id="savedCount">0 saved</span>
+    </div>
+    <div class="stxt" id="storyText"></div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="scr" id="scr-flashcards">
+    <div style="margin:4px 0 14px">
+      <div class="stitle">Your deck</div>
+      <div class="ssub">Words saved from reading sessions.</div>
+    </div>
+    <div class="fcstats">
+      <div class="fcs"><div class="fcsn" id="fcTotal">0</div><div class="fcsl">Total</div></div>
+      <div class="fcs"><div class="fcsn" id="fcLearned" style="color:var(--green)">0</div><div class="fcsl">Learned</div></div>
+      <div class="fcs"><div class="fcsn" id="fcReview" style="color:var(--gold)">0</div><div class="fcsl">To review</div></div>
+    </div>
+    <div id="fcArea"></div>
+  </div>
+
+  <!-- PODCASTS -->
+  <div class="scr" id="scr-podcasts">
+    <div style="margin:4px 0 14px">
+      <div class="stitle">Podcasts</div>
+      <div class="ssub">Audio first. Transcripts included.</div>
+    </div>
+    <div class="plist" id="podList"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="scr" id="scr-progress">
+    <div style="margin:4px 0 14px">
+      <div class="stitle">Your progress</div>
+      <div class="ssub">Keep the streak alive.</div>
+    </div>
+    <div class="fcstats" style="margin-bottom:14px">
+      <div class="fcs"><div class="fcsn" id="pgStreak">0</div><div class="fcsl">Day streak</div></div>
+      <div class="fcs"><div class="fcsn" id="pgRead">0</div><div class="fcsl">Texts read</div></div>
+      <div class="fcs"><div class="fcsn" id="pgWords">0</div><div class="fcsl">Words saved</div></div>
+    </div>
+    <div class="wkchart">
+      <div class="wklbl">This week</div>
+      <div class="bars" id="wkBars"></div>
+    </div>
+    <div class="vocprog">
+      <div class="vplbl">Vocabulary by category</div>
+      <div id="vocRows"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-box">
+      <div class="admin-hdr">
+        <h2>Content Manager</h2>
+        <button class="admin-close" onclick="closeAdmin()">✕</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="atab on" id="atab-stories" onclick="aTab('stories',this)">Stories</button>
+        <button class="atab" onclick="aTab('podcasts',this)">Podcasts</button>
+        <button class="atab" onclick="aTab('settings',this)">Settings</button>
+      </div>
+      <!-- STORIES TAB -->
+      <div id="aStories" class="admin-body">
+        <div class="anotice"><strong>Audio tip:</strong> Upload your MP3 in Supabase → Storage → audio bucket → copy the public URL → paste it in the Audio URL field below.</div>
+        <div class="alist" id="storyList"></div>
+        <button class="aprimary" onclick="showAddStory()">+ Add new story</button>
+        <div id="storyForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+          <input type="hidden" id="editId">
+          <div class="arow">
+            <div class="afield"><label>Title (Italian)</label><input type="text" id="fTitle" placeholder="Una passeggiata al mare"></div>
+            <div class="afield">
+              <label>Category</label>
+              <select id="fCat">
+                <option value="stories">Città della Settimana</option>
+                <option value="geo">Parola della Settimana</option>
+                <option value="fable">Leggende Italiane</option>
+                <option value="myth">Espressioni Italiane</option>
+                <option value="culture">Culture</option>
+              </select>
+            </div>
+          </div>
+          <div class="arow">
+            <div class="afield"><label>CEFR Level</label><select id="fLevel"><option value="A1">A1</option><option value="A2" selected>A2</option><option value="B1">B1</option><option value="B2">B2</option></select></div>
+            <div class="afield"><label>Read time</label><input type="text" id="fTime" placeholder="4 min"></div>
+          </div>
+          <div class="afield"><label>Emoji icon</label><input type="text" id="fEmoji" placeholder="🌊" style="max-width:80px"></div>
+          <div class="afield">
+            <label>Audio URL</label>
+            <input type="url" id="fAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/story.mp3">
+            <div class="atip">Upload MP3 in WordPress → Media → copy URL → paste here</div>
+          </div>
+          <div class="afield"><label>Story text</label><textarea id="fText" oninput="scanBtnShow()"></textarea></div>
+          <div class="afield">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <label style="margin:0">Vocabulary translations</label>
+              <button class="asecondary" id="scanBtn" onclick="scanTextForWords()" style="display:none;padding:5px 11px;font-size:11px">⟳ Scan text</button>
+            </div>
+            <div class="atip" style="margin-bottom:8px">Scan your story to auto-fill words, then add phonetics and English translation for each.</div>
+            <div id="vocabRows"></div>
+            <button class="add-vocab-btn" onclick="addVocabRow()">+ Add word manually</button>
+          </div>
+          <div class="abtnrow">
+            <button class="asecondary" onclick="cancelForm()">Cancel</button>
+            <button class="aprimary" onclick="saveStory()">Save story</button>
+          </div>
+        </div>
+      </div>
+      <!-- PODCASTS TAB -->
+      <div id="aPodcasts" class="admin-body" style="display:none">
+        <div class="anotice"><strong>Audio tip:</strong> For podcast episodes, copy the episode link from Spotify for Creators and paste it below. For story audio, upload your MP3 to Supabase Storage and paste the public URL.</div>
+        <div class="alist" id="podAdminList"></div>
+        <button class="aprimary" onclick="showAddPod()">+ Add new episode</button>
+        <div id="podForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+          <input type="hidden" id="peditId">
+          <div class="afield"><label>Episode title</label><input type="text" id="pTitle"></div>
+          <div class="afield"><label>Short description</label><input type="text" id="pDesc"></div>
+          <div class="arow">
+            <div class="afield"><label>Level</label><select id="pLevel"><option value="A2">A2</option><option value="B1" selected>B1</option><option value="B2">B2</option></select></div>
+            <div class="afield"><label>Duration</label><input type="text" id="pDur" placeholder="18 min"></div>
+          </div>
+          <div class="afield"><label>Audio URL</label><input type="url" id="pAudio"></div>
+          <div class="afield"><label>Transcript</label><textarea id="pTranscript"></textarea></div>
+          <div class="abtnrow">
+            <button class="asecondary" onclick="cancelPodForm()">Cancel</button>
+            <button class="aprimary" onclick="savePod()">Save episode</button>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS TAB -->
+      <div id="aSettings" class="admin-body" style="display:none">
+        <div class="anotice">You are logged in as admin. Stories and podcasts you add here appear instantly for all subscribers.</div>
+        <div class="afield">
+          <label>Export all content (backup)</label>
+          <button class="asecondary" onclick="exportData()">Download JSON backup</button>
+          <div class="atip">Save this file. You can reimport it later if needed.</div>
+        </div>
+        <div class="afield">
+          <label>Import content from JSON backup</label>
+          <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="font-size:12px;padding:6px">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tip" id="tooltip">
+  <div class="tipw" id="tipW"></div>
+  <div class="tipph" id="tipPh"></div>
+  <div class="tiptr" id="tipTr"></div>
+  <div class="tipau" id="tipAu"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// SUPABASE CONFIG — replace these two values
+// ════════════════════════════════════════
+const SUPABASE_URL = 'https://isaerudlmngluojrodnn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzYWVydWRsbW5nbHVvanJvZG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQzODEsImV4cCI6MjA4OTcxMDM4MX0.g529Vp_TmV3YqZELf_JM-i7jcXI9gL9CuD4fRssFSqI';
+
+// Your admin email — the account that can access the content manager
+const ADMIN_EMAIL = 'cookitalia@gmail.com';
+
+// ════════════════════════════════════════
+// SUPABASE TABLES NEEDED (run this SQL in Supabase SQL Editor):
+//
+// create table stories (
+//   id bigint generated always as identity primary key,
+//   cat text, emoji text, title text, level text, time text,
+//   audio text, text text, vocab jsonb, created_at timestamptz default now()
+// );
+// create table podcasts (
+//   id bigint generated always as identity primary key,
+//   title text, desc text, level text, dur text,
+//   audio text, transcript text, created_at timestamptz default now()
+// );
+// create table user_progress (
+//   id uuid primary key default gen_random_uuid(),
+//   user_id uuid references auth.users not null,
+//   read_ids jsonb default '[]',
+//   saved_words jsonb default '[]',
+//   learned int default 0,
+//   streak int default 0,
+//   last_date text default '',
+//   week jsonb default '[0,0,0,0,0,0,0]',
+//   updated_at timestamptz default now(),
+//   unique(user_id)
+// );
+// alter table stories enable row level security;
+// alter table podcasts enable row level security;
+// alter table user_progress enable row level security;
+// create policy "Authenticated users can read stories" on stories for select to authenticated using (true);
+// create policy "Authenticated users can read podcasts" on podcasts for select to authenticated using (true);
+// create policy "Users manage own progress" on user_progress for all to authenticated using (auth.uid() = user_id);
+// create policy "Admin can manage stories" on stories for all to authenticated using (true);
+// create policy "Admin can manage podcasts" on podcasts for all to authenticated using (true);
+// ════════════════════════════════════════
+
+// Check if configured
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+if(!isConfigured) document.getElementById('setupNotice').classList.add('on');
+
+// Init Supabase
+const { createClient } = supabase;
+const sb = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+// ── STATE ──
+let currentUser = null;
+let appData = { stories: [], podcasts: [] };
+let progress = { read:[], saved:[], learned:0, streak:0, lastDate:'', week:[0,0,0,0,0,0,0] };
+let currentCat = 'all';
+let currentStory = null;
+let savedWords = [];
+let showTrans = true;
+let speeds = [1,1.25,1.5,0.75];
+let spdIdx = 0;
+let fcIdx = 0;
+let fcRevealed = false;
+let editingStoryId = null;
+let editingPodId = null;
+let progressSyncTimer = null;
+
+// ── LOGIN ──
+async function doLogin() {
+  if(!sb) { alert('Supabase not configured yet.'); return; }
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  if(!email || !pw) { err.textContent = 'Please enter your email and password.'; return; }
+  btn.disabled = true; btn.textContent = 'Signing in...'; err.textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+  btn.disabled = false; btn.textContent = 'Sign in';
+  if(error) { err.textContent = error.message; return; }
+  await onLogin(data.user);
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  if(!sb) return;
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+// ── ON LOGIN ──
+async function onLogin(user) {
+  currentUser = user;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').classList.add('on');
+  document.getElementById('userEmailDisplay').textContent = user.email;
+  await loadFromSupabase();
+  await loadProgressFromSupabase();
+  renderLibrary();
+  renderPods();
+  document.getElementById('streakNum').textContent = progress.streak || 0;
+}
+
+// ── LOAD STORIES & PODCASTS FROM SUPABASE ──
+async function loadFromSupabase() {
+  if(!sb) return;
+  const [{ data: stories }, { data: podcasts }] = await Promise.all([
+    sb.from('stories').select('*').order('created_at', { ascending: false }),
+    sb.from('podcasts').select('*').order('created_at', { ascending: false })
+  ]);
+  appData.stories = stories || [];
+  appData.podcasts = podcasts || [];
+}
+
+// ── LOAD USER PROGRESS ──
+async function loadProgressFromSupabase() {
+  if(!sb || !currentUser) return;
+  const { data } = await sb.from('user_progress')
+    .select('*').eq('user_id', currentUser.id).single();
+  if(data) {
+    progress = {
+      read: data.read_ids || [],
+      saved: data.saved_words || [],
+      learned: data.learned || 0,
+      streak: data.streak || 0,
+      lastDate: data.last_date || '',
+      week: data.week || [0,0,0,0,0,0,0]
+    };
+  }
+}
+
+// ── SAVE PROGRESS (debounced) ──
+function saveProgress(p) {
+  progress = p;
+  clearTimeout(progressSyncTimer);
+  progressSyncTimer = setTimeout(() => syncProgressToSupabase(), 1500);
+}
+
+async function syncProgressToSupabase() {
+  if(!sb || !currentUser) return;
+  await sb.from('user_progress').upsert({
+    user_id: currentUser.id,
+    read_ids: progress.read,
+    saved_words: progress.saved,
+    learned: progress.learned,
+    streak: progress.streak,
+    last_date: progress.lastDate,
+    week: progress.week,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+}
+
+// ── NAV ──
+function nav(name, btn) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  document.getElementById('scr-' + name).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(name === 'library') renderLibrary();
+  if(name === 'flashcards') renderFC();
+  if(name === 'podcasts') renderPods();
+  if(name === 'progress') renderProgress();
+}
+
+// ── LIBRARY ──
+function renderLibrary() {
+  const cats = ['all','stories','geo','fable','myth','culture'];
+  const labels = {all:'All',stories:'Città della Settimana',geo:'Parola della Settimana',fable:'Leggende Italiane',myth:'Espressioni Italiane',culture:'Culture'};
+  const container = document.getElementById('catPills');
+  container.innerHTML = cats.filter(c => c === 'all' || appData.stories.some(s => s.cat === c))
+    .map(c => `<button class="pill${currentCat===c?' on':''}" onclick="filterCat('${c}',this)">${labels[c]}</button>`).join('');
+  const filtered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
+  const total = appData.stories.length;
+  const readCount = progress.read.length;
+  document.getElementById('libProgress').style.width = total > 0 ? (readCount/total*100)+'%' : '0%';
+  document.getElementById('libLabel').textContent = readCount+' / '+total+' read';
+  const grid = document.getElementById('cardGrid');
+  if(filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="ei">📚</div><p>No stories yet. Open the content manager to add your first story.</p></div>';
+    return;
+  }
+  const levelClass = {A1:'bg',A2:'bg',B1:'bo',B2:'bb'};
+  const catLabel = {stories:'Città della Settimana',geo:'Parola della Settimana',fable:'Leggende Italiane',myth:'Espressioni Italiane',culture:'Culture'};
+  grid.innerHTML = filtered.map(s => `
+    <div class="scard" onclick="openStory(${s.id})">
+      <div class="cthumb ${s.cat}">${s.emoji||'📖'}</div>
+      <div class="cbody">
+        <div class="ccat">${catLabel[s.cat]||s.cat}</div>
+        <div class="ctitle">${s.title}</div>
+        <div class="cmeta">
+          <span class="badge ${levelClass[s.level]||'bg'}">${s.level}</span>
+          ${progress.read.includes(s.id)?'<span class="badge bg">✓ read</span>':''}
+          <span class="rtime">${s.time}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterCat(c, el) {
+  currentCat = c;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderLibrary();
+}
+
+// ── READER ──
+function openStory(id) {
+  const s = appData.stories.find(x => x.id === id);
+  if(!s) return;
+  currentStory = s;
+  savedWords = [];
+  document.getElementById('readerTitle').textContent = s.title;
+  document.getElementById('playerTitle').textContent = s.title;
+  document.getElementById('playerLevel').textContent = 'Italian '+s.level+' · Comprehensible Input';
+  document.getElementById('savedCount').textContent = '0 saved';
+  const audio = document.getElementById('audioEl');
+  if(s.audio) { audio.src = s.audio; audio.load(); }
+  else { audio.src = ''; document.getElementById('dur').textContent = 'no audio'; }
+  document.getElementById('playBtn').textContent = '▶';
+  buildWaveform();
+  renderStoryText(s);
+  if(!progress.read.includes(id)) {
+    progress.read.push(id);
+    const today = new Date().toDateString();
+    if(progress.lastDate !== today) {
+      const yesterday = new Date(Date.now()-86400000).toDateString();
+      if(progress.lastDate === yesterday) progress.streak++;
+      else progress.streak = 1;
+      progress.lastDate = today;
+    }
+    const dow = new Date().getDay();
+    progress.week[dow] = (progress.week[dow]||0)+1;
+    saveProgress(progress);
+    document.getElementById('streakNum').textContent = progress.streak;
+  }
+  nav('reader', null);
+  document.querySelectorAll('.nb')[0].classList.remove('on');
+}
+
+function esc(str){ return (str||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+const transCache = {};
+
+function renderStoryText(s) {
+  const vocab = s.vocab || [];
+  const vocabArr = Array.isArray(vocab) ? vocab : [];
+  const vocabMap = {};
+  vocabArr.forEach(v => {
+    vocabMap[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
+    transCache[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
+  });
+  const paras = (s.text||'').split('\n');
+  const el = document.getElementById('storyText');
+  el.innerHTML = paras.map(para => {
+    if(!para.trim()) return '<br>';
+    const words = para.split(/(\s+|(?=[.,!?;"'\u2019])|(?<=[.,!?;"'\u2019]))/);
+    return '<p style="margin-bottom:10px">'+words.map(w => {
+      const clean = w.replace(/[.,!?;"'\u2019\u2018]/g,'').toLowerCase();
+      if(!clean||!w.trim()) return w;
+      const v = vocabMap[clean];
+      if(v) return `<span class="sw sw-known" data-word="${esc(clean)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(w.trim())}" onclick="wordClick(event,this)">${w}</span>`;
+      return `<span class="sw" data-word="${esc(clean)}" onclick="wordClick(event,this)">${w}</span>`;
+    }).join('')+'</p>';
+  }).join('');
+}
+
+function wordClick(e, el) {
+  e.stopPropagation();
+  const word = el.dataset.word;
+  if(!word) return;
+  if(el.classList.contains('saved')) {
+    el.classList.remove('saved');
+    savedWords = savedWords.filter(x => x.it !== word);
+    progress.saved = progress.saved.filter(x => x.it !== word);
+    saveProgress(progress);
+    document.getElementById('savedCount').textContent = savedWords.length+' saved';
+    return;
+  }
+  if(!el.dataset.tr) { showTooltipNoTrans(e, word); return; }
+  showTooltip(e, el);
+  el.classList.add('saved');
+  if(!savedWords.find(x => x.it === word)) {
+    savedWords.push({it:el.dataset.it||word, ph:el.dataset.ph||'', tr:el.dataset.tr});
+    if(!progress.saved.find(x => x.it === word)) {
+      progress.saved.push({it:el.dataset.it||word, ph:el.dataset.ph||'', tr:el.dataset.tr});
+      saveProgress(progress);
+    }
+  }
+  document.getElementById('savedCount').textContent = savedWords.length+' saved';
+}
+
+function showTooltipNoTrans(e, word) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tipW').textContent = word;
+  document.getElementById('tipPh').textContent = '';
+  document.getElementById('tipTr').textContent = 'no translation added yet';
+  document.getElementById('tipAu').textContent = 'Add it in the content manager → Edit story → Vocabulary';
+  t.style.display = 'block';
+  positionTooltip(e);
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+function showTooltip(e, el) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tipW').textContent = el.dataset.it||el.dataset.word;
+  document.getElementById('tipPh').textContent = el.dataset.ph||'';
+  document.getElementById('tipTr').textContent = el.dataset.tr||'';
+  document.getElementById('tipAu').textContent = 'tap again to unsave';
+  t.style.display = 'block';
+  positionTooltip(e);
+  setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function positionTooltip(e) {
+  const t = document.getElementById('tooltip');
+  let x = e.clientX+12, y = e.clientY-85;
+  if(x+220 > window.innerWidth) x = e.clientX-225;
+  if(y < 5) y = e.clientY+22;
+  t.style.left = x+'px'; t.style.top = y+'px';
+}
+
+document.addEventListener('click', () => document.getElementById('tooltip').style.display = 'none');
+
+// ── AUDIO ──
+function togglePlay() {
+  const a = document.getElementById('audioEl');
+  if(!a.src||a.src==='about:blank'||a.src==='') { alert('No audio for this story yet. Add one via the content manager.'); return; }
+  if(a.paused) { a.play(); document.getElementById('playBtn').textContent='⏸'; }
+  else { a.pause(); document.getElementById('playBtn').textContent='▶'; }
+}
+function audioDur() { document.getElementById('dur').textContent = fmtTime(document.getElementById('audioEl').duration); }
+function audioTick() {
+  const a = document.getElementById('audioEl');
+  document.getElementById('elapsed').textContent = fmtTime(a.currentTime);
+  const pct = a.duration ? a.currentTime/a.duration : 0;
+  document.querySelectorAll('.wbar').forEach((b,i) => b.classList.toggle('p', i/40 < pct));
+}
+function audioEnded() { document.getElementById('playBtn').textContent = '▶'; }
+function seekAudio(e) {
+  const a = document.getElementById('audioEl');
+  if(!a.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  a.currentTime = ((e.clientX-rect.left)/rect.width) * a.duration;
+}
+function cycleSpeed() {
+  spdIdx = (spdIdx+1)%speeds.length;
+  document.getElementById('audioEl').playbackRate = speeds[spdIdx];
+  document.getElementById('spdBtn').textContent = speeds[spdIdx]+'×';
+}
+function fmtTime(s) {
+  if(!s||isNaN(s)) return '0:00';
+  return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+}
+function buildWaveform() {
+  const wf = document.getElementById('waveform');
+  wf.innerHTML = '';
+  for(let i=0;i<40;i++) {
+    const b = document.createElement('div');
+    b.className = 'wbar';
+    b.style.height = (8+Math.random()*20)+'px';
+    wf.appendChild(b);
+  }
+}
+
+// ── FLASHCARDS ──
+function renderFC() {
+  const deck = progress.saved || [];
+  const learned = progress.learned || 0;
+  document.getElementById('fcTotal').textContent = deck.length;
+  document.getElementById('fcLearned').textContent = learned;
+  document.getElementById('fcReview').textContent = Math.max(0, deck.length-learned);
+  const area = document.getElementById('fcArea');
+  if(deck.length === 0) {
+    area.innerHTML = '<div class="nodeck"><div class="ni">📖</div><p>No words yet. Start reading and tap words to save them to your deck.</p></div>';
+    return;
+  }
+  fcIdx = fcIdx%deck.length;
+  const card = deck[fcIdx];
+  area.innerHTML = `
+    <div class="fcard" onclick="revealFC()">
+      <div class="fcit">${card.it}</div>
+      <div class="fcph">${card.ph}</div>
+      <div class="fchi">Tap to reveal</div>
+      <div class="fctr" id="fcTr">${card.tr}</div>
+    </div>
+    <div class="fcbtns">
+      <button class="fcb wrong" onclick="nextFC(false)">✕ Not yet</button>
+      <button class="fcb right" onclick="nextFC(true)">✓ Got it</button>
+    </div>`;
+  fcRevealed = false;
+}
+function revealFC() {
+  if(!fcRevealed) {
+    fcRevealed = true;
+    document.getElementById('fcTr').style.display = 'block';
+    document.querySelector('.fchi').style.display = 'none';
+  }
+}
+function nextFC(ok) {
+  if(ok) { progress.learned = (progress.learned||0)+1; saveProgress(progress); }
+  fcIdx++;
+  renderFC();
+}
+
+// ── PODCASTS ──
+function renderPods() {
+  const list = document.getElementById('podList');
+  if(appData.podcasts.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="ei">🎙</div><p>No episodes yet. Add one via the content manager.</p></div>';
+    return;
+  }
+  list.innerHTML = appData.podcasts.map((p,i) => `
+    <div class="pitem">
+      <div class="pmain">
+        <div class="picon">🎙️</div>
+        <div class="pinfo">
+          <div class="ptitle">${p.title}</div>
+          <div class="pdesc">${p.description}</div>
+          <div class="pmeta2"><span class="badge bb">${p.level}</span><span style="font-size:11px;color:var(--muted)">${p.dur}</span></div>
+        </div>
+        <button class="ppbtn" onclick="playPod(${p.id})">▶</button>
+      </div>
+      <div class="ttoggle" onclick="toggleTranscript(${i})"><span>Read transcript</span><span id="tarr-${i}">▼</span></div>
+      <div class="tbody" id="tr-${i}">${(p.transcript||'No transcript yet.').replace(/\n/g,'<br>')}</div>
+    </div>`).join('');
+}
+function toggleTranscript(i) {
+  const b = document.getElementById('tr-'+i);
+  const a = document.getElementById('tarr-'+i);
+  b.classList.toggle('on');
+  a.textContent = b.classList.contains('on') ? '▲' : '▼';
+}
+function playPod(id) {
+  const p = appData.podcasts.find(x => x.id === id);
+  if(!p||!p.audio) { alert('No audio for this episode yet.'); return; }
+  const a = document.getElementById('audioEl');
+  a.src = p.audio; a.load(); a.play();
+  document.getElementById('playerTitle').textContent = p.title;
+  document.getElementById('playerLevel').textContent = 'Podcast · '+p.level;
+  document.getElementById('playBtn').textContent = '⏸';
+  nav('reader', null);
+  document.querySelectorAll('.nb')[0].classList.remove('on');
+  document.getElementById('storyText').innerHTML = '<p style="color:var(--muted);font-size:13px">Playing podcast. See transcript in the Podcasts tab.</p>';
+  document.getElementById('readerTitle').textContent = p.title;
+  buildWaveform();
+}
+
+// ── PROGRESS ──
+function renderProgress() {
+  document.getElementById('pgStreak').textContent = progress.streak||0;
+  document.getElementById('pgRead').textContent = progress.read.length;
+  document.getElementById('pgWords').textContent = progress.saved.length;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const maxW = Math.max(...(progress.week||[0,0,0,0,0,0,0]), 1);
+  document.getElementById('wkBars').innerHTML = days.map((d,i) => {
+    const v = progress.week[i]||0;
+    const h = Math.max(4, Math.round((v/maxW)*65));
+    return `<div class="daycol"><div class="daybar" style="height:${h}px"></div><div class="dayname">${d}</div></div>`;
+  }).join('');
+  const cats = ['stories','geo','fable','myth','culture'];
+  const labels = {stories:'Città',geo:'Parole',fable:'Leggende',myth:'Espressioni',culture:'Culture'};
+  const colors = {stories:'#52b788',geo:'#b5883e',fable:'#c1121f',myth:'#5a7ad4',culture:'#9b59b6'};
+  const catWords = {};
+  cats.forEach(c => { catWords[c] = 0; });
+  (progress.saved||[]).forEach(w => {
+    const story = appData.stories.find(s => (s.vocab||[]).some(v => v.it === w.it));
+    if(story && catWords[story.cat] !== undefined) catWords[story.cat]++;
+  });
+  const totalWords = (progress.saved||[]).length || 1;
+  document.getElementById('vocRows').innerHTML = cats.map(c => {
+    const n = catWords[c];
+    const pct = Math.round((n/totalWords)*100);
+    return `<div class="vprow">
+      <div class="vphead"><span>${labels[c]}</span><span>${n} words</span></div>
+      <div class="vptrack"><div class="vpfill" style="width:${pct}%;background:${colors[c]}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── ADMIN ──
+function openAdmin() {
+  if(!currentUser || currentUser.email !== ADMIN_EMAIL) {
+    alert('Admin access restricted.');
+    return;
+  }
+  document.getElementById('adminOverlay').classList.add('on');
+  renderStoryAdminList();
+  renderPodAdminList();
+}
+function closeAdmin() { document.getElementById('adminOverlay').classList.remove('on'); }
+function aTab(name, btn) {
+  document.getElementById('aStories').style.display = name==='stories' ? 'block' : 'none';
+  document.getElementById('aPodcasts').style.display = name==='podcasts' ? 'block' : 'none';
+  document.getElementById('aSettings').style.display = name==='settings' ? 'block' : 'none';
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+}
+
+// ── STORY ADMIN ──
+function renderStoryAdminList() {
+  const el = document.getElementById('storyList');
+  if(appData.stories.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No stories yet.</p>'; return; }
+  el.innerHTML = appData.stories.map(s => `
+    <div class="aitem">
+      <div class="aitem-info">
+        <div class="aitem-title">${s.title}</div>
+        <div class="aitem-meta">${s.level} · ${s.time} · ${(s.vocab||[]).length} vocab</div>
+      </div>
+      <button class="aitem-edit" onclick="editStory(${s.id})">Edit</button>
+      <button class="aitem-del" onclick="deleteStory(${s.id})">Delete</button>
+    </div>`).join('');
+}
+
+function showAddStory() {
+  editingStoryId = null;
+  ['editId','fTitle','fTime','fEmoji','fAudio','fText'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCat').value = 'stories';
+  document.getElementById('fLevel').value = 'A2';
+  document.getElementById('vocabRows').innerHTML = '';
+  document.getElementById('storyForm').style.display = 'block';
+  document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
+}
+
+function editStory(id) {
+  const s = appData.stories.find(x => x.id === id);
+  if(!s) return;
+  editingStoryId = id;
+  document.getElementById('editId').value = id;
+  document.getElementById('fTitle').value = s.title;
+  document.getElementById('fCat').value = s.cat;
+  document.getElementById('fLevel').value = s.level;
+  document.getElementById('fTime').value = s.time;
+  document.getElementById('fEmoji').value = s.emoji||'';
+  document.getElementById('fAudio').value = s.audio||'';
+  document.getElementById('fText').value = s.text||'';
+  const rows = document.getElementById('vocabRows');
+  rows.innerHTML = '';
+  (s.vocab||[]).forEach(v => addVocabRow(v));
+  document.getElementById('storyForm').style.display = 'block';
+  document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
+}
+
+function addVocabRow(v) {
+  const row = document.createElement('div');
+  row.className = 'vocab-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Italian word" value="${v?v.it:''}" class="vit">
+    <input type="text" placeholder="Phonetic" value="${v?v.ph:''}" class="vph">
+    <input type="text" placeholder="English" value="${v?v.tr:''}" class="vtr">
+    <button class="vocab-del" onclick="this.parentNode.remove()">×</button>`;
+  document.getElementById('vocabRows').appendChild(row);
+}
+
+function scanBtnShow() { document.getElementById('scanBtn').style.display = 'inline-block'; }
+
+function scanTextForWords() {
+  const text = document.getElementById('fText').value;
+  const words = [...new Set(text.replace(/[.,!?;"'\n]/g,' ').split(/\s+/).filter(w => w.length>2))];
+  document.getElementById('vocabRows').innerHTML = '';
+  words.forEach(w => addVocabRow({it:w,ph:'',tr:''}));
+}
+
+async function saveStory() {
+  if(!sb) return;
+  const title = document.getElementById('fTitle').value.trim();
+  if(!title) { alert('Please add a title.'); return; }
+  const vocabRows = document.querySelectorAll('#vocabRows .vocab-row');
+  const vocab = [];
+  vocabRows.forEach(row => {
+    const it = row.querySelector('.vit').value.trim();
+    const ph = row.querySelector('.vph').value.trim();
+    const tr = row.querySelector('.vtr').value.trim();
+    if(it) vocab.push({it,ph,tr});
+  });
+  const story = {
+    cat: document.getElementById('fCat').value,
+    emoji: document.getElementById('fEmoji').value.trim()||'📖',
+    title,
+    level: document.getElementById('fLevel').value,
+    time: document.getElementById('fTime').value.trim(),
+    audio: document.getElementById('fAudio').value.trim(),
+    text: document.getElementById('fText').value,
+    vocab
+  };
+  if(editingStoryId) {
+    const { error } = await sb.from('stories').update(story).eq('id', editingStoryId);
+    if(error) { alert('Save failed: '+error.message); return; }
+    const idx = appData.stories.findIndex(x => x.id === editingStoryId);
+    if(idx >= 0) appData.stories[idx] = {...appData.stories[idx], ...story};
+  } else {
+    const { data, error } = await sb.from('stories').insert(story).select().single();
+    if(error) { alert('Save failed: '+error.message); return; }
+    appData.stories.unshift(data);
+  }
+  cancelForm();
+  renderStoryAdminList();
+  renderLibrary();
+}
+
+async function deleteStory(id) {
+  if(!confirm('Delete this story?')) return;
+  const { error } = await sb.from('stories').delete().eq('id', id);
+  if(error) { alert('Delete failed: '+error.message); return; }
+  appData.stories = appData.stories.filter(x => x.id !== id);
+  renderStoryAdminList();
+  renderLibrary();
+}
+
+function cancelForm() {
+  document.getElementById('storyForm').style.display = 'none';
+  editingStoryId = null;
+}
+
+// ── PODCAST ADMIN ──
+function renderPodAdminList() {
+  const el = document.getElementById('podAdminList');
+  if(appData.podcasts.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No episodes yet.</p>'; return; }
+  el.innerHTML = appData.podcasts.map(p => `
+    <div class="aitem">
+      <div class="aitem-info">
+        <div class="aitem-title">${p.title}</div>
+        <div class="aitem-meta">${p.level} · ${p.dur} ${p.audio?'· ✓ audio':''}</div>
+      </div>
+      <button class="aitem-edit" onclick="editPod(${p.id})">Edit</button>
+      <button class="aitem-del" onclick="deletePod(${p.id})">Delete</button>
+    </div>`).join('');
+}
+
+function showAddPod() {
+  editingPodId = null;
+  ['peditId','pTitle','pDesc','pDur','pAudio','pTranscript'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pLevel').value = 'B1';
+  document.getElementById('podForm').style.display = 'block';
+  document.getElementById('podForm').scrollIntoView({behavior:'smooth'});
+}
+
+function editPod(id) {
+  const p = appData.podcasts.find(x => x.id === id);
+  if(!p) return;
+  editingPodId = id;
+  document.getElementById('peditId').value = id;
+  document.getElementById('pTitle').value = p.title;
+  document.getElementById('pDesc').value = p.description;
+  document.getElementById('pLevel').value = p.level;
+  document.getElementById('pDur').value = p.dur;
+  document.getElementById('pAudio').value = p.audio||'';
+  document.getElementById('pTranscript').value = p.transcript||'';
+  document.getElementById('podForm').style.display = 'block';
+  document.getElementById('podForm').scrollIntoView({behavior:'smooth'});
+}
+
+async function savePod() {
+  if(!sb) return;
+  const title = document.getElementById('pTitle').value.trim();
+  if(!title) { alert('Please add a title.'); return; }
+  const ep = {
+    title,
+    description: document.getElementById('pDesc').value.trim(),
+    level: document.getElementById('pLevel').value,
+    dur: document.getElementById('pDur').value.trim(),
+    audio: document.getElementById('pAudio').value.trim(),
+    transcript: document.getElementById('pTranscript').value
+  };
+  if(editingPodId) {
+    const { error } = await sb.from('podcasts').update(ep).eq('id', editingPodId);
+    if(error) { alert('Save failed: '+error.message); return; }
+    const idx = appData.podcasts.findIndex(x => x.id === editingPodId);
+    if(idx >= 0) appData.podcasts[idx] = {...appData.podcasts[idx], ...ep};
+  } else {
+    const { data, error } = await sb.from('podcasts').insert(ep).select().single();
+    if(error) { alert('Save failed: '+error.message); return; }
+    appData.podcasts.unshift(data);
+  }
+  cancelPodForm();
+  renderPodAdminList();
+  renderPods();
+}
+
+async function deletePod(id) {
+  if(!confirm('Delete this episode?')) return;
+  const { error } = await sb.from('podcasts').delete().eq('id', id);
+  if(error) { alert('Delete failed: '+error.message); return; }
+  appData.podcasts = appData.podcasts.filter(x => x.id !== id);
+  renderPodAdminList();
+  renderPods();
+}
+
+function cancelPodForm() {
+  document.getElementById('podForm').style.display = 'none';
+  editingPodId = null;
+}
+
+// ── SETTINGS / EXPORT / IMPORT ──
+function exportData() {
+  const blob = new Blob([JSON.stringify(appData,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'storyclub-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+async function importData(e) {
+  if(!sb) return;
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = async ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if(d.stories && d.podcasts) {
+        if(confirm('This will add all stories and podcasts from the backup to Supabase. Continue?')) {
+          for(const s of d.stories) {
+            const {id, ...rest} = s;
+            await sb.from('stories').insert(rest);
+          }
+          for(const p of d.podcasts) {
+            const {id, ...rest} = p;
+            await sb.from('podcasts').insert(rest);
+          }
+          await loadFromSupabase();
+          renderStoryAdminList();
+          renderPodAdminList();
+          renderLibrary();
+          alert('Content imported successfully.');
+        }
+      } else { alert('Invalid backup file.'); }
+    } catch(err) { alert('Could not read file.'); }
+  };
+  r.readAsText(file);
+}
+
+// ── INIT: check session ──
+(async function init() {
+  if(!isConfigured) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) {
+    await onLogin(session.user);
+  }
+  // Listen for auth changes
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'SIGNED_IN' && session) await onLogin(session.user);
+    if(event === 'SIGNED_OUT') {
+      document.getElementById('app').classList.remove('on');
+      document.getElementById('authScreen').style.display = 'flex';
+    }
+  });
+})();
+
+// Secret admin shortcut: hold Shift and type LA
+(function(){
+  let seq = '';
+  document.addEventListener('keydown', function(e) {
+    if(e.shiftKey && (e.key==='L'||e.key==='A')) {
+      seq += e.key;
+      if(seq.length > 2) seq = seq.slice(-2);
+      if(seq === 'LA') openAdmin();
+    } else { seq = ''; }
+  });
+})();
+</script>
+</body>
+</html>
