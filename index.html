@@ -466,15 +466,11 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
             <input type="url" id="fAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/story.mp3">
             <div class="atip">Upload MP3 in WordPress → Media → copy URL → paste here</div>
           </div>
-          <div class="afield"><label>Story text</label><textarea id="fText" oninput="scanBtnShow()"></textarea></div>
+          <div class="afield"><label>Story text</label><textarea id="fText" ></textarea></div>
           <div class="afield">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <label style="margin:0">Vocabulary translations</label>
-              <button class="asecondary" id="scanBtn" onclick="scanTextForWords()" style="display:none;padding:5px 11px;font-size:11px">⟳ Scan text</button>
-            </div>
-            <div class="atip" style="margin-bottom:8px">Scan your story to auto-fill words, then add phonetics and English translation for each.</div>
-            <div id="vocabRows"></div>
-            <button class="add-vocab-btn" onclick="addVocabRow()">+ Add word manually</button>
+            <label>Vocabulary</label>
+            <div class="atip" style="margin-bottom:8px">One word per line, format: <strong>italian word | english translation</strong><br>Example: rione | neighborhood, district</div>
+            <textarea id="vocabText" placeholder="rione | neighborhood, district&#10;affacciarsi | to lean out of a window&#10;vale la pena | it's worth it" style="min-height:120px;font-family:monospace;font-size:13px"></textarea>
           </div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelForm()">Cancel</button>
@@ -1049,7 +1045,7 @@ function showAddStory() {
   ['editId','fTitle','fTime','fEmoji','fAudio','fText'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fCat').value = 'stories';
   document.getElementById('fLevel').value = 'A2';
-  document.getElementById('vocabRows').innerHTML = '';
+  document.getElementById('vocabText').value = '';
   document.getElementById('storyForm').style.display = 'block';
   document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
 }
@@ -1066,45 +1062,27 @@ function editStory(id) {
   document.getElementById('fEmoji').value = s.emoji||'';
   document.getElementById('fAudio').value = s.audio||'';
   document.getElementById('fText').value = s.text||'';
-  const rows = document.getElementById('vocabRows');
-  rows.innerHTML = '';
-  (s.vocab||[]).forEach(v => addVocabRow(v));
+  document.getElementById('vocabText').value = (s.vocab||[]).map(v => v.it + ' | ' + v.tr).join('\n');
   document.getElementById('storyForm').style.display = 'block';
   document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
 }
 
-function addVocabRow(v) {
-  const row = document.createElement('div');
-  row.className = 'vocab-row';
-  row.innerHTML = `
-    <input type="text" placeholder="Italian word" value="${v?v.it:''}" class="vit">
-    <input type="text" placeholder="Phonetic" value="${v?v.ph:''}" class="vph">
-    <input type="text" placeholder="English" value="${v?v.tr:''}" class="vtr">
-    <button class="vocab-del" onclick="this.parentNode.remove()">×</button>`;
-  document.getElementById('vocabRows').appendChild(row);
-}
 
-function scanBtnShow() { document.getElementById('scanBtn').style.display = 'inline-block'; }
 
-function scanTextForWords() {
-  const text = document.getElementById('fText').value;
-  const words = [...new Set(text.replace(/[.,!?;"'\n]/g,' ').split(/\s+/).filter(w => w.length>2))];
-  document.getElementById('vocabRows').innerHTML = '';
-  words.forEach(w => addVocabRow({it:w,ph:'',tr:''}));
-}
 
 async function saveStory() {
   if(!sb) return;
   const title = document.getElementById('fTitle').value.trim();
   if(!title) { alert('Please add a title.'); return; }
-  const vocabRows = document.querySelectorAll('#vocabRows .vocab-row');
-  const vocab = [];
-  vocabRows.forEach(row => {
-    const it = row.querySelector('.vit').value.trim();
-    const ph = row.querySelector('.vph').value.trim();
-    const tr = row.querySelector('.vtr').value.trim();
-    if(it) vocab.push({it,ph,tr});
-  });
+  const vocab = document.getElementById('vocabText').value
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.includes('|'))
+    .map(line => {
+      const [it, tr] = line.split('|').map(s => s.trim());
+      return it && tr ? {it, ph:'', tr} : null;
+    })
+    .filter(Boolean);
   const story = {
     cat: document.getElementById('fCat').value,
     emoji: document.getElementById('fEmoji').value.trim()||'📖',
