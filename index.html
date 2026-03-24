@@ -277,6 +277,26 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 
 /* ── USER BADGE ── */
 .user-email{font-size:10px;color:rgba(255,255,255,.6);text-align:right;padding:0 20px 8px;margin-top:-8px}
+/* ── ACCOUNT MODAL ── */
+.acct-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center}
+.acct-overlay.on{display:flex}
+.acct-box{background:#fff;border-radius:16px;padding:28px 24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.acct-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--green);margin-bottom:6px}
+.acct-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
+.acct-field{margin-bottom:14px}
+.acct-field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.acct-field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box}
+.acct-field input:focus{outline:none;border-color:var(--green)}
+.acct-actions{display:flex;gap:10px;margin-top:6px}
+.acct-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.acct-btn.primary{background:var(--green);color:#fff}
+.acct-btn.primary:hover{background:#235c43}
+.acct-btn.primary:disabled{opacity:.6;cursor:not-allowed}
+.acct-btn.secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.acct-btn.secondary:hover{background:#eee}
+.acct-msg{font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+.acct-msg.ok{color:var(--green)}
+.acct-msg.err{color:var(--red)}
 </style>
 </head>
 <body>
@@ -293,6 +313,31 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <input class="url-field" readonly value="const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'">
     <p><strong>Step 4:</strong> Run the SQL below in your Supabase SQL Editor to create the required tables.</p>
     <button class="setup-close" onclick="document.getElementById('setupNotice').classList.remove('on')">Got it, I'll set it up</button>
+  </div>
+</div>
+
+<!-- ═══ ACCOUNT MODAL ═══ -->
+<div class="acct-overlay" id="acctOverlay" onclick="if(event.target===this) closeAccount()">
+  <div class="acct-box">
+    <div class="acct-title">Your account</div>
+    <div class="acct-sub">Logged in as</div>
+    <div class="acct-field">
+      <label>Email</label>
+      <input type="email" id="acctEmail" readonly tabindex="-1" style="background:var(--bg);color:var(--muted);cursor:default">
+    </div>
+    <div class="acct-field">
+      <label>New password</label>
+      <input type="password" id="acctPw1" placeholder="At least 6 characters" autocomplete="new-password">
+    </div>
+    <div class="acct-field">
+      <label>Confirm new password</label>
+      <input type="password" id="acctPw2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter') doChangePassword()">
+    </div>
+    <div class="acct-actions">
+      <button class="acct-btn secondary" onclick="closeAccount()">Cancel</button>
+      <button class="acct-btn primary" id="acctBtn" onclick="doChangePassword()">Update password</button>
+    </div>
+    <div class="acct-msg" id="acctMsg"></div>
   </div>
 </div>
 
@@ -324,6 +369,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       <div class="logo">Speak Italian<span>: Story Club</span></div>
       <div class="hdr-right">
         <div class="streak">🔥 <span id="streakNum">0</span></div>
+        <button class="logout-btn" onclick="openAccount()">Account</button>
         <button class="logout-btn" onclick="doLogout()">Sign out</button>
       </div>
     </div>
@@ -615,6 +661,36 @@ async function doLogout() {
   currentUser = null;
   document.getElementById('app').classList.remove('on');
   document.getElementById('authScreen').style.display = 'flex';
+}
+
+// ── ACCOUNT MODAL ──
+function openAccount() {
+  document.getElementById('acctEmail').value = currentUser ? currentUser.email : '';
+  document.getElementById('acctPw1').value = '';
+  document.getElementById('acctPw2').value = '';
+  document.getElementById('acctMsg').textContent = '';
+  document.getElementById('acctMsg').className = 'acct-msg';
+  document.getElementById('acctOverlay').classList.add('on');
+  setTimeout(() => document.getElementById('acctPw1').focus(), 100);
+}
+function closeAccount() {
+  document.getElementById('acctOverlay').classList.remove('on');
+}
+async function doChangePassword() {
+  const pw1 = document.getElementById('acctPw1').value;
+  const pw2 = document.getElementById('acctPw2').value;
+  const btn = document.getElementById('acctBtn');
+  const msg = document.getElementById('acctMsg');
+  if(!pw1 || pw1.length < 6) { msg.className='acct-msg err'; msg.textContent='Password must be at least 6 characters.'; return; }
+  if(pw1 !== pw2) { msg.className='acct-msg err'; msg.textContent='Passwords do not match.'; return; }
+  btn.disabled = true; btn.textContent = 'Updating...'; msg.textContent = '';
+  const { error } = await sb.auth.updateUser({ password: pw1 });
+  btn.disabled = false; btn.textContent = 'Update password';
+  if(error) { msg.className='acct-msg err'; msg.textContent = error.message; return; }
+  msg.className='acct-msg ok'; msg.textContent = 'Password updated successfully.';
+  document.getElementById('acctPw1').value = '';
+  document.getElementById('acctPw2').value = '';
+  setTimeout(() => closeAccount(), 2000);
 }
 
 // ── ON LOGIN ──
