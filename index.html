@@ -778,19 +778,45 @@ function renderStoryText(s) {
     vocabMap[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
     transCache[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
   });
+  // Sort vocab keys longest first so multi-word phrases match before single words
+  const vocabKeys = Object.keys(vocabMap).sort((a,b) => b.length - a.length);
+
+  function annotatePara(para) {
+    if(!para.trim()) return '<br>';
+    let result = '';
+    let i = 0;
+    const lower = para.toLowerCase();
+    while(i < para.length) {
+      let matched = false;
+      for(const key of vocabKeys) {
+        if(lower.startsWith(key, i)) {
+          const original = para.slice(i, i + key.length);
+          const v = vocabMap[key];
+          result += `<span class="sw sw-known" data-word="${esc(key)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(original)}" onclick="wordClick(event,this)">${original}</span>`;
+          i += key.length;
+          matched = true;
+          break;
+        }
+      }
+      if(!matched) {
+        const wordMatch = para.slice(i).match(/^([a-zA-ZÀ-ÿ]+)/);
+        if(wordMatch) {
+          const w = wordMatch[1];
+          const clean = w.toLowerCase();
+          result += `<span class="sw" data-word="${esc(clean)}" onclick="wordClick(event,this)">${w}</span>`;
+          i += w.length;
+        } else {
+          result += para[i];
+          i++;
+        }
+      }
+    }
+    return '<p style="margin-bottom:10px">' + result + '</p>';
+  }
+
   const paras = (s.text||'').split('\n');
   const el = document.getElementById('storyText');
-  el.innerHTML = paras.map(para => {
-    if(!para.trim()) return '<br>';
-    const words = para.split(/(\s+|(?=[.,!?;"'\u2019])|(?<=[.,!?;"'\u2019]))/);
-    return '<p style="margin-bottom:10px">'+words.map(w => {
-      const clean = w.replace(/[.,!?;"'\u2019\u2018]/g,'').toLowerCase();
-      if(!clean||!w.trim()) return w;
-      const v = vocabMap[clean];
-      if(v) return `<span class="sw sw-known" data-word="${esc(clean)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(w.trim())}" onclick="wordClick(event,this)">${w}</span>`;
-      return `<span class="sw" data-word="${esc(clean)}" onclick="wordClick(event,this)">${w}</span>`;
-    }).join('')+'</p>';
-  }).join('');
+  el.innerHTML = paras.map(para => annotatePara(para)).join('');
 }
 
 function wordClick(e, el) {
