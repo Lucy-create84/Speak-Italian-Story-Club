@@ -396,6 +396,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       <div class="plbl" id="libLabel">0 / 0 read</div>
     </div>
     <div class="pills" id="catPills"></div>
+    <div class="pills" id="levelPills" style="margin-top:-8px;margin-bottom:14px"></div>
     <div class="cgrid" id="cardGrid"></div>
   </div>
 
@@ -634,6 +635,7 @@ let currentUser = null;
 let appData = { stories: [], podcasts: [] };
 let progress = { read:[], saved:[], learned:0, streak:0, lastDate:'', week:[0,0,0,0,0,0,0], passwordChanged:false };
 let currentCat = 'all';
+let currentLevel = 'all';
 let currentStory = null;
 let savedWords = [];
 let showTrans = true;
@@ -786,7 +788,16 @@ function renderLibrary() {
   const container = document.getElementById('catPills');
   container.innerHTML = cats.filter(c => c === 'all' || appData.stories.some(s => s.cat === c))
     .map(c => `<button class="pill${currentCat===c?' on':''}" onclick="filterCat('${c}',this)">${labels[c]}</button>`).join('');
-  const filtered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
+  // Level pills — only show levels that exist in current stories
+  const levels = ['all','A1','A2','B1','B2','C1','C2'];
+  const levelLabels = {all:'All levels',A1:'A1',A2:'A2',B1:'B1',B2:'B2',C1:'C1',C2:'C2'};
+  const levelContainer = document.getElementById('levelPills');
+  const availableLevels = levels.filter(l => l === 'all' || appData.stories.some(s => s.level === l));
+  levelContainer.style.display = availableLevels.length <= 1 ? 'none' : 'flex';
+  levelContainer.innerHTML = availableLevels
+    .map(l => `<button class="pill level-pill${currentLevel===l?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterLevel('${l}',this)">${levelLabels[l]}</button>`).join('');
+  let filtered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
+  if(currentLevel !== 'all') filtered = filtered.filter(s => s.level === currentLevel);
   const total = appData.stories.length;
   const readCount = progress.read.length;
   document.getElementById('libProgress').style.width = total > 0 ? (readCount/total*100)+'%' : '0%';
@@ -815,7 +826,14 @@ function renderLibrary() {
 
 function filterCat(c, el) {
   currentCat = c;
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('#catPills .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderLibrary();
+}
+
+function filterLevel(l, el) {
+  currentLevel = l;
+  document.querySelectorAll('#levelPills .pill').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   renderLibrary();
 }
