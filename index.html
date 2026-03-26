@@ -380,7 +380,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <div class="nav">
       <button class="nb on" onclick="nav('library',this)">Library</button>
       <button class="nb" onclick="nav('flashcards',this)">Flashcards</button>
-      <button class="nb" onclick="nav('podcasts',this)">Podcasts</button>
+      <button class="nb" onclick="nav('podcasts',this)">Dialoghi</button>
       <button class="nb" onclick="nav('progress',this)">Progress</button>
     </div>
   </div>
@@ -444,11 +444,11 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <div id="fcArea"></div>
   </div>
 
-  <!-- PODCASTS -->
+  <!-- DIALOGHI -->
   <div class="scr" id="scr-podcasts">
     <div style="margin:4px 0 14px">
-      <div class="stitle">Podcasts</div>
-      <div class="ssub">Audio first. Transcripts included.</div>
+      <div class="stitle">Dialoghi</div>
+      <div class="ssub">Real conversations. Listen, read, learn.</div>
     </div>
     <div class="plist" id="podList"></div>
   </div>
@@ -483,7 +483,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       </div>
       <div class="admin-tabs">
         <button class="atab on" id="atab-stories" onclick="aTab('stories',this)">Stories</button>
-        <button class="atab" onclick="aTab('podcasts',this)">Podcasts</button>
+        <button class="atab" onclick="aTab('podcasts',this)">Dialoghi</button>
         <button class="atab" onclick="aTab('settings',this)">Settings</button>
       </div>
       <!-- STORIES TAB -->
@@ -528,30 +528,30 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
           </div>
         </div>
       </div>
-      <!-- PODCASTS TAB -->
+      <!-- DIALOGHI TAB -->
       <div id="aPodcasts" class="admin-body" style="display:none">
-        <div class="anotice"><strong>Audio tip:</strong> For podcast episodes, copy the episode link from Spotify for Creators and paste it below. For story audio, upload your MP3 to Supabase Storage and paste the public URL.</div>
+        <div class="anotice"><strong>Audio tip:</strong> Upload your MP3 to Supabase Storage and paste the public URL in the Audio URL field below.</div>
         <div class="alist" id="podAdminList"></div>
-        <button class="aprimary" onclick="showAddPod()">+ Add new episode</button>
+        <button class="aprimary" onclick="showAddPod()">+ Add new dialogo</button>
         <div id="podForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
           <input type="hidden" id="peditId">
-          <div class="afield"><label>Episode title</label><input type="text" id="pTitle"></div>
-          <div class="afield"><label>Short description</label><input type="text" id="pDesc"></div>
+          <div class="afield"><label>Title</label><input type="text" id="pTitle" placeholder="Al bar — ordering a coffee"></div>
+          <div class="afield"><label>Short description</label><input type="text" id="pDesc" placeholder="Marco and Sara order at a Naples café"></div>
           <div class="arow">
-            <div class="afield"><label>Level</label><select id="pLevel"><option value="A2">A2</option><option value="B1" selected>B1</option><option value="B2">B2</option></select></div>
-            <div class="afield"><label>Duration</label><input type="text" id="pDur" placeholder="18 min"></div>
+            <div class="afield"><label>Level</label><select id="pLevel"><option value="A1">A1</option><option value="A2">A2</option><option value="B1" selected>B1</option><option value="B2">B2</option></select></div>
+            <div class="afield"><label>Duration</label><input type="text" id="pDur" placeholder="5 min"></div>
           </div>
-          <div class="afield"><label>Audio URL</label><input type="url" id="pAudio"></div>
-          <div class="afield"><label>Transcript</label><textarea id="pTranscript"></textarea></div>
+          <div class="afield"><label>Audio URL</label><input type="url" id="pAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/dialogo.mp3"></div>
+          <div class="afield"><label>Transcript</label><textarea id="pTranscript" placeholder="Marco: Buongiorno! Vorrei un caffè, per favore.&#10;Sara: Anche per me, grazie."></textarea></div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelPodForm()">Cancel</button>
-            <button class="aprimary" onclick="savePod()">Save episode</button>
+            <button class="aprimary" onclick="savePod()">Save dialogo</button>
           </div>
         </div>
       </div>
       <!-- SETTINGS TAB -->
       <div id="aSettings" class="admin-body" style="display:none">
-        <div class="anotice">You are logged in as admin. Stories and podcasts you add here appear instantly for all subscribers.</div>
+        <div class="anotice">You are logged in as admin. Stories and dialogues you add here appear instantly for all subscribers.</div>
         <div class="afield">
           <label>Export all content (backup)</label>
           <button class="asecondary" onclick="exportData()">Download JSON backup</button>
@@ -1067,13 +1067,13 @@ function nextFC(ok) {
 function renderPods() {
   const list = document.getElementById('podList');
   if(appData.podcasts.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="ei">🎙</div><p>No episodes yet. Add one via the content manager.</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="ei">💬</div><p>No dialogues yet. Add one via the content manager.</p></div>';
     return;
   }
   list.innerHTML = appData.podcasts.map((p,i) => `
     <div class="pitem">
       <div class="pmain">
-        <div class="picon">🎙️</div>
+        <div class="picon">💬</div>
         <div class="pinfo">
           <div class="ptitle">${p.title}</div>
           <div class="pdesc">${p.description}</div>
@@ -1081,7 +1081,7 @@ function renderPods() {
         </div>
         <button class="ppbtn" onclick="playPod(${p.id})">▶</button>
       </div>
-      <div class="ttoggle" onclick="toggleTranscript(${i})"><span>Read transcript</span><span id="tarr-${i}">▼</span></div>
+      <div class="ttoggle" onclick="toggleTranscript(${i})"><span>Read dialogue</span><span id="tarr-${i}">▼</span></div>
       <div class="tbody" id="tr-${i}">${(p.transcript||'No transcript yet.').replace(/\n/g,'<br>')}</div>
     </div>`).join('');
 }
@@ -1097,7 +1097,7 @@ function playPod(id) {
   const a = document.getElementById('audioEl');
   a.src = p.audio; a.load(); a.play();
   document.getElementById('playerTitle').textContent = p.title;
-  document.getElementById('playerLevel').textContent = 'Podcast · '+p.level;
+  document.getElementById('playerLevel').textContent = 'Dialogo · '+p.level;
   document.getElementById('playBtn').textContent = '⏸';
   nav('reader', null);
   document.querySelectorAll('.nb')[0].classList.remove('on');
