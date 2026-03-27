@@ -602,7 +602,7 @@ const ADMIN_EMAIL = 'cookitalia@gmail.com';
 //   user_id uuid references auth.users not null,
 //   read_ids jsonb default '[]',
 //   saved_words jsonb default '[]',
-//   learned int default 0,
+//   learned jsonb default '[]',
 //   streak int default 0,
 //   last_date text default '',
 //   week jsonb default '[0,0,0,0,0,0,0]',
@@ -633,7 +633,7 @@ const sb = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 // ── STATE ──
 let currentUser = null;
 let appData = { stories: [], podcasts: [] };
-let progress = { read:[], saved:[], learned:0, streak:0, lastDate:'', week:[0,0,0,0,0,0,0], passwordChanged:false };
+let progress = { read:[], saved:[], learned:[], streak:0, lastDate:'', week:[0,0,0,0,0,0,0], passwordChanged:false };
 let currentCat = 'all';
 let currentLevel = 'all';
 let currentStory = null;
@@ -738,7 +738,7 @@ async function loadProgressFromSupabase() {
     progress = {
       read: data.read_ids || [],
       saved: data.saved_words || [],
-      learned: data.learned || 0,
+      learned: Array.isArray(data.learned) ? data.learned : [],
       streak: data.streak || 0,
       lastDate: data.last_date || '',
       week: data.week || [0,0,0,0,0,0,0],
@@ -760,7 +760,7 @@ async function syncProgressToSupabase() {
     user_id: currentUser.id,
     read_ids: progress.read,
     saved_words: progress.saved,
-    learned: progress.learned,
+    learned: progress.learned || [],
     streak: progress.streak,
     last_date: progress.lastDate,
     week: progress.week,
@@ -1026,27 +1026,34 @@ function buildWaveform() {
 // ── FLASHCARDS ──
 function renderFC() {
   const deck = progress.saved || [];
-  const learned = progress.learned || 0;
+  const learned = progress.learned || [];
   document.getElementById('fcTotal').textContent = deck.length;
-  document.getElementById('fcLearned').textContent = learned;
-  document.getElementById('fcReview').textContent = Math.max(0, deck.length-learned);
+  document.getElementById('fcLearned').textContent = learned.length;
+  document.getElementById('fcReview').textContent = Math.max(0, deck.length - learned.length);
   const area = document.getElementById('fcArea');
   if(deck.length === 0) {
     area.innerHTML = '<div class="nodeck"><div class="ni">📖</div><p>No words yet. Start reading and tap words to save them to your deck.</p></div>';
     return;
   }
-  fcIdx = fcIdx%deck.length;
+  fcIdx = ((fcIdx % deck.length) + deck.length) % deck.length;
   const card = deck[fcIdx];
+  const isLearned = learned.includes(card.it);
   area.innerHTML = `
-    <div class="fcard" onclick="revealFC()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <button onclick="prevFC()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:13px;color:var(--text);cursor:pointer">← Prev</button>
+      <span style="font-size:12px;color:var(--muted)">${fcIdx+1} / ${deck.length}</span>
+      <button onclick="nextFC(null)" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:13px;color:var(--text);cursor:pointer">Next →</button>
+    </div>
+    <div class="fcard" onclick="revealFC()" style="${isLearned ? 'border-color:var(--green-m)' : ''}">
+      ${isLearned ? '<div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--green);font-weight:500">✓ learned</div>' : ''}
       <div class="fcit">${card.it}</div>
-      <div class="fcph">${card.ph}</div>
-      <div class="fchi">Tap to reveal</div>
+      <div class="fcph">${card.ph || ''}</div>
+      <div class="fchi" id="fchi">Tap to reveal</div>
       <div class="fctr" id="fcTr">${card.tr}</div>
     </div>
     <div class="fcbtns">
-      <button class="fcb wrong" onclick="nextFC(false)">✕ Not yet</button>
-      <button class="fcb right" onclick="nextFC(true)">✓ Got it</button>
+      <button class="fcb wrong" onclick="markFC(false)">✕ Not yet</button>
+      <button class="fcb right" onclick="markFC(true)">✓ Got it</button>
     </div>`;
   fcRevealed = false;
 }
@@ -1054,11 +1061,31 @@ function revealFC() {
   if(!fcRevealed) {
     fcRevealed = true;
     document.getElementById('fcTr').style.display = 'block';
-    document.querySelector('.fchi').style.display = 'none';
+    document.getElementById('fchi').style.display = 'none';
   }
 }
+function prevFC() {
+  fcIdx--;
+  renderFC();
+}
 function nextFC(ok) {
-  if(ok) { progress.learned = (progress.learned||0)+1; saveProgress(progress); }
+  fcIdx++;
+  renderFC();
+}
+function markFC(ok) {
+  const deck = progress.saved || [];
+  if(!deck.length) return;
+  fcIdx = ((fcIdx % deck.length) + deck.length) % deck.length;
+  const card = deck[fcIdx];
+  if(!progress.learned) progress.learned = [];
+  if(ok) {
+    if(!progress.learned.includes(card.it)) {
+      progress.learned.push(card.it);
+    }
+  } else {
+    progress.learned = progress.learned.filter(w => w !== card.it);
+  }
+  saveProgress(progress);
   fcIdx++;
   renderFC();
 }
