@@ -1099,11 +1099,26 @@ function playPod(id) {
   document.getElementById('playerTitle').textContent = p.title;
   document.getElementById('playerLevel').textContent = 'Dialogo · '+p.level;
   document.getElementById('playBtn').textContent = '⏸';
-  nav('reader', null);
-  document.querySelectorAll('.nb')[0].classList.remove('on');
-  document.getElementById('storyText').innerHTML = '<p style="color:var(--muted);font-size:13px">Playing podcast. See transcript in the Podcasts tab.</p>';
   document.getElementById('readerTitle').textContent = p.title;
   buildWaveform();
+  const transcript = (p.transcript||'').trim();
+  if(transcript) {
+    const lines = transcript.split('\n');
+    document.getElementById('storyText').innerHTML = lines.map(line => {
+      if(!line.trim()) return '';
+      const speakerMatch = line.match(/^([^:]+):\s*(.*)/);
+      if(speakerMatch) {
+        return '<p style="margin-bottom:12px"><span style="font-family:\'Playfair Display\',serif;font-weight:600;color:var(--green);font-size:13px">' + speakerMatch[1] + ':</span> ' + speakerMatch[2] + '</p>';
+      }
+      return '<p style="margin-bottom:12px">' + line + '</p>';
+    }).join('');
+  } else {
+    document.getElementById('storyText').innerHTML = '<p style="color:var(--muted);font-size:13px">No transcript added yet.</p>';
+  }
+  document.querySelector('.tbar').style.display = 'none';
+  document.querySelector('.savebar').style.display = 'none';
+  nav('reader', null);
+  document.querySelectorAll('.nb')[0].classList.remove('on');
 }
 
 // ── PROGRESS ──
