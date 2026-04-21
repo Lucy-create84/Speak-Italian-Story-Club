@@ -114,6 +114,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .cthumb.fable{background:linear-gradient(135deg,#fce8e9,#f9cdd0)}
 .cthumb.myth{background:linear-gradient(135deg,#e8edf8,#cdd6f0)}
 .cthumb.culture{background:linear-gradient(135deg,#f3e8f8,#e4c8f0)}
+.cthumb.sapori{background:linear-gradient(135deg,#fff3e0,#ffe0b2)}
+.cthumb.luoghi{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
 .cbody{padding:11px 13px}
 .ccat{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
 .ctitle{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:5px;line-height:1.3}
@@ -396,6 +398,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       <div class="plbl" id="libLabel">0 / 0 read</div>
     </div>
     <div class="pills" id="catPills"></div>
+    <div class="pills" id="regionPills" style="margin-top:-8px;margin-bottom:10px"></div>
     <div class="pills" id="levelPills" style="margin-top:-8px;margin-bottom:14px"></div>
     <div class="cgrid" id="cardGrid"></div>
   </div>
@@ -498,11 +501,9 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
             <div class="afield">
               <label>Category</label>
               <select id="fCat">
-                <option value="stories">Città della Settimana</option>
-                <option value="geo">Parola della Settimana</option>
                 <option value="fable">Leggende Italiane</option>
-                <option value="myth">Espressioni Italiane</option>
-                <option value="culture">Culture</option>
+                <option value="sapori">Sapori</option>
+                <option value="luoghi">Luoghi</option>
               </select>
             </div>
           </div>
@@ -511,6 +512,32 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
             <div class="afield"><label>Read time</label><input type="text" id="fTime" placeholder="4 min"></div>
           </div>
           <div class="afield"><label>Emoji icon</label><input type="text" id="fEmoji" placeholder="🌊" style="max-width:80px"></div>
+          <div class="afield">
+            <label>Region</label>
+            <select id="fRegion">
+              <option value="">— nessuna regione —</option>
+              <option value="valle-d-aosta">Valle d'Aosta</option>
+              <option value="piemonte">Piemonte</option>
+              <option value="lombardia">Lombardia</option>
+              <option value="veneto">Veneto</option>
+              <option value="trentino-alto-adige">Trentino-Alto Adige</option>
+              <option value="friuli-venezia-giulia">Friuli-Venezia Giulia</option>
+              <option value="liguria">Liguria</option>
+              <option value="emilia-romagna">Emilia-Romagna</option>
+              <option value="toscana">Toscana</option>
+              <option value="umbria">Umbria</option>
+              <option value="marche">Marche</option>
+              <option value="lazio">Lazio</option>
+              <option value="abruzzo">Abruzzo</option>
+              <option value="molise">Molise</option>
+              <option value="campania">Campania</option>
+              <option value="puglia">Puglia</option>
+              <option value="basilicata">Basilicata</option>
+              <option value="calabria">Calabria</option>
+              <option value="sicilia">Sicilia</option>
+              <option value="sardegna">Sardegna</option>
+            </select>
+          </div>
           <div class="afield">
             <label>Audio URL</label>
             <input type="url" id="fAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/story.mp3">
@@ -647,6 +674,7 @@ let appData = { stories: [], podcasts: [] };
 let progress = { read:[], saved:[], learned:[], streak:0, lastDate:'', week:[0,0,0,0,0,0,0], passwordChanged:false };
 let currentCat = 'all';
 let currentLevel = 'all';
+let currentRegion = 'all';
 let currentStory = null;
 let savedWords = [];
 let showTrans = true;
@@ -795,12 +823,52 @@ function nav(name, btn) {
 
 // ── LIBRARY ──
 function renderLibrary() {
-  const cats = ['all','stories','geo','fable','myth','culture'];
-  const labels = {all:'All',stories:'Città della Settimana',geo:'Parola della Settimana',fable:'Leggende Italiane',myth:'Espressioni Italiane',culture:'Culture'};
-  const container = document.getElementById('catPills');
-  container.innerHTML = cats.filter(c => c === 'all' || appData.stories.some(s => s.cat === c))
-    .map(c => `<button class="pill${currentCat===c?' on':''}" onclick="filterCat('${c}',this)">${labels[c]}</button>`).join('');
-  // Level pills — only show levels that exist in current stories
+  // Category pills
+  const cats = ['all','fable','sapori','luoghi'];
+  const catLabels = {all:'Tutte',fable:'Leggende',sapori:'Sapori',luoghi:'Luoghi'};
+  const catContainer = document.getElementById('catPills');
+  catContainer.innerHTML = cats
+    .filter(c => c === 'all' || appData.stories.some(s => s.cat === c))
+    .map(c => `<button class="pill${currentCat===c?' on':''}" onclick="filterCat('${c}',this)">${catLabels[c]}</button>`).join('');
+
+  // Region pills — only show regions present in currently cat-filtered stories
+  const regionDefs = [
+    {value:'valle-d-aosta', label:"Valle d'Aosta"},
+    {value:'piemonte', label:'Piemonte'},
+    {value:'lombardia', label:'Lombardia'},
+    {value:'veneto', label:'Veneto'},
+    {value:'trentino-alto-adige', label:'Trentino-Alto Adige'},
+    {value:'friuli-venezia-giulia', label:'Friuli-Venezia Giulia'},
+    {value:'liguria', label:'Liguria'},
+    {value:'emilia-romagna', label:'Emilia-Romagna'},
+    {value:'toscana', label:'Toscana'},
+    {value:'umbria', label:'Umbria'},
+    {value:'marche', label:'Marche'},
+    {value:'lazio', label:'Lazio'},
+    {value:'abruzzo', label:'Abruzzo'},
+    {value:'molise', label:'Molise'},
+    {value:'campania', label:'Campania'},
+    {value:'puglia', label:'Puglia'},
+    {value:'basilicata', label:'Basilicata'},
+    {value:'calabria', label:'Calabria'},
+    {value:'sicilia', label:'Sicilia'},
+    {value:'sardegna', label:'Sardegna'},
+  ];
+  const catFiltered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
+  const usedRegions = new Set(catFiltered.map(s => s.region).filter(Boolean));
+  const regionContainer = document.getElementById('regionPills');
+  const regionOptions = regionDefs.filter(r => usedRegions.has(r.value));
+  if(regionOptions.length === 0) {
+    regionContainer.style.display = 'none';
+  } else {
+    regionContainer.style.display = 'flex';
+    regionContainer.innerHTML = [
+      `<button class="pill${currentRegion==='all'?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterRegion('all',this)">Tutte le regioni</button>`,
+      ...regionOptions.map(r => `<button class="pill${currentRegion===r.value?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterRegion('${r.value}',this)">${r.label}</button>`)
+    ].join('');
+  }
+
+  // Level pills
   const levels = ['all','A1','A2','B1','B2','C1','C2'];
   const levelLabels = {all:'All levels',A1:'A1',A2:'A2',B1:'B1',B2:'B2',C1:'C1',C2:'C2'};
   const levelContainer = document.getElementById('levelPills');
@@ -808,22 +876,30 @@ function renderLibrary() {
   levelContainer.style.display = availableLevels.length <= 1 ? 'none' : 'flex';
   levelContainer.innerHTML = availableLevels
     .map(l => `<button class="pill level-pill${currentLevel===l?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterLevel('${l}',this)">${levelLabels[l]}</button>`).join('');
-  let filtered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
+
+  // Filter stories by cat + region + level
+  let filtered = catFiltered;
+  if(currentRegion !== 'all') filtered = filtered.filter(s => s.region === currentRegion);
   if(currentLevel !== 'all') filtered = filtered.filter(s => s.level === currentLevel);
+
+  // Progress bar counts all stories
   const total = appData.stories.length;
   const readCount = progress.read.length;
   document.getElementById('libProgress').style.width = total > 0 ? (readCount/total*100)+'%' : '0%';
   document.getElementById('libLabel').textContent = readCount+' / '+total+' read';
+
   const grid = document.getElementById('cardGrid');
   if(filtered.length === 0) {
     grid.innerHTML = '<div class="empty-state"><div class="ei">📚</div><p>No stories yet. Open the content manager to add your first story.</p></div>';
     return;
   }
   const levelClass = {A1:'bg',A2:'bg',B1:'bo',B2:'bb'};
-  const catLabel = {stories:'Città della Settimana',geo:'Parola della Settimana',fable:'Leggende Italiane',myth:'Espressioni Italiane',culture:'Culture'};
+  const catLabel = {fable:'Leggende Italiane',sapori:'Sapori',luoghi:'Luoghi',
+    // backward compat for old entries
+    stories:'Città della Settimana',geo:'Parola della Settimana',myth:'Espressioni Italiane',culture:'Culture'};
   grid.innerHTML = filtered.map(s => `
     <div class="scard" onclick="openStory(${s.id})">
-      <div class="cthumb ${s.cat}">${s.emoji||'📖'}</div>
+      <div class="cthumb ${s.cat||'fable'}">${s.emoji||'📖'}</div>
       <div class="cbody">
         <div class="ccat">${catLabel[s.cat]||s.cat}</div>
         <div class="ctitle">${s.title}</div>
@@ -838,7 +914,15 @@ function renderLibrary() {
 
 function filterCat(c, el) {
   currentCat = c;
+  currentRegion = 'all';
   document.querySelectorAll('#catPills .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderLibrary();
+}
+
+function filterRegion(r, el) {
+  currentRegion = r;
+  document.querySelectorAll('#regionPills .pill').forEach(p => p.classList.remove('on'));
   el.classList.add('on');
   renderLibrary();
 }
@@ -1194,9 +1278,9 @@ function renderProgress() {
     const h = Math.max(4, Math.round((v/maxW)*65));
     return `<div class="daycol"><div class="daybar" style="height:${h}px"></div><div class="dayname">${d}</div></div>`;
   }).join('');
-  const cats = ['stories','geo','fable','myth','culture'];
-  const labels = {stories:'Città',geo:'Parole',fable:'Leggende',myth:'Espressioni',culture:'Culture'};
-  const colors = {stories:'#52b788',geo:'#b5883e',fable:'#c1121f',myth:'#5a7ad4',culture:'#9b59b6'};
+  const cats = ['fable','sapori','luoghi','stories','geo','myth','culture'];
+  const labels = {fable:'Leggende',sapori:'Sapori',luoghi:'Luoghi',stories:'Città',geo:'Parole',myth:'Espressioni',culture:'Culture'};
+  const colors = {fable:'#c1121f',sapori:'#e67e22',luoghi:'#2980b9',stories:'#52b788',geo:'#b5883e',myth:'#5a7ad4',culture:'#9b59b6'};
   const catWords = {};
   cats.forEach(c => { catWords[c] = 0; });
   (progress.saved||[]).forEach(w => {
@@ -1221,7 +1305,8 @@ function openReadHistory() {
   if(readIds.length === 0) {
     list.innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">No stories read yet. Head to the library and start reading.</p>';
   } else {
-    const catLabel = {stories:'Città della Settimana',geo:'Parola della Settimana',fable:'Leggende Italiane',myth:'Espressioni Italiane',culture:'Culture'};
+    const catLabel = {fable:'Leggende Italiane',sapori:'Sapori',luoghi:'Luoghi',
+      stories:'Città della Settimana',geo:'Parola della Settimana',myth:'Espressioni Italiane',culture:'Culture'};
     list.innerHTML = readIds.map(id => {
       const s = appData.stories.find(x => x.id === id);
       if(!s) return '';
@@ -1278,8 +1363,9 @@ function renderStoryAdminList() {
 function showAddStory() {
   editingStoryId = null;
   ['editId','fTitle','fTime','fEmoji','fAudio','fText'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fCat').value = 'stories';
+  document.getElementById('fCat').value = 'fable';
   document.getElementById('fLevel').value = 'A2';
+  document.getElementById('fRegion').value = '';
   document.getElementById('vocabText').value = '';
   document.getElementById('storyForm').style.display = 'block';
   document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
@@ -1295,6 +1381,7 @@ function editStory(id) {
   document.getElementById('fLevel').value = s.level;
   document.getElementById('fTime').value = s.time;
   document.getElementById('fEmoji').value = s.emoji||'';
+  document.getElementById('fRegion').value = s.region||'';
   document.getElementById('fAudio').value = s.audio||'';
   document.getElementById('fText').value = s.text||'';
   document.getElementById('vocabText').value = (s.vocab||[]).map(v => v.it + ' | ' + v.tr).join('\n');
@@ -1321,6 +1408,7 @@ async function saveStory() {
   const story = {
     cat: document.getElementById('fCat').value,
     emoji: document.getElementById('fEmoji').value.trim()||'📖',
+    region: document.getElementById('fRegion').value || null,
     title,
     level: document.getElementById('fLevel').value,
     time: document.getElementById('fTime').value.trim(),
