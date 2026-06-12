@@ -62,6 +62,9 @@ a{color:inherit;text-decoration:none}
 .auth-btn:disabled{opacity:.5;cursor:not-allowed}
 .auth-err{font-size:12px;color:#f4a79e;margin-top:10px;text-align:center;min-height:18px}
 .auth-note{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-top:20px;line-height:1.7}
+.auth-forgot{font-size:12px;color:rgba(255,255,255,.35);text-align:center;margin-top:12px;cursor:pointer;background:none;border:none;width:100%;transition:color .2s}
+.auth-forgot:hover{color:var(--rose)}
+.auth-reset-msg{font-size:12px;color:#a8d5ba;text-align:center;margin-top:8px;min-height:18px;display:none}
 
 /* ── ACCOUNT MODAL ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;padding:20px}
@@ -358,11 +361,11 @@ audio{display:none}
 </div>
 
 <!-- ACCOUNT MODAL -->
-<div class="modal-overlay" id="acctOverlay" onclick="if(event.target===this)closeAccount()">
+<div class="modal-overlay" id="acctOverlay" onclick="if(event.target===this&&this.dataset.forced!=='true')closeAccount()">
   <div class="modal-box">
-    <div class="modal-title">Your account</div>
+    <div class="modal-title" id="acctModalTitle">Your account</div>
     <div class="modal-sub" id="acctEmailLabel">Logged in</div>
-    <div id="firstTimeNotice" class="first-time-notice" style="display:none">First time here? Set your own password below.</div>
+    <div id="firstTimeNotice" class="first-time-notice" style="display:none">Welcome! Please set your own password before accessing the app — you'll use it every time you sign in.</div>
     <div class="modal-field">
       <label>Email</label>
       <input type="email" id="acctEmail" readonly tabindex="-1" style="color:rgba(255,255,255,.3);cursor:default">
@@ -376,7 +379,7 @@ audio{display:none}
       <input type="password" id="acctPw2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doChangePassword()">
     </div>
     <div class="modal-actions">
-      <button class="modal-btn secondary" onclick="closeAccount()">Cancel</button>
+      <button class="modal-btn secondary" id="acctCancelBtn" onclick="closeAccount()">Cancel</button>
       <button class="modal-btn primary" id="acctBtn" onclick="doChangePassword()">Update password</button>
     </div>
     <div class="modal-msg" id="acctMsg"></div>
@@ -399,6 +402,8 @@ audio{display:none}
     </div>
     <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in</button>
     <div class="auth-err" id="loginErr"></div>
+    <button class="auth-forgot" onclick="doForgotPassword()">Forgot your password?</button>
+    <div class="auth-reset-msg" id="resetMsg"></div>
     <div class="auth-note">Access is invite-only. If you are a paid subscriber and haven't received your invite email yet, reply to your latest Coffee Break issue and Lucy will send it.</div>
   </div>
 </div>
@@ -725,6 +730,29 @@ async function doLogin() {
   await onLogin(data.user);
 }
 
+async function doForgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const msg = document.getElementById('resetMsg');
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  if(!email) {
+    err.textContent = 'Enter your email address above first.';
+    document.getElementById('loginEmail').focus();
+    return;
+  }
+  msg.style.display = 'block';
+  msg.textContent = 'Sending reset link…';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  if(error) {
+    msg.style.display = 'none';
+    err.textContent = error.message;
+    return;
+  }
+  msg.textContent = '✓ Reset link sent — check your inbox.';
+}
+
 async function doLogout() {
   if(!sb) return;
   stopAudio();
@@ -735,6 +763,7 @@ async function doLogout() {
 }
 
 function openAccount() {
+  document.getElementById('acctModalTitle').textContent = 'Your account';
   document.getElementById('acctEmail').value = currentUser?.email||'';
   document.getElementById('acctPw1').value='';
   document.getElementById('acctPw2').value='';
@@ -744,7 +773,11 @@ function openAccount() {
   document.getElementById('acctOverlay').classList.add('on');
   setTimeout(()=>document.getElementById('acctPw1').focus(),100);
 }
-function closeAccount(){ document.getElementById('acctOverlay').classList.remove('on'); }
+function closeAccount(){
+  // If this is a forced password-set (invite flow), don't allow dismissal
+  if(document.getElementById('acctOverlay').dataset.forced==='true') return;
+  document.getElementById('acctOverlay').classList.remove('on');
+}
 
 async function doChangePassword() {
   const pw1=document.getElementById('acctPw1').value;
@@ -762,6 +795,7 @@ async function doChangePassword() {
   document.getElementById('acctPw2').value='';
   progress.passwordChanged=true;
   document.getElementById('firstTimeNotice').style.display='none';
+  document.getElementById('acctOverlay').dataset.forced='false';
   syncProgress();
   setTimeout(()=>closeAccount(),2000);
 }
@@ -775,6 +809,30 @@ async function onLogin(user) {
   await Promise.all([loadSongs(), loadProgress()]);
   renderCatalogue();
   document.getElementById('streakNum').textContent=progress.streak||0;
+  // Detect invite link or first-time user who hasn't set a password yet
+  const hash=window.location.hash;
+  const isInvite=hash.includes('type=invite');
+  const isRecovery=hash.includes('type=recovery');
+  if(isInvite||isRecovery||!progress.passwordChanged){
+    // Update modal title to match context
+    document.getElementById('acctModalTitle').textContent = isRecovery ? 'Reset your password' : 'Welcome — set your password';
+    forcePasswordSet();
+  }
+  // Clean the URL hash so it doesn't re-trigger on refresh
+  if(hash) history.replaceState(null,'',window.location.pathname);
+}
+
+function forcePasswordSet(){
+  document.getElementById('acctEmail').value=currentUser?.email||'';
+  document.getElementById('acctPw1').value='';
+  document.getElementById('acctPw2').value='';
+  document.getElementById('acctMsg').textContent='';
+  document.getElementById('acctMsg').className='modal-msg';
+  document.getElementById('firstTimeNotice').style.display='block';
+  // Mark as forced so the X / cancel button can't dismiss it
+  document.getElementById('acctOverlay').dataset.forced='true';
+  document.getElementById('acctOverlay').classList.add('on');
+  setTimeout(()=>document.getElementById('acctPw1').focus(),300);
 }
 
 async function loadSongs() {
