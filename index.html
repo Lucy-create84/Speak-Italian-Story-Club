@@ -3,362 +3,387 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speak Italian: Story Club</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<title>Speak Italian: La Colonna Sonora</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#2d6a4f;--green-l:#e8f4ef;--green-m:#52b788;
-  --gold:#b5883e;--gold-l:#fdf3e0;
-  --red:#c1121f;--red-l:#fce8e9;
-  --bg:#faf8f4;--card:#fff;--text:#1a1a1a;--muted:#6b6b6b;
-  --border:#e8e4dc;--shadow:0 2px 12px rgba(0,0,0,.06);
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
-button{font-family:'DM Sans',sans-serif;cursor:pointer}
+  --night:#1a2e42;
+  --night2:#243d57;
+  --night3:#2e4f6e;
+  --cream:#f5efe6;
+  --cream2:#ede4d8;
+  --rose:#c9736a;
+  --rose-l:#f5e8e7;
+  --gold:#d4a84b;
+  --gold-l:#faf0d7;
+  --sage:#6b8f71;
+  --sage-l:#e8f0e9;
+  --text:#1a1a1a;
+  --muted:#7a7a7a;
+  --border:#e4ddd4;
+  --shadow:0 2px 16px rgba(0,0,0,.08);
 
-/* ── AUTH SCREEN ── */
-#authScreen{
-  display:flex;align-items:center;justify-content:center;
-  min-height:100vh;padding:20px;background:var(--bg);
+  /* difficulty */
+  --beg:#6b8f71; --beg-l:#e8f0e9;
+  --int:#d4a84b; --int-l:#faf0d7;
+  --adv:#c9736a; --adv-l:#f5e8e7;
 }
-.auth-card{
-  background:#fff;border-radius:20px;padding:36px 32px;
-  max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.1);
-  border:1px solid var(--border);
-}
-.auth-logo{font-family:'Playfair Display',serif;font-size:22px;color:var(--green);text-align:center;margin-bottom:6px}
-.auth-logo span{color:var(--green-m)}
-.auth-tagline{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
-.auth-field{margin-bottom:14px}
-.auth-field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
-.auth-field input{
-  width:100%;border:1px solid var(--border);border-radius:10px;
-  padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;
-  background:#fff;color:var(--text);transition:border .15s;
-}
-.auth-field input:focus{outline:none;border-color:var(--green)}
-.auth-btn{
-  width:100%;background:var(--green);color:#fff;border:none;
-  border-radius:10px;padding:13px;font-size:14px;font-weight:500;
-  transition:all .2s;margin-top:4px;
-}
-.auth-btn:hover{background:#235c43}
-.auth-btn:disabled{opacity:.6;cursor:not-allowed}
-.auth-err{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px}
-.auth-note{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
+
+body{font-family:'DM Sans',sans-serif;background:var(--night);color:var(--cream);min-height:100vh;font-size:15px;overflow-x:hidden}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+a{color:inherit;text-decoration:none}
 
 /* ── SETUP NOTICE ── */
-#setupNotice{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;
-  align-items:center;justify-content:center;padding:20px;
-}
+#setupNotice{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;align-items:center;justify-content:center;padding:20px}
 #setupNotice.on{display:flex}
-.setup-card{
-  background:#fff;border-radius:16px;padding:28px;max-width:480px;width:100%;
-  box-shadow:0 20px 60px rgba(0,0,0,.3);
-}
-.setup-card h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:10px;color:var(--green)}
-.setup-card p{font-size:13px;line-height:1.7;color:var(--text);margin-bottom:10px}
-.setup-card code{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:12px;font-family:monospace}
-.setup-card .url-field{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;font-family:monospace;width:100%;margin-bottom:8px}
-.setup-close{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;float:right}
+.setup-card{background:var(--cream);color:var(--text);border-radius:16px;padding:28px;max-width:480px;width:100%}
+.setup-card h3{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:10px;color:var(--night)}
+.setup-card p{font-size:13px;line-height:1.7;margin-bottom:8px}
+.setup-card code{background:var(--cream2);border-radius:5px;padding:2px 7px;font-size:12px;font-family:monospace}
+.setup-card input{width:100%;background:var(--cream2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;font-family:monospace;margin-bottom:6px}
+.setup-close{background:var(--night);color:var(--cream);border:none;border-radius:8px;padding:9px 18px;font-size:13px;float:right;margin-top:6px}
 
-/* ── MAIN APP (hidden until logged in) ── */
+/* ── AUTH ── */
+#authScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--night)}
+.auth-card{background:var(--night2);border:1px solid var(--night3);border-radius:20px;padding:38px 32px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.auth-vinyl{width:72px;height:72px;border-radius:50%;background:conic-gradient(#1a1a1a 0deg,#2a2a2a 30deg,#1a1a1a 60deg,#2a2a2a 90deg,#1a1a1a 120deg,#2a2a2a 150deg,#1a1a1a 180deg,#2a2a2a 210deg,#1a1a1a 240deg,#2a2a2a 270deg,#1a1a1a 300deg,#2a2a2a 330deg,#1a1a1a 360deg);margin:0 auto 18px;position:relative;display:flex;align-items:center;justify-content:center}
+.auth-vinyl::after{content:'';width:20px;height:20px;border-radius:50%;background:var(--rose);position:absolute}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:13px;color:rgba(255,255,255,.5);text-align:center;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;text-align:center;color:var(--cream);margin-bottom:28px;line-height:1.2}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.auth-field input{width:100%;background:var(--night3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--cream);transition:border .15s}
+.auth-field input:focus{outline:none;border-color:var(--rose)}
+.auth-field input::placeholder{color:rgba(255,255,255,.2)}
+.auth-btn{width:100%;background:var(--rose);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;transition:all .2s;margin-top:4px}
+.auth-btn:hover{background:#b5605a}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.auth-err{font-size:12px;color:#f4a79e;margin-top:10px;text-align:center;min-height:18px}
+.auth-note{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-top:20px;line-height:1.7}
+
+/* ── ACCOUNT MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.on{display:flex}
+.modal-box{background:var(--night2);border:1px solid var(--night3);border-radius:16px;padding:28px 24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);margin-bottom:4px}
+.modal-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:22px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.4);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.modal-field input{width:100%;padding:10px 13px;background:var(--night3);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:14px;color:var(--cream);font-family:'DM Sans',sans-serif}
+.modal-field input:focus{outline:none;border-color:var(--rose)}
+.modal-field input::placeholder{color:rgba(255,255,255,.2)}
+.modal-actions{display:flex;gap:10px;margin-top:6px}
+.modal-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.modal-btn.primary{background:var(--rose);color:#fff}
+.modal-btn.primary:hover{background:#b5605a}
+.modal-btn.primary:disabled{opacity:.5;cursor:not-allowed}
+.modal-btn.secondary{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1)}
+.modal-btn.secondary:hover{background:rgba(255,255,255,.13)}
+.modal-msg{font-size:12px;text-align:center;margin-top:10px;min-height:18px}
+.modal-msg.ok{color:#a8d5ba}
+.modal-msg.err{color:#f4a79e}
+.first-time-notice{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 13px;font-size:12px;color:rgba(255,255,255,.6);margin-bottom:16px;line-height:1.6}
+
+/* ── APP SHELL ── */
 #app{display:none}
 #app.on{display:block}
 
 /* ── HEADER ── */
-.hdr{background:var(--green);color:#fff;padding:18px 20px 14px}
-.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.logo{font-family:'Playfair Display',serif;font-size:21px;font-style:italic}
-.logo span{color:#a8d5ba}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.streak{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:500}
-.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);border-radius:20px;padding:5px 11px;font-size:12px;transition:all .2s}
-.logout-btn:hover{background:rgba(255,255,255,.25);color:#fff}
-.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.hdr{background:var(--night);border-bottom:1px solid var(--night3);padding:14px 18px 0;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-vinyl{width:34px;height:34px;border-radius:50%;background:conic-gradient(#222 0deg,#333 30deg,#222 60deg,#333 90deg,#222 120deg,#333 150deg,#222 180deg,#333 210deg,#222 240deg,#333 270deg,#222 300deg,#333 330deg);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;transition:transform .4s}
+.hdr-vinyl::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--rose);position:absolute}
+.hdr-vinyl.spinning{animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hdr-text{}
+.brand-eyebrow{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;line-height:1}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream);line-height:1.1}
+.brand-name span{color:var(--rose)}
+.hdr-right{display:flex;align-items:center;gap:7px}
+.streak-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border-radius:20px;padding:5px 11px;font-size:12px}
+.hdr-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);border-radius:20px;padding:5px 11px;font-size:12px;transition:all .2s}
+.hdr-btn:hover{background:rgba(255,255,255,.13);color:var(--cream)}
+.user-line{font-size:10px;color:rgba(255,255,255,.25);padding-bottom:10px;text-align:right}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-bottom:0}
 .nav::-webkit-scrollbar{display:none}
-.nb{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.8);padding:6px 13px;border-radius:20px;font-size:12px;white-space:nowrap;transition:all .2s}
-.nb:hover{background:rgba(255,255,255,.15);color:#fff}
-.nb.on{background:#fff;color:var(--green);font-weight:500;border-color:#fff}
+.nb{background:transparent;border:none;color:rgba(255,255,255,.45);padding:9px 15px;font-size:13px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.nb:hover{color:rgba(255,255,255,.8)}
+.nb.on{color:var(--cream);border-bottom-color:var(--rose)}
 
 /* ── SCREENS ── */
-.scr{display:none;padding:18px 16px 60px}
+.scr{display:none;padding:20px 16px 70px;max-width:720px;margin:0 auto}
 .scr.on{display:block}
 
-/* ── TYPOGRAPHY ── */
-.stitle{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:3px}
-.ssub{font-size:12px;color:var(--muted);margin-bottom:16px}
+/* ── CATALOGUE ── */
+.cat-hero{margin-bottom:22px}
+.cat-hero-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-style:italic;color:var(--cream);margin-bottom:4px}
+.cat-hero-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6}
+.cat-stats{display:flex;gap:10px;margin-bottom:20px}
+.cat-stat{background:var(--night2);border:1px solid var(--night3);border-radius:12px;padding:12px 15px;flex:1;text-align:center}
+.cat-stat-n{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--cream)}
+.cat-stat-l{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 
-/* ── PROGRESS BAR ── */
-.pbar{display:flex;gap:8px;align-items:center;margin-bottom:18px}
-.ptrack{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.pfill{height:100%;background:var(--green-m);border-radius:3px;transition:width .4s}
-.plbl{font-size:11px;color:var(--muted);min-width:58px;text-align:right}
+/* filter row */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.fpill{border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.45);padding:6px 14px;border-radius:20px;font-size:12px;transition:all .2s}
+.fpill:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
+.fpill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+.fpill.diff-beg.on{background:var(--sage);border-color:var(--sage)}
+.fpill.diff-int.on{background:var(--gold);border-color:var(--gold);color:var(--night)}
+.fpill.diff-adv.on{background:var(--rose);border-color:var(--rose)}
 
-/* ── PILLS ── */
-.pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
-.pill{border:1px solid var(--border);background:#fff;color:var(--muted);padding:5px 13px;border-radius:20px;font-size:12px;transition:all .2s}
-.pill:hover{border-color:var(--green);color:var(--green)}
-.pill.on{background:var(--green-l);border-color:var(--green);color:var(--green);font-weight:500}
+/* song grid */
+.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.scard{background:var(--night2);border:1px solid var(--night3);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .25s;display:flex;flex-direction:column}
+.scard:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.4);border-color:rgba(255,255,255,.15)}
+.scard-top{padding:18px 18px 14px;display:flex;align-items:center;gap:14px}
+.scard-vinyl{width:58px;height:58px;border-radius:50%;background:conic-gradient(#1a1a1a 0deg,#2d2d2d 20deg,#1a1a1a 40deg,#2d2d2d 60deg,#1a1a1a 80deg,#2d2d2d 100deg,#1a1a1a 120deg,#2d2d2d 140deg,#1a1a1a 160deg,#2d2d2d 180deg,#1a1a1a 200deg,#2d2d2d 220deg,#1a1a1a 240deg,#2d2d2d 260deg,#1a1a1a 280deg,#2d2d2d 300deg,#1a1a1a 320deg,#2d2d2d 340deg);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;transition:transform .6s ease}
+.scard:hover .scard-vinyl{transform:rotate(30deg)}
+.scard-vinyl::after{content:'';width:16px;height:16px;border-radius:50%;position:absolute}
+.scard-info{flex:1;min-width:0}
+.scard-artist{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.scard-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);line-height:1.2;margin-bottom:6px}
+.scard-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.diff-badge{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:500}
+.theme-badge{font-size:10px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.45)}
+.scard-footer{padding:10px 18px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.scard-listened{font-size:11px;color:var(--sage);display:flex;align-items:center;gap:5px}
+.scard-words{font-size:11px;color:rgba(255,255,255,.3)}
+.scard-play{width:30px;height:30px;border-radius:50%;background:var(--rose);border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.scard-play:hover{background:#b5605a;transform:scale(1.1)}
+.empty-state{text-align:center;padding:50px 20px;color:rgba(255,255,255,.3)}
+.empty-state .ei{font-size:44px;margin-bottom:14px}
+.empty-state p{font-size:14px;line-height:1.7}
 
-/* ── CARD GRID ── */
-.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:13px}
-.scard{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
-.scard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:var(--green-m)}
-.cthumb{height:82px;display:flex;align-items:center;justify-content:center;font-size:40px}
-.cthumb.stories{background:linear-gradient(135deg,#e8f4ef,#d0eadf)}
-.cthumb.geo{background:linear-gradient(135deg,#fdf3e0,#fae8b8)}
-.cthumb.fable{background:linear-gradient(135deg,#fce8e9,#f9cdd0)}
-.cthumb.myth{background:linear-gradient(135deg,#e8edf8,#cdd6f0)}
-.cthumb.culture{background:linear-gradient(135deg,#f3e8f8,#e4c8f0)}
-.cthumb.sapori{background:linear-gradient(135deg,#fff3e0,#ffe0b2)}
-.cthumb.luoghi{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
-.cbody{padding:11px 13px}
-.ccat{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
-.ctitle{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:5px;line-height:1.3}
-.cmeta{display:flex;align-items:center;gap:7px}
-.badge{font-size:10px;padding:3px 7px;border-radius:10px;font-weight:500}
-.bg{background:var(--green-l);color:var(--green)}
-.bb{background:#e8edf8;color:#2a4a8e}
-.bo{background:var(--gold-l);color:var(--gold)}
-.rtime{font-size:11px;color:var(--muted);margin-left:auto}
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
-.empty-state .ei{font-size:40px;margin-bottom:10px}
-.empty-state p{font-size:14px}
+/* ── SONG READER ── */
+.rhdr{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.backbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:8px;padding:7px 13px;font-size:12px;transition:all .15s}
+.backbtn:hover{background:rgba(255,255,255,.12);color:var(--cream)}
+.r-artist{font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em}
+.r-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;color:var(--cream);line-height:1.15;flex:1}
+.diff-tag{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;white-space:nowrap;flex-shrink:0}
 
-/* ── READER ── */
-.rhdr{display:flex;align-items:center;gap:9px;margin-bottom:15px}
-.backbtn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--text);transition:all .15s}
-.backbtn:hover{background:var(--border)}
-.rtitle{font-family:'Playfair Display',serif;font-size:20px;flex:1;line-height:1.2}
+/* ── INTRO AUDIO PLAYER ── */
+.intro-player{background:var(--night2);border:1px solid var(--night3);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.intro-label{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.ip-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ip-play{width:44px;height:44px;border-radius:50%;background:var(--rose);border:none;color:#fff;font-size:15px;flex-shrink:0;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.ip-play:hover{background:#b5605a;transform:scale(1.05)}
+.ip-info{flex:1}
+.ip-title{font-size:13px;color:var(--cream);font-weight:500;margin-bottom:2px}
+.ip-sub{font-size:11px;color:rgba(255,255,255,.35)}
+.ip-spd{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);padding:4px 9px;border-radius:10px;font-size:11px;transition:all .15s}
+.ip-spd:hover{background:rgba(255,255,255,.13)}
+.waveform{height:28px;display:flex;align-items:center;gap:2px;cursor:pointer;margin-bottom:7px}
+.wbar{flex:1;background:rgba(255,255,255,.15);border-radius:2px;transition:background .08s}
+.wbar.p{background:var(--rose)}
+.tline{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.3)}
+audio{display:none}
 
-/* ── AUDIO PLAYER ── */
-.aplayer{background:var(--green);color:#fff;border-radius:14px;padding:15px 17px;margin-bottom:18px}
-.atop{display:flex;align-items:center;gap:11px;margin-bottom:11px}
-.playbtn{width:42px;height:42px;border-radius:50%;background:#fff;border:none;font-size:15px;flex-shrink:0;transition:transform .15s;display:flex;align-items:center;justify-content:center}
-.playbtn:hover{transform:scale(1.05)}
-.ainfo{flex:1}
-.atitle2{font-weight:500;font-size:13px}
-.asub{font-size:11px;opacity:.75;margin-top:2px}
-.spdbtn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 9px;border-radius:12px;font-size:11px}
-.waveform{height:26px;display:flex;align-items:center;gap:2px;margin-bottom:7px;cursor:pointer}
-.wbar{flex:1;background:rgba(255,255,255,.3);border-radius:2px;transition:background .1s}
-.wbar.p{background:rgba(255,255,255,.85)}
-.tline{display:flex;justify-content:space-between;font-size:10px;opacity:.7}
+/* ── YOUTUBE EMBED ── */
+.yt-wrap{position:relative;padding-bottom:56.25%;height:0;border-radius:14px;overflow:hidden;margin-bottom:18px;background:#000;border:1px solid var(--night3)}
+.yt-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.yt-no-audio{background:var(--night2);border:1px solid var(--night3);border-radius:14px;padding:22px;text-align:center;margin-bottom:18px;color:rgba(255,255,255,.3);font-size:13px}
 
-/* ── TOGGLES ── */
-.tbar{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 15px;margin-bottom:13px}
-.tlbl{font-size:13px;font-weight:500}
-.tsub{font-size:11px;color:var(--muted);margin-top:2px}
-.tswitch{width:40px;height:22px;background:var(--border);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.tswitch.on{background:var(--green)}
+/* ── TOGGLE ── */
+.tbar{display:flex;align-items:center;justify-content:space-between;background:var(--night2);border:1px solid var(--night3);border-radius:10px;padding:11px 15px;margin-bottom:13px}
+.tlbl{font-size:13px;font-weight:500;color:var(--cream)}
+.tsub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.tswitch{width:40px;height:22px;background:rgba(255,255,255,.15);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tswitch.on{background:var(--rose)}
 .tswitch::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
 .tswitch.on::after{left:21px}
 
-/* ── SAVE BAR ── */
-.savebar{display:flex;align-items:center;justify-content:space-between;background:var(--gold-l);border:1px solid #e8d099;border-radius:10px;padding:11px 15px;margin-bottom:15px}
-.savebar span{font-size:13px}
+/* ── SAVEBAR ── */
+.savebar{display:flex;align-items:center;justify-content:space-between;background:rgba(212,168,75,.1);border:1px solid rgba(212,168,75,.25);border-radius:10px;padding:11px 15px;margin-bottom:15px}
+.savebar span{font-size:13px;color:rgba(255,255,255,.55)}
 .savecount{color:var(--gold);font-weight:500}
 
-/* ── STORY TEXT ── */
-.stxt{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px;line-height:1.9;font-size:15px}
-.sw{cursor:pointer;border-radius:3px;padding:0 2px;transition:background .15s;display:inline}
-.sw-known{border-bottom:1px dotted var(--green-m)}
-.sw:hover{background:var(--gold-l)}
-.sw.saved{background:var(--green-l);color:var(--green)}
+/* ── COMMENTARY ── */
+.section-label{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.commentary{background:var(--night2);border:1px solid var(--night3);border-radius:14px;padding:20px 22px;margin-bottom:18px;line-height:1.9;font-size:15px;color:var(--cream)}
+.sw{cursor:pointer;border-radius:3px;padding:0 2px;transition:background .12s;display:inline}
+.sw-known{border-bottom:1px dotted var(--gold)}
+.sw:hover{background:rgba(212,168,75,.15)}
+.sw.saved{background:rgba(107,143,113,.2);color:#a8d5ba}
+
+/* ── GRAMMAR BOX ── */
+.grammar-box{background:var(--night2);border:1px solid rgba(201,115,106,.25);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.grammar-box h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--rose);margin-bottom:10px}
+.grammar-box p,.grammar-box li{font-size:14px;line-height:1.8;color:rgba(255,255,255,.75)}
+.grammar-box ul,.grammar-box ol{padding-left:18px;margin-top:6px}
+.grammar-box table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.grammar-box th{background:rgba(201,115,106,.15);color:var(--rose);padding:8px 11px;text-align:left;font-weight:500}
+.grammar-box td{padding:8px 11px;border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
+.grammar-box tr:hover td{background:rgba(255,255,255,.03)}
 
 /* ── TOOLTIP ── */
-.tip{position:fixed;background:#1a1a1a;color:#fff;padding:11px 13px;border-radius:12px;font-size:12px;min-width:170px;max-width:230px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);pointer-events:none;display:none}
-.tipw{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:3px}
-.tipph{color:rgba(255,255,255,.6);font-size:11px;margin-bottom:5px;font-style:italic}
-.tiptr{color:#a8d5ba;font-size:13px;margin-bottom:6px}
-.tipau{font-size:11px;opacity:.65}
+.tip{position:fixed;background:var(--night);border:1px solid var(--night3);color:var(--cream);padding:12px 14px;border-radius:12px;font-size:12px;min-width:170px;max-width:240px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;display:none}
+.tipw{font-family:'Cormorant Garamond',serif;font-size:17px;margin-bottom:2px}
+.tipph{color:rgba(255,255,255,.4);font-size:11px;font-style:italic;margin-bottom:5px}
+.tiptr{color:var(--gold);font-size:13px;margin-bottom:5px}
+.tipau{font-size:10px;color:rgba(255,255,255,.3)}
 
 /* ── FLASHCARDS ── */
-.fcstats{display:flex;gap:11px;margin-bottom:18px}
-.fcs{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px;text-align:center}
-.fcsn{font-size:22px;font-weight:500;color:var(--green)}
-.fcsl{font-size:11px;color:var(--muted);margin-top:2px}
-.fcard{background:#fff;border:1px solid var(--border);border-radius:18px;padding:38px 28px;text-align:center;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s;margin-bottom:18px;position:relative;overflow:hidden}
-.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--green-m)}
+.fc-stats{display:flex;gap:10px;margin-bottom:18px}
+.fcs{flex:1;background:var(--night2);border:1px solid var(--night3);border-radius:12px;padding:13px;text-align:center;cursor:pointer;transition:all .2s}
+.fcs:hover{border-color:rgba(255,255,255,.2)}
+.fcsn{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--cream)}
+.fcsl{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.fcard{background:var(--night2);border:1px solid var(--night3);border-radius:18px;padding:38px 28px;text-align:center;min-height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.3);transition:transform .1s;margin-bottom:18px;position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--rose)}
 .fcard:active{transform:scale(.98)}
-.fcit{font-family:'Playfair Display',serif;font-size:30px;margin-bottom:7px}
-.fcph{color:var(--muted);font-style:italic;font-size:13px;margin-bottom:10px}
-.fchi{font-size:12px;color:var(--muted)}
-.fctr{font-size:19px;color:var(--green);font-weight:500;margin-top:14px;display:none}
+.fcit{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--cream);margin-bottom:7px}
+.fcph{color:rgba(255,255,255,.35);font-style:italic;font-size:13px;margin-bottom:8px}
+.fchi{font-size:12px;color:rgba(255,255,255,.25)}
+.fctr{font-size:19px;color:var(--gold);font-weight:500;margin-top:14px;display:none}
 .fcbtns{display:flex;gap:11px}
 .fcb{flex:1;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:500;transition:all .15s}
 .fcb:active{transform:scale(.97)}
-.fcb.wrong{background:var(--red-l);color:var(--red)}
-.fcb.wrong:hover{background:#f8d0d2}
-.fcb.right{background:var(--green-l);color:var(--green)}
-.fcb.right:hover{background:#c8e8d7}
-.nodeck{text-align:center;padding:40px 20px;color:var(--muted)}
-.nodeck .ni{font-size:36px;margin-bottom:10px}
-
-/* ── PODCASTS ── */
-.plist{display:flex;flex-direction:column;gap:11px}
-.pitem{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.pmain{display:flex;align-items:center;gap:13px;padding:13px 15px;cursor:default}
-.picon{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#e8edf8,#cdd6f0);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.pinfo{flex:1;min-width:0}
-.ptitle{font-family:'Playfair Display',serif;font-size:14px;margin-bottom:3px}
-.pdesc{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pmeta2{display:flex;align-items:center;gap:7px;margin-top:4px}
-.ppbtn{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;font-size:13px;color:#fff;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center}
-.ppbtn:hover{background:#235c43;transform:scale(1.05)}
-.ttoggle{padding:9px 15px;border-top:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12px;color:var(--muted)}
-.tbody{display:none;padding:13px 15px;border-top:1px solid var(--border);font-size:13px;line-height:1.85}
-.tbody.on{display:block}
+.fcb.wrong{background:rgba(201,115,106,.15);color:var(--rose);border:1px solid rgba(201,115,106,.25)}
+.fcb.wrong:hover{background:rgba(201,115,106,.25)}
+.fcb.right{background:rgba(107,143,113,.15);color:#a8d5ba;border:1px solid rgba(107,143,113,.25)}
+.fcb.right:hover{background:rgba(107,143,113,.25)}
+.nodeck{text-align:center;padding:50px 20px;color:rgba(255,255,255,.3)}
+.nodeck .ni{font-size:40px;margin-bottom:12px}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.fc-nav-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:6px 14px;font-size:13px;transition:all .15s}
+.fc-nav-btn:hover{background:rgba(255,255,255,.12);color:var(--cream)}
+.fc-pos{font-size:12px;color:rgba(255,255,255,.3)}
 
 /* ── PROGRESS ── */
-.wkchart{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:13px}
-.wklbl{font-weight:500;margin-bottom:13px;font-size:14px}
-.bars{display:flex;gap:7px;align-items:flex-end;height:75px}
-.daycol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-.daybar{border-radius:3px;width:100%;background:var(--green-m)}
-.dayname{font-size:10px;color:var(--muted)}
-.vocprog{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
-.vplbl{font-weight:500;margin-bottom:11px;font-size:14px}
-.vprow{margin-bottom:9px}
-.vphead{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
-.vptrack{height:7px;background:var(--border);border-radius:3px;overflow:hidden}
-.vpfill{height:100%;border-radius:3px}
+.prog-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.prog-card{background:var(--night2);border:1px solid var(--night3);border-radius:12px;padding:14px;text-align:center}
+.prog-n{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--cream)}
+.prog-l{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.prog-section{background:var(--night2);border:1px solid var(--night3);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.prog-section-title{font-size:13px;font-weight:500;color:var(--cream);margin-bottom:14px}
+.bars{display:flex;gap:7px;align-items:flex-end;height:70px}
+.daycol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.daybar{border-radius:3px 3px 0 0;width:100%;background:var(--rose);min-height:3px}
+.dayname{font-size:10px;color:rgba(255,255,255,.3)}
+.theme-prog-row{margin-bottom:10px}
+.tpr-head{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.tpr-track{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.tpr-fill{height:100%;border-radius:3px;background:var(--rose)}
 
-/* ── ADMIN PANEL ── */
-.admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;overflow-y:auto}
+/* ── ADMIN ── */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;overflow-y:auto}
 .admin-overlay.on{display:block}
-.admin-box{background:#fff;margin:30px auto;max-width:680px;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.admin-hdr{background:var(--green);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between}
-.admin-hdr h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:400}
-.admin-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.admin-close:hover{background:rgba(255,255,255,.35)}
-.admin-tabs{display:flex;border-bottom:1px solid var(--border)}
-.atab{flex:1;padding:11px;background:none;border:none;font-size:13px;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
-.atab.on{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+.admin-box{background:var(--night2);margin:24px auto;max-width:740px;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid var(--night3)}
+.admin-hdr{background:var(--night);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--night3)}
+.admin-hdr h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--cream)}
+.admin-close{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);width:32px;height:32px;border-radius:50%;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.admin-close:hover{background:rgba(255,255,255,.15);color:var(--cream)}
+.admin-tabs{display:flex;border-bottom:1px solid var(--night3)}
+.atab{flex:1;padding:11px;background:none;border:none;font-size:13px;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;transition:all .2s;cursor:pointer}
+.atab.on{color:var(--rose);border-bottom-color:var(--rose)}
 .admin-body{padding:20px 22px}
 .afield{margin-bottom:14px}
-.afield label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
-.afield input,.afield select,.afield textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--text);transition:border .15s}
-.afield input:focus,.afield select:focus,.afield textarea:focus{outline:none;border-color:var(--green)}
+.afield label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,.35);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.afield input,.afield select,.afield textarea{width:100%;background:var(--night3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--cream);transition:border .15s}
+.afield input:focus,.afield select:focus,.afield textarea:focus{outline:none;border-color:var(--rose)}
+.afield input::placeholder,.afield textarea::placeholder{color:rgba(255,255,255,.2)}
+.afield select option{background:var(--night2)}
 .afield textarea{resize:vertical;min-height:90px}
+.atip{font-size:11px;color:rgba(255,255,255,.25);margin-top:4px;line-height:1.5}
 .arow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.aprimary{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;transition:all .15s}
-.aprimary:hover{background:#235c43}
-.asecondary{background:none;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;color:var(--text);transition:all .15s}
-.asecondary:hover{background:var(--border)}
-.abtnrow{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.arow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.aprimary{background:var(--rose);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:500;transition:all .15s}
+.aprimary:hover{background:#b5605a}
+.asecondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 16px;font-size:13px;color:rgba(255,255,255,.6);transition:all .15s}
+.asecondary:hover{background:rgba(255,255,255,.12)}
+.abtnrow{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)}
+.anotice{background:rgba(212,168,75,.08);border:1px solid rgba(212,168,75,.2);border-radius:8px;padding:10px 13px;font-size:12px;color:rgba(212,168,75,.85);margin-bottom:14px;line-height:1.6}
 .alist{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-.aitem{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 13px}
+.aitem{display:flex;align-items:center;gap:10px;background:var(--night3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 13px}
 .aitem-info{flex:1;min-width:0}
-.aitem-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.aitem-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.aitem-del{background:var(--red-l);border:none;color:var(--red);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
-.aitem-del:hover{background:#f8d0d2}
-.aitem-edit{background:var(--gold-l);border:none;color:var(--gold);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
-.aitem-edit:hover{background:#fae8b8}
-.anotice{background:var(--green-l);border:1px solid #a8d5ba;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--green);margin-bottom:14px}
-.anotice strong{font-weight:500}
-.atip{font-size:11px;color:var(--muted);margin-top:4px}
+.aitem-title{font-size:13px;font-weight:500;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aitem-meta{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.aitem-del{background:rgba(201,115,106,.15);border:none;color:var(--rose);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
+.aitem-del:hover{background:rgba(201,115,106,.3)}
+.aitem-edit{background:rgba(212,168,75,.1);border:none;color:var(--gold);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500;transition:all .15s}
+.aitem-edit:hover{background:rgba(212,168,75,.2)}
 .vocab-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.vocab-row input{flex:1;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif}
-.vocab-row input:focus{outline:none;border-color:var(--green)}
-.vocab-del{background:var(--red-l);border:none;color:var(--red);border-radius:6px;width:28px;height:28px;font-size:14px;display:flex;align-items:center;justify-content:center}
-.add-vocab-btn{background:none;border:1px dashed var(--border);border-radius:8px;padding:8px;width:100%;font-size:12px;color:var(--muted);margin-top:4px;transition:all .15s}
-.add-vocab-btn:hover{border-color:var(--green);color:var(--green)}
-.admin-trigger{display:none}
+.vocab-row input{flex:1;background:var(--night3);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--cream)}
+.vocab-row input:focus{outline:none;border-color:var(--rose)}
+.vocab-row input::placeholder{color:rgba(255,255,255,.2)}
+.vocab-del{background:rgba(201,115,106,.15);border:none;color:var(--rose);border-radius:6px;width:28px;height:28px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.add-vocab-btn{background:none;border:1px dashed rgba(255,255,255,.15);border-radius:8px;padding:8px;width:100%;font-size:12px;color:rgba(255,255,255,.3);margin-top:4px;transition:all .15s}
+.add-vocab-btn:hover{border-color:var(--rose);color:var(--rose)}
 
-/* ── LOADING ── */
-.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:14px}
-.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:13px;color:var(--muted)}
-
-/* ── USER BADGE ── */
-.user-email{font-size:10px;color:rgba(255,255,255,.6);text-align:right;padding:0 20px 8px;margin-top:-8px}
-/* ── ACCOUNT MODAL ── */
-.acct-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center}
-.acct-overlay.on{display:flex}
-.acct-box{background:#fff;border-radius:16px;padding:28px 24px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.acct-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--green);margin-bottom:6px}
-.acct-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
-.acct-field{margin-bottom:14px}
-.acct-field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
-.acct-field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box}
-.acct-field input:focus{outline:none;border-color:var(--green)}
-.acct-actions{display:flex;gap:10px;margin-top:6px}
-.acct-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
-.acct-btn.primary{background:var(--green);color:#fff}
-.acct-btn.primary:hover{background:#235c43}
-.acct-btn.primary:disabled{opacity:.6;cursor:not-allowed}
-.acct-btn.secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.acct-btn.secondary:hover{background:#eee}
-.acct-msg{font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-.acct-msg.ok{color:var(--green)}
-.acct-msg.err{color:var(--red)}
+/* ── READING HISTORY MODAL ── */
+#readHistoryOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;align-items:center;justify-content:center;padding:20px}
+#readHistoryOverlay.on{display:flex}
+.rh-box{background:var(--night2);border:1px solid var(--night3);border-radius:16px;width:90%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden}
+.rh-hdr{background:var(--night);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--night3)}
+.rh-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream)}
+.rh-close{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rh-list{overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.rh-item{display:flex;align-items:center;gap:11px;background:var(--night3);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 13px;cursor:pointer;transition:all .15s}
+.rh-item:hover{border-color:rgba(255,255,255,.15)}
+.rh-vinyl{width:36px;height:36px;border-radius:50%;background:conic-gradient(#222 0deg,#333 30deg,#222 60deg,#333 90deg,#222 120deg,#333 150deg,#222 180deg,#333 210deg,#222 240deg,#333 270deg,#222 300deg,#333 330deg);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+.rh-vinyl::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--rose);position:absolute}
 </style>
 </head>
 <body>
 
-<!-- ═══ SETUP NOTICE (shown if Supabase not configured) ═══ -->
+<!-- SETUP NOTICE -->
 <div id="setupNotice">
   <div class="setup-card">
-    <h3>🛠 Supabase Setup Required</h3>
-    <p>To enable email login and cloud-synced progress, you need to connect this app to your free Supabase project.</p>
-    <p><strong>Step 1:</strong> Go to <a href="https://supabase.com" target="_blank" style="color:var(--green)">supabase.com</a> and create a free project.</p>
-    <p><strong>Step 2:</strong> In your project dashboard, go to <strong>Settings → API</strong> and copy your <code>Project URL</code> and <code>anon public</code> key.</p>
-    <p><strong>Step 3:</strong> Open this HTML file in a text editor and replace the two placeholders near the top of the script:</p>
-    <input class="url-field" readonly value="const SUPABASE_URL = 'YOUR_SUPABASE_URL'">
-    <input class="url-field" readonly value="const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'">
-    <p><strong>Step 4:</strong> Run the SQL below in your Supabase SQL Editor to create the required tables.</p>
-    <button class="setup-close" onclick="document.getElementById('setupNotice').classList.remove('on')">Got it, I'll set it up</button>
+    <h3>Supabase setup required</h3>
+    <p>Replace the two placeholders in the script with your Supabase credentials, then run the SQL below to create the songs table.</p>
+    <input readonly value="const SUPABASE_URL = 'YOUR_SUPABASE_URL'">
+    <input readonly value="const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'">
+    <p><strong>SQL to run in Supabase SQL Editor:</strong></p>
+    <p><code>create table songs (id bigint generated always as identity primary key, title text, artist text, youtube_id text, audio text, theme text, difficulty text, text text, grammar text, vocab jsonb, created_at timestamptz default now());</code></p>
+    <p>The <code>user_progress</code> table is the same as the course app — reuse it if you already have it, or create a new one per the comments in the script.</p>
+    <button class="setup-close" onclick="document.getElementById('setupNotice').classList.remove('on')">Got it</button>
   </div>
 </div>
 
-<!-- ═══ ACCOUNT MODAL ═══ -->
-<div class="acct-overlay" id="acctOverlay" onclick="if(event.target===this) closeAccount()">
-  <div class="acct-box">
-    <div class="acct-title">Your account</div>
-    <div class="acct-sub">Logged in as</div>
-    <div id="firstTimeNotice" style="display:none;background:var(--green-l);border:1px solid #a8d5ba;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--green);margin-bottom:16px;line-height:1.6">
-      First time here? Set your own password below. It only takes a second.
-    </div>
-    <div class="acct-field">
+<!-- ACCOUNT MODAL -->
+<div class="modal-overlay" id="acctOverlay" onclick="if(event.target===this)closeAccount()">
+  <div class="modal-box">
+    <div class="modal-title">Your account</div>
+    <div class="modal-sub" id="acctEmailLabel">Logged in</div>
+    <div id="firstTimeNotice" class="first-time-notice" style="display:none">First time here? Set your own password below.</div>
+    <div class="modal-field">
       <label>Email</label>
-      <input type="email" id="acctEmail" readonly tabindex="-1" style="background:var(--bg);color:var(--muted);cursor:default">
+      <input type="email" id="acctEmail" readonly tabindex="-1" style="color:rgba(255,255,255,.3);cursor:default">
     </div>
-    <div class="acct-field">
+    <div class="modal-field">
       <label>New password</label>
       <input type="password" id="acctPw1" placeholder="At least 6 characters" autocomplete="new-password">
     </div>
-    <div class="acct-field">
+    <div class="modal-field">
       <label>Confirm new password</label>
-      <input type="password" id="acctPw2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter') doChangePassword()">
+      <input type="password" id="acctPw2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doChangePassword()">
     </div>
-    <div class="acct-actions">
-      <button class="acct-btn secondary" onclick="closeAccount()">Cancel</button>
-      <button class="acct-btn primary" id="acctBtn" onclick="doChangePassword()">Update password</button>
+    <div class="modal-actions">
+      <button class="modal-btn secondary" onclick="closeAccount()">Cancel</button>
+      <button class="modal-btn primary" id="acctBtn" onclick="doChangePassword()">Update password</button>
     </div>
-    <div class="acct-msg" id="acctMsg"></div>
+    <div class="modal-msg" id="acctMsg"></div>
   </div>
 </div>
 
-<!-- ═══ AUTH SCREEN ═══ -->
+<!-- AUTH -->
 <div id="authScreen">
   <div class="auth-card">
-    <div class="auth-logo">Speak Italian<span>: Story Club</span></div>
-    <div class="auth-tagline">Sign in to access your Italian reading practice.</div>
-    <div style="margin-bottom:24px"></div>
+    <div class="auth-vinyl"></div>
+    <div class="auth-logo">Speak Italian</div>
+    <div class="auth-title">La Colonna Sonora</div>
     <div class="auth-field">
       <label>Email</label>
       <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
     </div>
     <div class="auth-field">
       <label>Password</label>
-      <input type="password" id="loginPw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+      <input type="password" id="loginPw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in</button>
     <div class="auth-err" id="loginErr"></div>
@@ -366,118 +391,135 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
   </div>
 </div>
 
-<!-- ═══ MAIN APP ═══ -->
+<!-- MAIN APP -->
 <div id="app">
-  <!-- HEADER -->
   <div class="hdr">
     <div class="hdr-top">
-      <div class="logo">Speak Italian<span>: Story Club</span></div>
+      <div class="hdr-brand">
+        <div class="hdr-vinyl" id="hdrVinyl"></div>
+        <div class="hdr-text">
+          <div class="brand-eyebrow">Speak Italian</div>
+          <div class="brand-name">La Colonna <span>Sonora</span></div>
+        </div>
+      </div>
       <div class="hdr-right">
-        <div class="streak">🔥 <span id="streakNum">0</span></div>
-        <button class="logout-btn" onclick="openAccount()">Account</button>
-        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+        <div class="streak-pill">🔥 <span id="streakNum">0</span></div>
+        <button class="hdr-btn" onclick="openAccount()">Account</button>
+        <button class="hdr-btn" onclick="doLogout()">Sign out</button>
       </div>
     </div>
-    <div class="user-email" id="userEmailDisplay"></div>
+    <div class="user-line" id="userEmailDisplay"></div>
     <div class="nav">
-      <button class="nb on" onclick="nav('library',this)">Library</button>
+      <button class="nb on" onclick="nav('catalogue',this)">Songs</button>
       <button class="nb" onclick="nav('flashcards',this)">Flashcards</button>
-      <button class="nb" onclick="nav('podcasts',this)">Dialoghi</button>
       <button class="nb" onclick="nav('progress',this)">Progress</button>
     </div>
   </div>
 
-  <!-- LIBRARY -->
-  <div class="scr on" id="scr-library">
-    <div style="margin:4px 0 14px">
-      <div class="stitle">Your library</div>
-      <div class="ssub">Pick a text. Read, listen, learn.</div>
+  <!-- CATALOGUE -->
+  <div class="scr on" id="scr-catalogue">
+    <div class="cat-hero">
+      <div class="cat-hero-title">Italian, through song.</div>
+      <div class="cat-hero-sub">Every week, one song. Listen, follow along, learn the language hidden inside it.</div>
     </div>
-    <div class="pbar">
-      <div class="ptrack"><div class="pfill" id="libProgress" style="width:0%"></div></div>
-      <div class="plbl" id="libLabel">0 / 0 read</div>
+    <div class="cat-stats">
+      <div class="cat-stat"><div class="cat-stat-n" id="statSongs">0</div><div class="cat-stat-l">Songs</div></div>
+      <div class="cat-stat"><div class="cat-stat-n" id="statListened">0</div><div class="cat-stat-l">Listened</div></div>
+      <div class="cat-stat"><div class="cat-stat-n" id="statWords">0</div><div class="cat-stat-l">Words saved</div></div>
     </div>
-    <div class="pills" id="catPills"></div>
-    <div class="pills" id="regionPills" style="margin-top:-8px;margin-bottom:10px"></div>
-    <div class="pills" id="levelPills" style="margin-top:-8px;margin-bottom:14px"></div>
-    <div class="cgrid" id="cardGrid"></div>
+    <div class="filters" id="themeFilters"></div>
+    <div class="filters" id="diffFilters"></div>
+    <div class="song-grid" id="songGrid"></div>
   </div>
 
-  <!-- READER -->
+  <!-- SONG READER -->
   <div class="scr" id="scr-reader">
     <div class="rhdr">
-      <button class="backbtn" onclick="nav('library',document.querySelectorAll('.nb')[0])">← Back</button>
-      <div class="rtitle" id="readerTitle"></div>
+      <button class="backbtn" onclick="nav('catalogue',document.querySelectorAll('.nb')[0])">← Back</button>
+      <div style="flex:1;min-width:0">
+        <div class="r-artist" id="readerArtist"></div>
+        <div class="r-title" id="readerTitle"></div>
+      </div>
+      <span class="diff-tag" id="readerDiff"></span>
     </div>
-    <div class="aplayer">
-      <div class="atop">
-        <button class="playbtn" id="playBtn" onclick="togglePlay()">▶</button>
-        <div class="ainfo">
-          <div class="atitle2" id="playerTitle"></div>
-          <div class="asub" id="playerLevel"></div>
+
+    <!-- Intro audio -->
+    <div class="intro-player" id="introPlayer">
+      <div class="intro-label">Lucy's introduction</div>
+      <div class="ip-row">
+        <button class="ip-play" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="ip-info">
+          <div class="ip-title" id="playerSongTitle"></div>
+          <div class="ip-sub">Audio introduction · tap to play</div>
         </div>
-        <button class="spdbtn" id="spdBtn" onclick="cycleSpeed()">1×</button>
+        <button class="ip-spd" id="spdBtn" onclick="cycleSpeed()">1×</button>
       </div>
       <div class="waveform" id="waveform" onclick="seekAudio(event)"></div>
       <div class="tline"><span id="elapsed">0:00</span><span id="dur">0:00</span></div>
       <audio id="audioEl" onended="audioEnded()" ontimeupdate="audioTick()" onloadedmetadata="audioDur()"></audio>
     </div>
+
+    <!-- YouTube -->
+    <div id="ytContainer"></div>
+
+    <!-- Commentary -->
+    <div class="section-label">Lucy's commentary</div>
     <div class="tbar">
-      <div><div class="tlbl">Show translations</div><div class="tsub">Tap any word for meaning</div></div>
+      <div><div class="tlbl">Tap words to save</div><div class="tsub">Build your personal vocabulary deck</div></div>
       <div class="tswitch on" id="tswitch" onclick="this.classList.toggle('on');showTrans=!showTrans"></div>
     </div>
     <div class="savebar">
-      <span>Tap words to save them to your flashcard deck</span>
+      <span>Words you save appear in your flashcard deck</span>
       <span class="savecount" id="savedCount">0 saved</span>
     </div>
-    <div class="stxt" id="storyText"></div>
+    <div class="commentary" id="storyText"></div>
+
+    <!-- Grammar note -->
+    <div class="grammar-box" id="grammarBox" style="display:none"></div>
   </div>
 
   <!-- FLASHCARDS -->
   <div class="scr" id="scr-flashcards">
-    <div style="margin:4px 0 14px">
-      <div class="stitle">Your deck</div>
-      <div class="ssub">Words saved from reading sessions.</div>
+    <div style="margin:4px 0 16px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--cream);margin-bottom:4px">Your deck</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.4)">Words saved from songs.</div>
     </div>
-    <div class="fcstats">
-      <div class="fcs" id="fcs-all" onclick="setFCFilter('all')" style="cursor:pointer"><div class="fcsn" id="fcTotal">0</div><div class="fcsl">Total</div></div>
-      <div class="fcs" id="fcs-learned" onclick="setFCFilter('learned')" style="cursor:pointer"><div class="fcsn" id="fcLearned" style="color:var(--green)">0</div><div class="fcsl">Learned</div></div>
-      <div class="fcs" id="fcs-review" onclick="setFCFilter('review')" style="cursor:pointer"><div class="fcsn" id="fcReview" style="color:var(--gold)">0</div><div class="fcsl">To review</div></div>
+    <div class="fc-stats">
+      <div class="fcs" id="fcs-all" onclick="setFCFilter('all')"><div class="fcsn" id="fcTotal">0</div><div class="fcsl">Total</div></div>
+      <div class="fcs" id="fcs-learned" onclick="setFCFilter('learned')"><div class="fcsn" id="fcLearned" style="color:var(--sage)">0</div><div class="fcsl">Learned</div></div>
+      <div class="fcs" id="fcs-review" onclick="setFCFilter('review')"><div class="fcsn" id="fcReview" style="color:var(--gold)">0</div><div class="fcsl">To review</div></div>
     </div>
     <div id="fcArea"></div>
   </div>
 
-  <!-- DIALOGHI -->
-  <div class="scr" id="scr-podcasts">
-    <div style="margin:4px 0 14px">
-      <div class="stitle">Dialoghi</div>
-      <div class="ssub">Real conversations. Listen, read, learn.</div>
-    </div>
-    <div class="plist" id="podList"></div>
-  </div>
-
   <!-- PROGRESS -->
   <div class="scr" id="scr-progress">
-    <div style="margin:4px 0 14px">
-      <div class="stitle">Your progress</div>
-      <div class="ssub">Keep the streak alive.</div>
+    <div style="margin:4px 0 16px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--cream);margin-bottom:4px">Your progress</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.4)">Keep listening, keep learning.</div>
     </div>
-    <div class="fcstats" style="margin-bottom:14px">
-      <div class="fcs"><div class="fcsn" id="pgStreak">0</div><div class="fcsl">Day streak</div></div>
-      <div class="fcs" onclick="openReadHistory()" style="cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor=''"><div class="fcsn" id="pgRead">0</div><div class="fcsl">Texts read</div><div style="font-size:10px;color:var(--green);margin-top:2px">View history</div></div>
-      <div class="fcs" onclick="nav('flashcards',document.querySelectorAll('.nb')[1])" style="cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor=''"><div class="fcsn" id="pgWords">0</div><div class="fcsl">Words saved</div><div style="font-size:10px;color:var(--green);margin-top:2px">Go to deck</div></div>
+    <div class="prog-grid">
+      <div class="prog-card" onclick="openReadHistory()" style="cursor:pointer">
+        <div class="prog-n" id="pgListened">0</div><div class="prog-l">Songs heard</div>
+        <div style="font-size:10px;color:var(--rose);margin-top:4px">View history</div>
+      </div>
+      <div class="prog-card"><div class="prog-n" id="pgStreak">0</div><div class="prog-l">Day streak</div></div>
+      <div class="prog-card" onclick="nav('flashcards',document.querySelectorAll('.nb')[1])" style="cursor:pointer">
+        <div class="prog-n" id="pgWords">0</div><div class="prog-l">Words saved</div>
+        <div style="font-size:10px;color:var(--rose);margin-top:4px">Go to deck</div>
+      </div>
     </div>
-    <div class="wkchart">
-      <div class="wklbl">This week</div>
+    <div class="prog-section">
+      <div class="prog-section-title">This week</div>
       <div class="bars" id="wkBars"></div>
     </div>
-    <div class="vocprog">
-      <div class="vplbl">Vocabulary by category</div>
-      <div id="vocRows"></div>
+    <div class="prog-section">
+      <div class="prog-section-title">By theme</div>
+      <div id="themeRows"></div>
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
+  <!-- ADMIN -->
   <div class="admin-overlay" id="adminOverlay">
     <div class="admin-box">
       <div class="admin-hdr">
@@ -485,108 +527,76 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
         <button class="admin-close" onclick="closeAdmin()">✕</button>
       </div>
       <div class="admin-tabs">
-        <button class="atab on" id="atab-stories" onclick="aTab('stories',this)">Stories</button>
-        <button class="atab" onclick="aTab('podcasts',this)">Dialoghi</button>
+        <button class="atab on" onclick="aTab('songs',this)">Songs</button>
         <button class="atab" onclick="aTab('settings',this)">Settings</button>
       </div>
-      <!-- STORIES TAB -->
-      <div id="aStories" class="admin-body">
-        <div class="anotice"><strong>Audio tip:</strong> Upload your MP3 in Supabase → Storage → audio bucket → copy the public URL → paste it in the Audio URL field below.</div>
-        <div class="alist" id="storyList"></div>
-        <button class="aprimary" onclick="showAddStory()">+ Add new story</button>
-        <div id="storyForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
+
+      <!-- SONGS TAB -->
+      <div id="aSongs" class="admin-body">
+        <div class="anotice">Add one song per week. YouTube ID is the 11-character code after <strong>?v=</strong> in the URL. Audio intro: upload to Supabase Storage → audio bucket → paste URL. Grammar notes support full HTML.</div>
+        <div class="alist" id="songAdminList"></div>
+        <button class="aprimary" onclick="showAddSong()">+ Add song</button>
+        <div id="songForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
           <input type="hidden" id="editId">
           <div class="arow">
-            <div class="afield"><label>Title (Italian)</label><input type="text" id="fTitle" placeholder="Una passeggiata al mare"></div>
+            <div class="afield"><label>Song title</label><input type="text" id="fTitle" placeholder="Azzurro"></div>
+            <div class="afield"><label>Artist</label><input type="text" id="fArtist" placeholder="Adriano Celentano"></div>
+          </div>
+          <div class="arow3">
             <div class="afield">
-              <label>Category</label>
-              <select id="fCat">
-                <option value="fable">Leggende Italiane</option>
-                <option value="sapori">Sapori</option>
-                <option value="luoghi">Luoghi</option>
+              <label>Theme</label>
+              <select id="fTheme">
+                <option value="Amore e cuore">Amore e cuore</option>
+                <option value="Luoghi e paesaggi">Luoghi e paesaggi</option>
+                <option value="Malinconia e nostalgia">Malinconia e nostalgia</option>
+                <option value="Festa e leggerezza">Festa e leggerezza</option>
+                <option value="Storie e personaggi">Storie e personaggi</option>
               </select>
             </div>
-          </div>
-          <div class="arow">
-            <div class="afield"><label>CEFR Level</label><select id="fLevel"><option value="A1">A1</option><option value="A2" selected>A2</option><option value="B1">B1</option><option value="B2">B2</option></select></div>
-            <div class="afield"><label>Read time</label><input type="text" id="fTime" placeholder="4 min"></div>
-          </div>
-          <div class="afield"><label>Emoji icon</label><input type="text" id="fEmoji" placeholder="🌊" style="max-width:80px"></div>
-          <div class="afield">
-            <label>Region</label>
-            <select id="fRegion">
-              <option value="">— nessuna regione —</option>
-              <option value="valle-d-aosta">Valle d'Aosta</option>
-              <option value="piemonte">Piemonte</option>
-              <option value="lombardia">Lombardia</option>
-              <option value="veneto">Veneto</option>
-              <option value="trentino-alto-adige">Trentino-Alto Adige</option>
-              <option value="friuli-venezia-giulia">Friuli-Venezia Giulia</option>
-              <option value="liguria">Liguria</option>
-              <option value="emilia-romagna">Emilia-Romagna</option>
-              <option value="toscana">Toscana</option>
-              <option value="umbria">Umbria</option>
-              <option value="marche">Marche</option>
-              <option value="lazio">Lazio</option>
-              <option value="abruzzo">Abruzzo</option>
-              <option value="molise">Molise</option>
-              <option value="campania">Campania</option>
-              <option value="puglia">Puglia</option>
-              <option value="basilicata">Basilicata</option>
-              <option value="calabria">Calabria</option>
-              <option value="sicilia">Sicilia</option>
-              <option value="sardegna">Sardegna</option>
-            </select>
+            <div class="afield">
+              <label>Difficulty</label>
+              <select id="fDiff">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+            <div class="afield"><label>YouTube ID</label><input type="text" id="fYT" placeholder="dQw4w9WgXcQ"></div>
           </div>
           <div class="afield">
-            <label>Audio URL</label>
-            <input type="url" id="fAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/story.mp3">
-            <div class="atip">Upload MP3 in WordPress → Media → copy URL → paste here</div>
+            <label>Audio intro URL (your recording)</label>
+            <input type="url" id="fAudio" placeholder="https://…supabase.co/storage/v1/object/public/audio/song-intro.mp3">
           </div>
-          <div class="afield"><label>Story text</label><textarea id="fText" ></textarea></div>
+          <div class="afield">
+            <label>Your commentary</label>
+            <textarea id="fText" placeholder="Write your commentary here. This is the main teaching text — talk about the language, the cultural context, what to listen for. Students tap words here to save them to their flashcard deck."></textarea>
+          </div>
+          <div class="afield">
+            <label>Grammar note (HTML allowed)</label>
+            <textarea id="fGrammar" placeholder="<h3>Il congiuntivo</h3><p>This song uses...</p>" style="font-family:monospace;font-size:12px;min-height:80px"></textarea>
+          </div>
           <div class="afield">
             <label>Vocabulary</label>
-            <div class="atip" style="margin-bottom:8px">One word per line, format: <strong>italian word | english translation</strong><br>Example: rione | neighborhood, district</div>
-            <textarea id="vocabText" placeholder="rione | neighborhood, district&#10;affacciarsi | to lean out of a window&#10;vale la pena | it's worth it" style="min-height:120px;font-family:monospace;font-size:13px"></textarea>
+            <div class="atip" style="margin-bottom:8px">One per line: <strong>italian | english</strong> — e.g. <em>azzurro | sky blue</em></div>
+            <textarea id="vocabText" placeholder="azzurro | sky blue&#10;malinconico | melancholic&#10;ci tengo | I care about it" style="min-height:100px;font-family:monospace;font-size:13px"></textarea>
           </div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelForm()">Cancel</button>
-            <button class="aprimary" onclick="saveStory()">Save story</button>
+            <button class="aprimary" onclick="saveSong()">Save song</button>
           </div>
         </div>
       </div>
-      <!-- DIALOGHI TAB -->
-      <div id="aPodcasts" class="admin-body" style="display:none">
-        <div class="anotice"><strong>Audio tip:</strong> Upload your MP3 to Supabase Storage and paste the public URL in the Audio URL field below.</div>
-        <div class="alist" id="podAdminList"></div>
-        <button class="aprimary" onclick="showAddPod()">+ Add new dialogo</button>
-        <div id="podForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
-          <input type="hidden" id="peditId">
-          <div class="afield"><label>Title</label><input type="text" id="pTitle" placeholder="Al bar — ordering a coffee"></div>
-          <div class="afield"><label>Short description</label><input type="text" id="pDesc" placeholder="Marco and Sara order at a Naples café"></div>
-          <div class="arow">
-            <div class="afield"><label>Level</label><select id="pLevel"><option value="A1">A1</option><option value="A2">A2</option><option value="B1" selected>B1</option><option value="B2">B2</option></select></div>
-            <div class="afield"><label>Duration</label><input type="text" id="pDur" placeholder="5 min"></div>
-          </div>
-          <div class="afield"><label>Audio URL</label><input type="url" id="pAudio" placeholder="https://isaerudlmngluojrodnn.supabase.co/storage/v1/object/public/audio/dialogo.mp3"></div>
-          <div class="afield"><label>Transcript</label><textarea id="pTranscript" placeholder="Marco: Buongiorno! Vorrei un caffè, per favore.&#10;Sara: Anche per me, grazie."></textarea></div>
-          <div class="abtnrow">
-            <button class="asecondary" onclick="cancelPodForm()">Cancel</button>
-            <button class="aprimary" onclick="savePod()">Save dialogo</button>
-          </div>
-        </div>
-      </div>
+
       <!-- SETTINGS TAB -->
       <div id="aSettings" class="admin-body" style="display:none">
-        <div class="anotice">You are logged in as admin. Stories and dialogues you add here appear instantly for all subscribers.</div>
+        <div class="anotice">Logged in as admin. Changes appear instantly for all subscribers.</div>
         <div class="afield">
-          <label>Export all content (backup)</label>
+          <label>Export backup</label>
           <button class="asecondary" onclick="exportData()">Download JSON backup</button>
-          <div class="atip">Save this file. You can reimport it later if needed.</div>
         </div>
         <div class="afield">
-          <label>Import content from JSON backup</label>
-          <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="font-size:12px;padding:6px">
+          <label>Import from backup</label>
+          <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="font-size:12px;padding:6px;color:rgba(255,255,255,.6)">
         </div>
       </div>
     </div>
@@ -601,81 +611,66 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
   <div class="tipau" id="tipAu"></div>
 </div>
 
-<!-- READING HISTORY MODAL -->
-<div id="readHistoryOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeReadHistory()">
-  <div style="background:#fff;border-radius:16px;width:90%;max-width:420px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
-    <div style="background:var(--green);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <div style="font-family:'Playfair Display',serif;font-size:17px">Reading history</div>
-      <button onclick="closeReadHistory()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+<!-- READING HISTORY -->
+<div id="readHistoryOverlay" onclick="if(event.target===this)closeReadHistory()">
+  <div class="rh-box">
+    <div class="rh-hdr">
+      <div class="rh-title">Songs listened</div>
+      <button class="rh-close" onclick="closeReadHistory()">✕</button>
     </div>
-    <div id="readHistoryList" style="overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px"></div>
+    <div class="rh-list" id="readHistoryList"></div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════
-// SUPABASE CONFIG — replace these two values
-// ════════════════════════════════════════
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
 const SUPABASE_URL = 'https://isaerudlmngluojrodnn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzYWVydWRsbW5nbHVvanJvZG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQzODEsImV4cCI6MjA4OTcxMDM4MX0.g529Vp_TmV3YqZELf_JM-i7jcXI9gL9CuD4fRssFSqI';
-
-// Your admin email — the account that can access the content manager
 const ADMIN_EMAIL = 'cookitalia@gmail.com';
 
-// ════════════════════════════════════════
-// SUPABASE TABLES NEEDED (run this SQL in Supabase SQL Editor):
+// ═══════════════════════════════════════
+// SQL TO RUN IN SUPABASE:
 //
-// create table stories (
+// create table if not exists songs (
 //   id bigint generated always as identity primary key,
-//   cat text, emoji text, title text, level text, time text,
-//   audio text, text text, vocab jsonb, created_at timestamptz default now()
+//   title text not null,
+//   artist text,
+//   youtube_id text,
+//   audio text,
+//   theme text,
+//   difficulty text default 'Intermediate',
+//   text text default '',
+//   grammar text default '',
+//   vocab jsonb default '[]',
+//   created_at timestamptz default now()
 // );
-// create table podcasts (
-//   id bigint generated always as identity primary key,
-//   title text, desc text, level text, dur text,
-//   audio text, transcript text, created_at timestamptz default now()
-// );
-// create table user_progress (
-//   id uuid primary key default gen_random_uuid(),
-//   user_id uuid references auth.users not null,
-//   read_ids jsonb default '[]',
+//
+// create table if not exists user_progress (
+//   user_id uuid primary key references auth.users,
+//   read_ids bigint[] default '{}',
 //   saved_words jsonb default '[]',
-//   learned jsonb default '[]',
+//   learned text[] default '{}',
 //   streak int default 0,
 //   last_date text default '',
-//   week jsonb default '[0,0,0,0,0,0,0]',
+//   week int[] default '{0,0,0,0,0,0,0}',
 //   password_changed boolean default false,
-//   updated_at timestamptz default now(),
-//   unique(user_id)
+//   updated_at timestamptz default now()
 // );
-// -- If table already exists, add the column with:
-// alter table user_progress add column if not exists password_changed boolean default false;
-// alter table stories enable row level security;
-// alter table podcasts enable row level security;
-// alter table user_progress enable row level security;
-// create policy "Authenticated users can read stories" on stories for select to authenticated using (true);
-// create policy "Authenticated users can read podcasts" on podcasts for select to authenticated using (true);
-// create policy "Users manage own progress" on user_progress for all to authenticated using (auth.uid() = user_id);
-// create policy "Admin can manage stories" on stories for all to authenticated using (true);
-// create policy "Admin can manage podcasts" on podcasts for all to authenticated using (true);
-// ════════════════════════════════════════
+// ═══════════════════════════════════════
 
-// Check if configured
-const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 if(!isConfigured) document.getElementById('setupNotice').classList.add('on');
 
-// Init Supabase
 const { createClient } = supabase;
 const sb = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // ── STATE ──
 let currentUser = null;
-let appData = { stories: [], podcasts: [] };
+let songs = [];
 let progress = { read:[], saved:[], learned:[], streak:0, lastDate:'', week:[0,0,0,0,0,0,0], passwordChanged:false };
-let currentCat = 'all';
-let currentLevel = 'all';
-let currentRegion = 'all';
-let currentStory = null;
+let currentSong = null;
 let savedWords = [];
 let showTrans = true;
 let speeds = [1,1.25,1.5,0.75];
@@ -683,493 +678,453 @@ let spdIdx = 0;
 let fcIdx = 0;
 let fcRevealed = false;
 let fcFilter = 'all';
-let editingStoryId = null;
-let editingPodId = null;
+let editingId = null;
 let progressSyncTimer = null;
+let themeFilter = 'all';
+let diffFilter = 'all';
 
-// ── LOGIN ──
+const THEMES = ['Amore e cuore','Luoghi e paesaggi','Malinconia e nostalgia','Festa e leggerezza','Storie e personaggi'];
+const DIFFS = ['Beginner','Intermediate','Advanced'];
+const DIFF_COLORS = { Beginner:'var(--sage)', Intermediate:'var(--gold)', Advanced:'var(--rose)' };
+const DIFF_BG = { Beginner:'rgba(107,143,113,.15)', Intermediate:'rgba(212,168,75,.12)', Advanced:'rgba(201,115,106,.15)' };
+const VINYL_COLORS = {
+  'Amore e cuore':'#c9736a',
+  'Luoghi e paesaggi':'#6b8f71',
+  'Malinconia e nostalgia':'#7b7fa8',
+  'Festa e leggerezza':'#d4a84b',
+  'Storie e personaggi':'#8fa87b'
+};
+
+// ── AUTH ──
 async function doLogin() {
-  if(!sb) { alert('Supabase not configured yet.'); return; }
+  if(!sb){ alert('Supabase not configured.'); return; }
   const email = document.getElementById('loginEmail').value.trim();
   const pw = document.getElementById('loginPw').value;
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('loginErr');
-  if(!email || !pw) { err.textContent = 'Please enter your email and password.'; return; }
-  btn.disabled = true; btn.textContent = 'Signing in...'; err.textContent = '';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
-  btn.disabled = false; btn.textContent = 'Sign in';
-  if(error) { err.textContent = error.message; return; }
+  if(!email||!pw){ err.textContent='Please enter your email and password.'; return; }
+  btn.disabled=true; btn.textContent='Signing in…'; err.textContent='';
+  const {data,error} = await sb.auth.signInWithPassword({email,password:pw});
+  btn.disabled=false; btn.textContent='Sign in';
+  if(error){ err.textContent=error.message; return; }
   await onLogin(data.user);
 }
 
-// ── LOGOUT ──
 async function doLogout() {
   if(!sb) return;
+  stopAudio();
   await sb.auth.signOut();
-  currentUser = null;
+  currentUser=null;
   document.getElementById('app').classList.remove('on');
-  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authScreen').style.display='flex';
 }
 
-// ── ACCOUNT MODAL ──
 function openAccount() {
-  document.getElementById('acctEmail').value = currentUser ? currentUser.email : '';
-  document.getElementById('acctPw1').value = '';
-  document.getElementById('acctPw2').value = '';
-  document.getElementById('acctMsg').textContent = '';
-  document.getElementById('acctMsg').className = 'acct-msg';
-  document.getElementById('firstTimeNotice').style.display = progress.passwordChanged ? 'none' : 'block';
+  document.getElementById('acctEmail').value = currentUser?.email||'';
+  document.getElementById('acctPw1').value='';
+  document.getElementById('acctPw2').value='';
+  document.getElementById('acctMsg').textContent='';
+  document.getElementById('acctMsg').className='modal-msg';
+  document.getElementById('firstTimeNotice').style.display = progress.passwordChanged?'none':'block';
   document.getElementById('acctOverlay').classList.add('on');
-  setTimeout(() => document.getElementById('acctPw1').focus(), 100);
+  setTimeout(()=>document.getElementById('acctPw1').focus(),100);
 }
-function closeAccount() {
-  document.getElementById('acctOverlay').classList.remove('on');
-}
+function closeAccount(){ document.getElementById('acctOverlay').classList.remove('on'); }
+
 async function doChangePassword() {
-  const pw1 = document.getElementById('acctPw1').value;
-  const pw2 = document.getElementById('acctPw2').value;
-  const btn = document.getElementById('acctBtn');
-  const msg = document.getElementById('acctMsg');
-  if(!pw1 || pw1.length < 6) { msg.className='acct-msg err'; msg.textContent='Password must be at least 6 characters.'; return; }
-  if(pw1 !== pw2) { msg.className='acct-msg err'; msg.textContent='Passwords do not match.'; return; }
-  btn.disabled = true; btn.textContent = 'Updating...'; msg.textContent = '';
-  const { error } = await sb.auth.updateUser({ password: pw1 });
-  btn.disabled = false; btn.textContent = 'Update password';
-  if(error) { msg.className='acct-msg err'; msg.textContent = error.message; return; }
-  msg.className='acct-msg ok'; msg.textContent = 'Password updated successfully.';
-  document.getElementById('acctPw1').value = '';
-  document.getElementById('acctPw2').value = '';
-  progress.passwordChanged = true;
-  document.getElementById('firstTimeNotice').style.display = 'none';
-  syncProgressToSupabase();
-  setTimeout(() => closeAccount(), 2000);
+  const pw1=document.getElementById('acctPw1').value;
+  const pw2=document.getElementById('acctPw2').value;
+  const btn=document.getElementById('acctBtn');
+  const msg=document.getElementById('acctMsg');
+  if(!pw1||pw1.length<6){ msg.className='modal-msg err'; msg.textContent='Password must be at least 6 characters.'; return; }
+  if(pw1!==pw2){ msg.className='modal-msg err'; msg.textContent='Passwords do not match.'; return; }
+  btn.disabled=true; btn.textContent='Updating…'; msg.textContent='';
+  const {error}=await sb.auth.updateUser({password:pw1});
+  btn.disabled=false; btn.textContent='Update password';
+  if(error){ msg.className='modal-msg err'; msg.textContent=error.message; return; }
+  msg.className='modal-msg ok'; msg.textContent='Password updated.';
+  document.getElementById('acctPw1').value='';
+  document.getElementById('acctPw2').value='';
+  progress.passwordChanged=true;
+  document.getElementById('firstTimeNotice').style.display='none';
+  syncProgress();
+  setTimeout(()=>closeAccount(),2000);
 }
 
-// ── ON LOGIN ──
+// ── INIT ──
 async function onLogin(user) {
-  currentUser = user;
-  document.getElementById('authScreen').style.display = 'none';
+  currentUser=user;
+  document.getElementById('authScreen').style.display='none';
   document.getElementById('app').classList.add('on');
-  document.getElementById('userEmailDisplay').textContent = user.email;
-  await loadFromSupabase();
-  await loadProgressFromSupabase();
-  renderLibrary();
-  renderPods();
-  document.getElementById('streakNum').textContent = progress.streak || 0;
+  document.getElementById('userEmailDisplay').textContent=user.email;
+  await Promise.all([loadSongs(), loadProgress()]);
+  renderCatalogue();
+  document.getElementById('streakNum').textContent=progress.streak||0;
 }
 
-// ── LOAD STORIES & PODCASTS FROM SUPABASE ──
-async function loadFromSupabase() {
+async function loadSongs() {
   if(!sb) return;
-  const [{ data: stories }, { data: podcasts }] = await Promise.all([
-    sb.from('stories').select('*').order('created_at', { ascending: false }),
-    sb.from('podcasts').select('*').order('created_at', { ascending: false })
-  ]);
-  appData.stories = stories || [];
-  appData.podcasts = podcasts || [];
+  const {data} = await sb.from('songs').select('*').order('created_at',{ascending:false});
+  songs = data||[];
 }
 
-// ── LOAD USER PROGRESS ──
-async function loadProgressFromSupabase() {
-  if(!sb || !currentUser) return;
-  const { data } = await sb.from('user_progress')
-    .select('*').eq('user_id', currentUser.id).single();
-  if(data) {
-    progress = {
-      read: data.read_ids || [],
-      saved: data.saved_words || [],
-      learned: Array.isArray(data.learned) ? data.learned : [],
-      streak: data.streak || 0,
-      lastDate: data.last_date || '',
-      week: data.week || [0,0,0,0,0,0,0],
-      passwordChanged: data.password_changed || false
-    };
-  }
+async function loadProgress() {
+  if(!sb||!currentUser) return;
+  const {data} = await sb.from('user_progress').select('*').eq('user_id',currentUser.id).single();
+  if(data) progress={
+    read: data.read_ids||[],
+    saved: data.saved_words||[],
+    learned: Array.isArray(data.learned)?data.learned:[],
+    streak: data.streak||0,
+    lastDate: data.last_date||'',
+    week: data.week||[0,0,0,0,0,0,0],
+    passwordChanged: data.password_changed||false
+  };
 }
 
-// ── SAVE PROGRESS (debounced) ──
 function saveProgress(p) {
-  progress = p;
+  progress=p;
   clearTimeout(progressSyncTimer);
-  progressSyncTimer = setTimeout(() => syncProgressToSupabase(), 1500);
+  progressSyncTimer=setTimeout(syncProgress,1500);
 }
 
-async function syncProgressToSupabase() {
-  if(!sb || !currentUser) return;
+async function syncProgress() {
+  if(!sb||!currentUser) return;
   await sb.from('user_progress').upsert({
-    user_id: currentUser.id,
-    read_ids: progress.read,
-    saved_words: progress.saved,
-    learned: progress.learned || [],
-    streak: progress.streak,
-    last_date: progress.lastDate,
-    week: progress.week,
-    password_changed: progress.passwordChanged,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'user_id' });
+    user_id:currentUser.id,
+    read_ids:progress.read,
+    saved_words:progress.saved,
+    learned:progress.learned||[],
+    streak:progress.streak,
+    last_date:progress.lastDate,
+    week:progress.week,
+    password_changed:progress.passwordChanged,
+    updated_at:new Date().toISOString()
+  },{onConflict:'user_id'});
 }
 
 // ── NAV ──
-function nav(name, btn) {
-  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
-  document.getElementById('scr-' + name).classList.add('on');
+function nav(name,btn) {
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('scr-'+name).classList.add('on');
   if(btn) btn.classList.add('on');
-  if(name === 'library') renderLibrary();
-  if(name === 'flashcards') { fcFilter = 'all'; fcIdx = 0; renderFC(); }
-  if(name === 'podcasts') renderPods();
-  if(name === 'progress') renderProgress();
+  stopAudio();
+  if(name==='catalogue') renderCatalogue();
+  if(name==='flashcards'){ fcFilter='all'; fcIdx=0; renderFC(); }
+  if(name==='progress') renderProgress();
 }
 
-// ── LIBRARY ──
-function renderLibrary() {
-  // Category pills
-  const cats = ['all','fable','sapori','luoghi'];
-  const catLabels = {all:'Tutte',fable:'Leggende',sapori:'Sapori',luoghi:'Luoghi'};
-  const catContainer = document.getElementById('catPills');
-  catContainer.innerHTML = cats
-    .filter(c => c === 'all' || appData.stories.some(s => s.cat === c))
-    .map(c => `<button class="pill${currentCat===c?' on':''}" onclick="filterCat('${c}',this)">${catLabels[c]}</button>`).join('');
+// ── CATALOGUE ──
+function renderCatalogue() {
+  document.getElementById('statSongs').textContent=songs.length;
+  document.getElementById('statListened').textContent=progress.read.filter(id=>songs.find(s=>s.id===id)).length;
+  document.getElementById('statWords').textContent=progress.saved.length;
 
-  // Region pills — only show regions present in currently cat-filtered stories
-  const regionDefs = [
-    {value:'valle-d-aosta', label:"Valle d'Aosta"},
-    {value:'piemonte', label:'Piemonte'},
-    {value:'lombardia', label:'Lombardia'},
-    {value:'veneto', label:'Veneto'},
-    {value:'trentino-alto-adige', label:'Trentino-Alto Adige'},
-    {value:'friuli-venezia-giulia', label:'Friuli-Venezia Giulia'},
-    {value:'liguria', label:'Liguria'},
-    {value:'emilia-romagna', label:'Emilia-Romagna'},
-    {value:'toscana', label:'Toscana'},
-    {value:'umbria', label:'Umbria'},
-    {value:'marche', label:'Marche'},
-    {value:'lazio', label:'Lazio'},
-    {value:'abruzzo', label:'Abruzzo'},
-    {value:'molise', label:'Molise'},
-    {value:'campania', label:'Campania'},
-    {value:'puglia', label:'Puglia'},
-    {value:'basilicata', label:'Basilicata'},
-    {value:'calabria', label:'Calabria'},
-    {value:'sicilia', label:'Sicilia'},
-    {value:'sardegna', label:'Sardegna'},
-  ];
-  const catFiltered = currentCat === 'all' ? appData.stories : appData.stories.filter(s => s.cat === currentCat);
-  const usedRegions = new Set(catFiltered.map(s => s.region).filter(Boolean));
-  const regionContainer = document.getElementById('regionPills');
-  const regionOptions = regionDefs.filter(r => usedRegions.has(r.value));
-  if(regionOptions.length === 0) {
-    regionContainer.style.display = 'none';
-  } else {
-    regionContainer.style.display = 'flex';
-    regionContainer.innerHTML = [
-      `<button class="pill${currentRegion==='all'?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterRegion('all',this)">Tutte le regioni</button>`,
-      ...regionOptions.map(r => `<button class="pill${currentRegion===r.value?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterRegion('${r.value}',this)">${r.label}</button>`)
-    ].join('');
-  }
+  // Theme filters
+  const availThemes = THEMES.filter(t=>songs.some(s=>s.theme===t));
+  const tf=document.getElementById('themeFilters');
+  tf.innerHTML=[{k:'all',l:'All themes'},...availThemes.map(t=>({k:t,l:t}))].map(x=>
+    `<button class="fpill${themeFilter===x.k?' on':''}" onclick="setFilter('theme','${x.k.replace(/'/g,"\\'")}',this)">${x.l}</button>`
+  ).join('');
 
-  // Level pills
-  const levels = ['all','A1','A2','B1','B2','C1','C2'];
-  const levelLabels = {all:'All levels',A1:'A1',A2:'A2',B1:'B1',B2:'B2',C1:'C1',C2:'C2'};
-  const levelContainer = document.getElementById('levelPills');
-  const availableLevels = levels.filter(l => l === 'all' || appData.stories.some(s => s.level === l));
-  levelContainer.style.display = availableLevels.length <= 1 ? 'none' : 'flex';
-  levelContainer.innerHTML = availableLevels
-    .map(l => `<button class="pill level-pill${currentLevel===l?' on':''}" style="font-size:11px;padding:4px 10px" onclick="filterLevel('${l}',this)">${levelLabels[l]}</button>`).join('');
+  // Difficulty filters
+  const df=document.getElementById('diffFilters');
+  df.innerHTML=[{k:'all',l:'All levels'},...DIFFS.map(d=>({k:d,l:d}))].map(x=>
+    `<button class="fpill diff-${x.k.toLowerCase()}${diffFilter===x.k?' on':''}" onclick="setFilter('diff','${x.k}',this)">${x.l}</button>`
+  ).join('');
 
-  // Filter stories by cat + region + level
-  let filtered = catFiltered;
-  if(currentRegion !== 'all') filtered = filtered.filter(s => s.region === currentRegion);
-  if(currentLevel !== 'all') filtered = filtered.filter(s => s.level === currentLevel);
+  let filtered=songs;
+  if(themeFilter!=='all') filtered=filtered.filter(s=>s.theme===themeFilter);
+  if(diffFilter!=='all') filtered=filtered.filter(s=>s.difficulty===diffFilter);
 
-  // Progress bar counts all stories
-  const total = appData.stories.length;
-  const readCount = progress.read.length;
-  document.getElementById('libProgress').style.width = total > 0 ? (readCount/total*100)+'%' : '0%';
-  document.getElementById('libLabel').textContent = readCount+' / '+total+' read';
-
-  const grid = document.getElementById('cardGrid');
-  if(filtered.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><div class="ei">📚</div><p>No stories yet. Open the content manager to add your first story.</p></div>';
+  const grid=document.getElementById('songGrid');
+  if(filtered.length===0){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="ei">🎵</div><p>'+
+      (songs.length===0?'No songs yet. A new one arrives every week. Come back soon.':'No songs match this filter.')+
+    '</p></div>';
     return;
   }
-  const levelClass = {A1:'bg',A2:'bg',B1:'bo',B2:'bb'};
-  const catLabel = {fable:'Leggende Italiane',sapori:'Sapori',luoghi:'Luoghi',
-    // backward compat for old entries
-    stories:'Città della Settimana',geo:'Parola della Settimana',myth:'Espressioni Italiane',culture:'Culture'};
-  grid.innerHTML = filtered.map(s => `
-    <div class="scard" onclick="openStory(${s.id})">
-      <div class="cthumb ${s.cat||'fable'}">${s.emoji||'📖'}</div>
-      <div class="cbody">
-        <div class="ccat">${catLabel[s.cat]||s.cat}</div>
-        <div class="ctitle">${s.title}</div>
-        <div class="cmeta">
-          <span class="badge ${levelClass[s.level]||'bg'}">${s.level}</span>
-          ${progress.read.includes(s.id)?'<span class="badge bg">✓ read</span>':''}
-          <span class="rtime">${s.time}</span>
+  grid.innerHTML=filtered.map(s=>songCard(s)).join('');
+}
+
+function songCard(s) {
+  const listened=progress.read.includes(s.id);
+  const vc=VINYL_COLORS[s.theme]||'var(--rose)';
+  const dc=DIFF_COLORS[s.difficulty]||'var(--gold)';
+  const db=DIFF_BG[s.difficulty]||'rgba(212,168,75,.12)';
+  const wordCount=(s.vocab||[]).length;
+  return `
+  <div class="scard" onclick="openSong(${s.id})">
+    <div class="scard-top">
+      <div class="scard-vinyl" style=""><div style="position:absolute;width:16px;height:16px;border-radius:50%;background:${vc}"></div></div>
+      <div class="scard-info">
+        <div class="scard-artist">${esc(s.artist||'')}</div>
+        <div class="scard-title">${esc(s.title)}</div>
+        <div class="scard-meta">
+          <span class="diff-badge" style="background:${db};color:${dc}">${s.difficulty||'Intermediate'}</span>
+          ${s.theme?`<span class="theme-badge">${esc(s.theme)}</span>`:''}
         </div>
       </div>
-    </div>`).join('');
+    </div>
+    <div class="scard-footer">
+      ${listened?'<span class="scard-listened">✓ Listened</span>':'<span class="scard-words" style="color:rgba(255,255,255,.2)">Not played yet</span>'}
+      ${wordCount?`<span class="scard-words">${wordCount} vocab words</span>`:''}
+      <button class="scard-play" onclick="event.stopPropagation();openSong(${s.id})">▶</button>
+    </div>
+  </div>`;
 }
 
-function filterCat(c, el) {
-  currentCat = c;
-  currentRegion = 'all';
-  document.querySelectorAll('#catPills .pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  renderLibrary();
+function setFilter(type,val,el){
+  if(type==='theme') themeFilter=val;
+  else diffFilter=val;
+  renderCatalogue();
 }
 
-function filterRegion(r, el) {
-  currentRegion = r;
-  document.querySelectorAll('#regionPills .pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  renderLibrary();
-}
-
-function filterLevel(l, el) {
-  currentLevel = l;
-  document.querySelectorAll('#levelPills .pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  renderLibrary();
-}
-
-// ── READER ──
-function openStory(id) {
-  const s = appData.stories.find(x => x.id === id);
+// ── SONG READER ──
+function openSong(id) {
+  const s=songs.find(x=>x.id===id);
   if(!s) return;
-  currentStory = s;
-  savedWords = [];
-  document.getElementById('readerTitle').textContent = s.title;
-  document.getElementById('playerTitle').textContent = s.title;
-  document.getElementById('playerLevel').textContent = 'Italian '+s.level+' · Comprehensible Input';
-  document.getElementById('savedCount').textContent = '0 saved';
-  const audio = document.getElementById('audioEl');
-  if(s.audio) { audio.src = s.audio; audio.load(); }
-  else { audio.src = ''; document.getElementById('dur').textContent = 'no audio'; }
-  document.getElementById('playBtn').textContent = '▶';
-  buildWaveform();
-  renderStoryText(s);
-  if(!progress.read.includes(id)) {
-    progress.read.push(id);
-    const today = new Date().toDateString();
-    if(progress.lastDate !== today) {
-      const yesterday = new Date(Date.now()-86400000).toDateString();
-      if(progress.lastDate === yesterday) progress.streak++;
-      else progress.streak = 1;
-      progress.lastDate = today;
-    }
-    const dow = new Date().getDay();
-    progress.week[dow] = (progress.week[dow]||0)+1;
-    saveProgress(progress);
-    document.getElementById('streakNum').textContent = progress.streak;
+  currentSong=s;
+  savedWords=[];
+
+  document.getElementById('readerArtist').textContent=s.artist||'';
+  document.getElementById('readerTitle').textContent=s.title;
+  const diff=document.getElementById('readerDiff');
+  diff.textContent=s.difficulty||'Intermediate';
+  diff.style.background=DIFF_BG[s.difficulty]||'rgba(212,168,75,.12)';
+  diff.style.color=DIFF_COLORS[s.difficulty]||'var(--gold)';
+
+  document.getElementById('playerSongTitle').textContent=s.title;
+  document.getElementById('savedCount').textContent='0 saved';
+
+  // Intro audio
+  const ip=document.getElementById('introPlayer');
+  const audio=document.getElementById('audioEl');
+  if(s.audio){ ip.style.display='block'; audio.src=s.audio; audio.load(); buildWaveform(); }
+  else{ ip.style.display='none'; audio.src=''; }
+  document.getElementById('playBtn').textContent='▶';
+
+  // YouTube
+  const ytc=document.getElementById('ytContainer');
+  if(s.youtube_id){
+    ytc.innerHTML=`<div class="yt-wrap"><iframe src="https://www.youtube.com/embed/${esc(s.youtube_id)}?rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+  } else {
+    ytc.innerHTML='<div class="yt-no-audio">No video added yet — add a YouTube ID in the content manager.</div>';
   }
-  nav('reader', null);
+
+  // Grammar
+  const gb=document.getElementById('grammarBox');
+  if(s.grammar&&s.grammar.trim()){ gb.style.display='block'; gb.innerHTML=s.grammar; }
+  else gb.style.display='none';
+
+  renderSongText(s);
+  spinVinyl(true);
+
+  if(!progress.read.includes(id)){
+    progress.read.push(id);
+    const today=new Date().toDateString();
+    if(progress.lastDate!==today){
+      const yesterday=new Date(Date.now()-86400000).toDateString();
+      progress.streak=(progress.lastDate===yesterday)?(progress.streak+1):1;
+      progress.lastDate=today;
+    }
+    const dow=new Date().getDay();
+    progress.week[dow]=(progress.week[dow]||0)+1;
+    saveProgress(progress);
+    document.getElementById('streakNum').textContent=progress.streak;
+  }
+
+  nav('reader',null);
   document.querySelectorAll('.nb')[0].classList.remove('on');
 }
 
-function esc(str){ return (str||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-const transCache = {};
-
-function renderStoryText(s) {
-  const vocab = s.vocab || [];
-  const vocabArr = Array.isArray(vocab) ? vocab : [];
-  const vocabMap = {};
-  vocabArr.forEach(v => {
-    vocabMap[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
-    transCache[v.it.toLowerCase()] = {ph:v.ph, tr:v.tr, it:v.it};
-  });
-  // Sort vocab keys longest first so multi-word phrases match before single words
-  const vocabKeys = Object.keys(vocabMap).sort((a,b) => b.length - a.length);
-
-  function annotatePara(para) {
-    if(!para.trim()) return '<br>';
-    let result = '';
-    let i = 0;
-    const lower = para.toLowerCase();
-    while(i < para.length) {
-      let matched = false;
-      for(const key of vocabKeys) {
-        if(lower.startsWith(key, i)) {
-          const original = para.slice(i, i + key.length);
-          const v = vocabMap[key];
-          result += `<span class="sw sw-known" data-word="${esc(key)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(original)}" onclick="wordClick(event,this)">${original}</span>`;
-          i += key.length;
-          matched = true;
-          break;
-        }
-      }
-      if(!matched) {
-        const wordMatch = para.slice(i).match(/^([a-zA-ZÀ-ÿ]+)/);
-        if(wordMatch) {
-          const w = wordMatch[1];
-          const clean = w.toLowerCase();
-          result += `<span class="sw" data-word="${esc(clean)}" onclick="wordClick(event,this)">${w}</span>`;
-          i += w.length;
-        } else {
-          result += para[i];
-          i++;
-        }
-      }
-    }
-    return '<p style="margin-bottom:10px">' + result + '</p>';
-  }
-
-  const paras = (s.text||'').split('\n');
-  const el = document.getElementById('storyText');
-  el.innerHTML = paras.map(para => annotatePara(para)).join('');
+function spinVinyl(on){
+  const v=document.getElementById('hdrVinyl');
+  if(on) v.classList.add('spinning'); else v.classList.remove('spinning');
 }
 
-function wordClick(e, el) {
+function renderSongText(s){
+  const vocab=Array.isArray(s.vocab)?s.vocab:[];
+  const vocabMap={};
+  vocab.forEach(v=>{ vocabMap[v.it.toLowerCase()]={ph:v.ph||'',tr:v.tr,it:v.it}; });
+  const vocabKeys=Object.keys(vocabMap).sort((a,b)=>b.length-a.length);
+
+  function annotatePara(para){
+    if(!para.trim()) return '<br>';
+    let result='',i=0;
+    const lower=para.toLowerCase();
+    while(i<para.length){
+      let matched=false;
+      for(const key of vocabKeys){
+        if(lower.startsWith(key,i)){
+          const orig=para.slice(i,i+key.length);
+          const v=vocabMap[key];
+          result+=`<span class="sw sw-known" data-word="${esc(key)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(orig)}" onclick="wordClick(event,this)">${orig}</span>`;
+          i+=key.length; matched=true; break;
+        }
+      }
+      if(!matched){
+        const wm=para.slice(i).match(/^([a-zA-ZÀ-ÿ]+)/);
+        if(wm){ result+=`<span class="sw" data-word="${esc(wm[1].toLowerCase())}" onclick="wordClick(event,this)">${wm[1]}</span>`; i+=wm[1].length; }
+        else { result+=para[i]; i++; }
+      }
+    }
+    return '<p style="margin-bottom:10px">'+result+'</p>';
+  }
+
+  const paras=(s.text||'').split('\n');
+  document.getElementById('storyText').innerHTML=paras.map(p=>annotatePara(p)).join('');
+}
+
+function esc(str){ return (str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function wordClick(e,el){
   e.stopPropagation();
-  const word = el.dataset.word;
+  const word=el.dataset.word;
   if(!word) return;
-  if(el.classList.contains('saved')) {
+  if(el.classList.contains('saved')){
     el.classList.remove('saved');
-    savedWords = savedWords.filter(x => x.it !== word);
-    progress.saved = progress.saved.filter(x => x.it !== word);
+    savedWords=savedWords.filter(x=>x.it!==word);
+    progress.saved=progress.saved.filter(x=>x.it!==word);
     saveProgress(progress);
-    document.getElementById('savedCount').textContent = savedWords.length+' saved';
+    document.getElementById('savedCount').textContent=savedWords.length+' saved';
     return;
   }
-  if(!el.dataset.tr) { showTooltipNoTrans(e, word); return; }
-  showTooltip(e, el);
+  if(!el.dataset.tr){ showTooltipNoTrans(e,word); return; }
+  showTooltip(e,el);
   el.classList.add('saved');
-  if(!savedWords.find(x => x.it === word)) {
-    savedWords.push({it:el.dataset.it||word, ph:el.dataset.ph||'', tr:el.dataset.tr});
-    if(!progress.saved.find(x => x.it === word)) {
-      progress.saved.push({it:el.dataset.it||word, ph:el.dataset.ph||'', tr:el.dataset.tr});
+  if(!savedWords.find(x=>x.it===word)){
+    savedWords.push({it:el.dataset.it||word,ph:el.dataset.ph||'',tr:el.dataset.tr});
+    if(!progress.saved.find(x=>x.it===word)){
+      progress.saved.push({it:el.dataset.it||word,ph:el.dataset.ph||'',tr:el.dataset.tr});
       saveProgress(progress);
     }
   }
-  document.getElementById('savedCount').textContent = savedWords.length+' saved';
+  document.getElementById('savedCount').textContent=savedWords.length+' saved';
 }
 
-function showTooltipNoTrans(e, word) {
-  const t = document.getElementById('tooltip');
-  document.getElementById('tipW').textContent = word;
-  document.getElementById('tipPh').textContent = '';
-  document.getElementById('tipTr').textContent = 'no translation added yet';
-  document.getElementById('tipAu').textContent = 'Add it in the content manager → Edit story → Vocabulary';
-  t.style.display = 'block';
-  positionTooltip(e);
-  setTimeout(() => t.style.display = 'none', 3000);
+function showTooltip(e,el){
+  const t=document.getElementById('tooltip');
+  document.getElementById('tipW').textContent=el.dataset.it||el.dataset.word;
+  document.getElementById('tipPh').textContent=el.dataset.ph||'';
+  document.getElementById('tipTr').textContent=el.dataset.tr||'';
+  document.getElementById('tipAu').textContent='tap again to unsave';
+  t.style.display='block'; posTooltip(e);
+  setTimeout(()=>t.style.display='none',3500);
 }
 
-function showTooltip(e, el) {
-  const t = document.getElementById('tooltip');
-  document.getElementById('tipW').textContent = el.dataset.it||el.dataset.word;
-  document.getElementById('tipPh').textContent = el.dataset.ph||'';
-  document.getElementById('tipTr').textContent = el.dataset.tr||'';
-  document.getElementById('tipAu').textContent = 'tap again to unsave';
-  t.style.display = 'block';
-  positionTooltip(e);
-  setTimeout(() => t.style.display = 'none', 3500);
+function showTooltipNoTrans(e,word){
+  const t=document.getElementById('tooltip');
+  document.getElementById('tipW').textContent=word;
+  document.getElementById('tipPh').textContent='';
+  document.getElementById('tipTr').textContent='no translation added yet';
+  document.getElementById('tipAu').textContent='Edit this song → Vocabulary to add one';
+  t.style.display='block'; posTooltip(e);
+  setTimeout(()=>t.style.display='none',3000);
 }
 
-function positionTooltip(e) {
-  const t = document.getElementById('tooltip');
-  let x = e.clientX+12, y = e.clientY-85;
-  if(x+220 > window.innerWidth) x = e.clientX-225;
-  if(y < 5) y = e.clientY+22;
-  t.style.left = x+'px'; t.style.top = y+'px';
+function posTooltip(e){
+  const t=document.getElementById('tooltip');
+  let x=e.clientX+12,y=e.clientY-90;
+  if(x+240>window.innerWidth) x=e.clientX-245;
+  if(y<5) y=e.clientY+22;
+  t.style.left=x+'px'; t.style.top=y+'px';
 }
 
-document.addEventListener('click', () => document.getElementById('tooltip').style.display = 'none');
+document.addEventListener('click',()=>document.getElementById('tooltip').style.display='none');
 
 // ── AUDIO ──
-function togglePlay() {
-  const a = document.getElementById('audioEl');
-  if(!a.src||a.src==='about:blank'||a.src==='') { alert('No audio for this story yet. Add one via the content manager.'); return; }
-  if(a.paused) { a.play(); document.getElementById('playBtn').textContent='⏸'; }
+function togglePlay(){
+  const a=document.getElementById('audioEl');
+  if(!a.src||a.src==='about:blank'||a.src===''){
+    alert('No audio intro for this song yet. Add one in the content manager.');
+    return;
+  }
+  if(a.paused){ a.play(); document.getElementById('playBtn').textContent='⏸'; }
   else { a.pause(); document.getElementById('playBtn').textContent='▶'; }
 }
-function audioDur() { document.getElementById('dur').textContent = fmtTime(document.getElementById('audioEl').duration); }
-function audioTick() {
-  const a = document.getElementById('audioEl');
-  document.getElementById('elapsed').textContent = fmtTime(a.currentTime);
-  const pct = a.duration ? a.currentTime/a.duration : 0;
-  document.querySelectorAll('.wbar').forEach((b,i) => b.classList.toggle('p', i/40 < pct));
+function stopAudio(){
+  const a=document.getElementById('audioEl');
+  if(a){ a.pause(); a.src=''; }
+  spinVinyl(false);
 }
-function audioEnded() { document.getElementById('playBtn').textContent = '▶'; }
-function seekAudio(e) {
-  const a = document.getElementById('audioEl');
+function audioDur(){ document.getElementById('dur').textContent=fmtTime(document.getElementById('audioEl').duration); }
+function audioTick(){
+  const a=document.getElementById('audioEl');
+  document.getElementById('elapsed').textContent=fmtTime(a.currentTime);
+  const pct=a.duration?a.currentTime/a.duration:0;
+  document.querySelectorAll('.wbar').forEach((b,i)=>b.classList.toggle('p',i/40<pct));
+}
+function audioEnded(){ document.getElementById('playBtn').textContent='▶'; }
+function seekAudio(e){
+  const a=document.getElementById('audioEl');
   if(!a.duration) return;
-  const rect = e.currentTarget.getBoundingClientRect();
-  a.currentTime = ((e.clientX-rect.left)/rect.width) * a.duration;
+  const rect=e.currentTarget.getBoundingClientRect();
+  a.currentTime=((e.clientX-rect.left)/rect.width)*a.duration;
 }
-function cycleSpeed() {
-  spdIdx = (spdIdx+1)%speeds.length;
-  document.getElementById('audioEl').playbackRate = speeds[spdIdx];
-  document.getElementById('spdBtn').textContent = speeds[spdIdx]+'×';
+function cycleSpeed(){
+  spdIdx=(spdIdx+1)%speeds.length;
+  document.getElementById('audioEl').playbackRate=speeds[spdIdx];
+  document.getElementById('spdBtn').textContent=speeds[spdIdx]+'×';
 }
-function fmtTime(s) {
-  if(!s||isNaN(s)) return '0:00';
-  return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
-}
-function buildWaveform() {
-  const wf = document.getElementById('waveform');
-  wf.innerHTML = '';
-  for(let i=0;i<40;i++) {
-    const b = document.createElement('div');
-    b.className = 'wbar';
-    b.style.height = (8+Math.random()*20)+'px';
+function fmtTime(s){ if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'); }
+function buildWaveform(){
+  const wf=document.getElementById('waveform');
+  wf.innerHTML='';
+  for(let i=0;i<40;i++){
+    const b=document.createElement('div');
+    b.className='wbar';
+    b.style.height=(6+Math.random()*22)+'px';
     wf.appendChild(b);
   }
 }
 
 // ── FLASHCARDS ──
-function setFCFilter(f) {
-  fcFilter = f;
-  fcIdx = 0;
-  // update active stat box styling
-  ['all','learned','review'].forEach(k => {
-    const el = document.getElementById('fcs-'+k);
-    if(el) el.style.background = (k === f) ? 'var(--green-l)' : '';
-    if(el) el.style.borderColor = (k === f) ? 'var(--green)' : '';
+function setFCFilter(f){
+  fcFilter=f; fcIdx=0;
+  ['all','learned','review'].forEach(k=>{
+    const el=document.getElementById('fcs-'+k);
+    if(el){ el.style.borderColor=(k===f)?'var(--rose)':''; el.style.background=(k===f)?'rgba(201,115,106,.1)':''; }
   });
   renderFC();
 }
-function renderFC() {
-  const all = progress.saved || [];
-  const learned = progress.learned || [];
-  document.getElementById('fcTotal').textContent = all.length;
-  document.getElementById('fcLearned').textContent = learned.length;
-  document.getElementById('fcReview').textContent = Math.max(0, all.length - learned.length);
-  // apply active styling to current filter
-  ['all','learned','review'].forEach(k => {
-    const el = document.getElementById('fcs-'+k);
-    if(el) { el.style.background = (k === fcFilter) ? 'var(--green-l)' : ''; el.style.borderColor = (k === fcFilter) ? 'var(--green)' : ''; }
-  });
-  const area = document.getElementById('fcArea');
-  if(all.length === 0) {
-    area.innerHTML = '<div class="nodeck"><div class="ni">📖</div><p>No words yet. Start reading and tap words to save them to your deck.</p></div>';
+
+function renderFC(){
+  const all=progress.saved||[];
+  const learned=progress.learned||[];
+  document.getElementById('fcTotal').textContent=all.length;
+  document.getElementById('fcLearned').textContent=learned.length;
+  document.getElementById('fcReview').textContent=Math.max(0,all.length-learned.length);
+
+  const area=document.getElementById('fcArea');
+  if(all.length===0){
+    area.innerHTML='<div class="nodeck"><div class="ni">🎵</div><p>No words yet. Open a song, read the commentary, and tap words to save them here.</p></div>';
     return;
   }
-  // build filtered deck
   let deck;
-  if(fcFilter === 'learned') deck = all.filter(c => learned.includes(c.it));
-  else if(fcFilter === 'review') deck = all.filter(c => !learned.includes(c.it));
-  else deck = all;
-  if(deck.length === 0) {
-    const msg = fcFilter === 'learned' ? 'No learned words yet. Mark cards as Got it to see them here.' : 'Nothing left to review. All words are learned!';
-    area.innerHTML = `<div class="nodeck"><div class="ni">${fcFilter === 'learned' ? '✓' : '🎉'}</div><p>${msg}</p></div>`;
+  if(fcFilter==='learned') deck=all.filter(c=>learned.includes(c.it));
+  else if(fcFilter==='review') deck=all.filter(c=>!learned.includes(c.it));
+  else deck=all;
+
+  if(deck.length===0){
+    const msg=fcFilter==='learned'?'No learned words yet.':'All words learned!';
+    area.innerHTML=`<div class="nodeck"><div class="ni">${fcFilter==='learned'?'📖':'🎉'}</div><p>${msg}</p></div>`;
     return;
   }
-  fcIdx = ((fcIdx % deck.length) + deck.length) % deck.length;
-  const card = deck[fcIdx];
-  const isLearned = learned.includes(card.it);
-  area.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <button onclick="prevFC()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:13px;color:var(--text);cursor:pointer">← Prev</button>
-      <span style="font-size:12px;color:var(--muted)">${fcIdx+1} / ${deck.length}</span>
-      <button onclick="nextFC()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:13px;color:var(--text);cursor:pointer">Next →</button>
+  fcIdx=((fcIdx%deck.length)+deck.length)%deck.length;
+  const card=deck[fcIdx];
+  const isLearned=learned.includes(card.it);
+  area.innerHTML=`
+    <div class="fc-nav">
+      <button class="fc-nav-btn" onclick="prevFC()">← Prev</button>
+      <span class="fc-pos">${fcIdx+1} / ${deck.length}</span>
+      <button class="fc-nav-btn" onclick="nextFC()">Next →</button>
     </div>
-    <div class="fcard" onclick="revealFC()" style="${isLearned ? 'border-color:var(--green-m)' : ''}">
-      ${isLearned ? '<div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--green);font-weight:500">✓ learned</div>' : ''}
+    <div class="fcard" onclick="revealFC()">
+      ${isLearned?'<div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--sage);font-weight:500">✓ learned</div>':''}
       <div class="fcit">${card.it}</div>
-      <div class="fcph">${card.ph || ''}</div>
+      ${card.ph?`<div class="fcph">${card.ph}</div>`:''}
       <div class="fchi" id="fchi">Tap to reveal</div>
       <div class="fctr" id="fcTr">${card.tr}</div>
     </div>
@@ -1177,418 +1132,239 @@ function renderFC() {
       <button class="fcb wrong" onclick="markFC(false)">✕ Not yet</button>
       <button class="fcb right" onclick="markFC(true)">✓ Got it</button>
     </div>`;
-  fcRevealed = false;
+  fcRevealed=false;
 }
-function revealFC() {
-  if(!fcRevealed) {
-    fcRevealed = true;
-    document.getElementById('fcTr').style.display = 'block';
-    document.getElementById('fchi').style.display = 'none';
-  }
+
+function revealFC(){
+  if(!fcRevealed){ fcRevealed=true; document.getElementById('fcTr').style.display='block'; document.getElementById('fchi').style.display='none'; }
 }
-function prevFC() { fcIdx--; renderFC(); }
-function nextFC() { fcIdx++; renderFC(); }
-function markFC(ok) {
-  const all = progress.saved || [];
+function prevFC(){ fcIdx--; renderFC(); }
+function nextFC(){ fcIdx++; renderFC(); }
+function markFC(ok){
+  const all=progress.saved||[];
   let deck;
-  if(fcFilter === 'learned') deck = all.filter(c => (progress.learned||[]).includes(c.it));
-  else if(fcFilter === 'review') deck = all.filter(c => !(progress.learned||[]).includes(c.it));
-  else deck = all;
+  if(fcFilter==='learned') deck=all.filter(c=>(progress.learned||[]).includes(c.it));
+  else if(fcFilter==='review') deck=all.filter(c=>!(progress.learned||[]).includes(c.it));
+  else deck=all;
   if(!deck.length) return;
-  fcIdx = ((fcIdx % deck.length) + deck.length) % deck.length;
-  const card = deck[fcIdx];
-  if(!progress.learned) progress.learned = [];
-  if(ok) {
-    if(!progress.learned.includes(card.it)) progress.learned.push(card.it);
-  } else {
-    progress.learned = progress.learned.filter(w => w !== card.it);
-  }
+  fcIdx=((fcIdx%deck.length)+deck.length)%deck.length;
+  const card=deck[fcIdx];
+  if(!progress.learned) progress.learned=[];
+  if(ok){ if(!progress.learned.includes(card.it)) progress.learned.push(card.it); }
+  else progress.learned=progress.learned.filter(w=>w!==card.it);
   saveProgress(progress);
   fcIdx++;
   renderFC();
 }
 
-// ── PODCASTS ──
-function renderPods() {
-  const list = document.getElementById('podList');
-  if(appData.podcasts.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="ei">💬</div><p>No dialogues yet. Add one via the content manager.</p></div>';
-    return;
-  }
-  list.innerHTML = appData.podcasts.map((p,i) => `
-    <div class="pitem">
-      <div class="pmain">
-        <div class="picon">💬</div>
-        <div class="pinfo">
-          <div class="ptitle">${p.title}</div>
-          <div class="pdesc">${p.description}</div>
-          <div class="pmeta2"><span class="badge bb">${p.level}</span><span style="font-size:11px;color:var(--muted)">${p.dur}</span></div>
-        </div>
-        <button class="ppbtn" onclick="playPod(${p.id})">▶</button>
-      </div>
-      <div class="ttoggle" onclick="toggleTranscript(${i})"><span>Read dialogue</span><span id="tarr-${i}">▼</span></div>
-      <div class="tbody" id="tr-${i}">${(p.transcript||'No transcript yet.').replace(/\n/g,'<br>')}</div>
-    </div>`).join('');
-}
-function toggleTranscript(i) {
-  const b = document.getElementById('tr-'+i);
-  const a = document.getElementById('tarr-'+i);
-  b.classList.toggle('on');
-  a.textContent = b.classList.contains('on') ? '▲' : '▼';
-}
-function playPod(id) {
-  const p = appData.podcasts.find(x => x.id === id);
-  if(!p||!p.audio) { alert('No audio for this episode yet.'); return; }
-  const a = document.getElementById('audioEl');
-  a.src = p.audio; a.load(); a.play();
-  document.getElementById('playerTitle').textContent = p.title;
-  document.getElementById('playerLevel').textContent = 'Dialogo · '+p.level;
-  document.getElementById('playBtn').textContent = '⏸';
-  document.getElementById('readerTitle').textContent = p.title;
-  buildWaveform();
-  const transcript = (p.transcript||'').trim();
-  if(transcript) {
-    const lines = transcript.split('\n');
-    document.getElementById('storyText').innerHTML = lines.map(line => {
-      if(!line.trim()) return '';
-      const speakerMatch = line.match(/^([^:]+):\s*(.*)/);
-      if(speakerMatch) {
-        return '<p style="margin-bottom:12px"><span style="font-family:\'Playfair Display\',serif;font-weight:600;color:var(--green);font-size:13px">' + speakerMatch[1] + ':</span> ' + speakerMatch[2] + '</p>';
-      }
-      return '<p style="margin-bottom:12px">' + line + '</p>';
-    }).join('');
-  } else {
-    document.getElementById('storyText').innerHTML = '<p style="color:var(--muted);font-size:13px">No transcript added yet.</p>';
-  }
-  document.querySelector('.tbar').style.display = 'none';
-  document.querySelector('.savebar').style.display = 'none';
-  nav('reader', null);
-  document.querySelectorAll('.nb')[0].classList.remove('on');
-}
-
 // ── PROGRESS ──
-function renderProgress() {
-  document.getElementById('pgStreak').textContent = progress.streak||0;
-  document.getElementById('pgRead').textContent = progress.read.length;
-  document.getElementById('pgWords').textContent = progress.saved.length;
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const maxW = Math.max(...(progress.week||[0,0,0,0,0,0,0]), 1);
-  document.getElementById('wkBars').innerHTML = days.map((d,i) => {
-    const v = progress.week[i]||0;
-    const h = Math.max(4, Math.round((v/maxW)*65));
-    return `<div class="daycol"><div class="daybar" style="height:${h}px"></div><div class="dayname">${d}</div></div>`;
+function renderProgress(){
+  document.getElementById('pgListened').textContent=progress.read.filter(id=>songs.find(s=>s.id===id)).length;
+  document.getElementById('pgStreak').textContent=progress.streak||0;
+  document.getElementById('pgWords').textContent=progress.saved.length;
+
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const maxW=Math.max(...(progress.week||[0,0,0,0,0,0,0]),1);
+  document.getElementById('wkBars').innerHTML=days.map((d,i)=>{
+    const v=progress.week[i]||0;
+    const h=Math.max(3,Math.round((v/maxW)*60));
+    return `<div class="daycol"><div class="daybar" style="height:${h}px;opacity:${v?1:.2}"></div><div class="dayname">${d}</div></div>`;
   }).join('');
-  const cats = ['fable','sapori','luoghi','stories','geo','myth','culture'];
-  const labels = {fable:'Leggende',sapori:'Sapori',luoghi:'Luoghi',stories:'Città',geo:'Parole',myth:'Espressioni',culture:'Culture'};
-  const colors = {fable:'#c1121f',sapori:'#e67e22',luoghi:'#2980b9',stories:'#52b788',geo:'#b5883e',myth:'#5a7ad4',culture:'#9b59b6'};
-  const catWords = {};
-  cats.forEach(c => { catWords[c] = 0; });
-  (progress.saved||[]).forEach(w => {
-    const story = appData.stories.find(s => (s.vocab||[]).some(v => v.it === w.it));
-    if(story && catWords[story.cat] !== undefined) catWords[story.cat]++;
-  });
-  const totalWords = (progress.saved||[]).length || 1;
-  document.getElementById('vocRows').innerHTML = cats.map(c => {
-    const n = catWords[c];
-    const pct = Math.round((n/totalWords)*100);
-    return `<div class="vprow">
-      <div class="vphead"><span>${labels[c]}</span><span>${n} words</span></div>
-      <div class="vptrack"><div class="vpfill" style="width:${pct}%;background:${colors[c]}"></div></div>
+
+  const themeRowsEl=document.getElementById('themeRows');
+  const maxT=Math.max(...THEMES.map(t=>songs.filter(s=>s.theme===t).length),1);
+  themeRowsEl.innerHTML=THEMES.map(t=>{
+    const total=songs.filter(s=>s.theme===t).length;
+    const done=progress.read.filter(id=>songs.find(s=>s.id===id&&s.theme===t)).length;
+    if(total===0) return '';
+    const pct=Math.round((done/total)*100);
+    const vc=VINYL_COLORS[t]||'var(--rose)';
+    return `<div class="theme-prog-row">
+      <div class="tpr-head"><span>${t}</span><span>${done} / ${total}</span></div>
+      <div class="tpr-track"><div class="tpr-fill" style="width:${pct}%;background:${vc}"></div></div>
     </div>`;
-  }).join('');
+  }).filter(Boolean).join('');
 }
 
-// ── READING HISTORY ──
-function openReadHistory() {
-  const readIds = progress.read || [];
-  const list = document.getElementById('readHistoryList');
-  if(readIds.length === 0) {
-    list.innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">No stories read yet. Head to the library and start reading.</p>';
+// ── READ HISTORY ──
+function openReadHistory(){
+  const list=document.getElementById('readHistoryList');
+  const readIds=progress.read||[];
+  if(readIds.length===0){
+    list.innerHTML='<p style="font-size:13px;color:rgba(255,255,255,.3);text-align:center;padding:20px 0">No songs listened yet.</p>';
   } else {
-    const catLabel = {fable:'Leggende Italiane',sapori:'Sapori',luoghi:'Luoghi',
-      stories:'Città della Settimana',geo:'Parola della Settimana',myth:'Espressioni Italiane',culture:'Culture'};
-    list.innerHTML = readIds.map(id => {
-      const s = appData.stories.find(x => x.id === id);
+    list.innerHTML=readIds.map(id=>{
+      const s=songs.find(x=>x.id===id);
       if(!s) return '';
-      return `<div style="display:flex;align-items:center;gap:11px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 13px;cursor:pointer" onclick="closeReadHistory();openStory(${s.id})">
-        <div style="font-size:24px;flex-shrink:0">${s.emoji||'📖'}</div>
+      const vc=VINYL_COLORS[s.theme]||'var(--rose)';
+      return `<div class="rh-item" onclick="closeReadHistory();openSong(${s.id})">
+        <div class="rh-vinyl"><div style="position:absolute;width:9px;height:9px;border-radius:50%;background:${vc}"></div></div>
         <div style="flex:1;min-width:0">
-          <div style="font-family:'Playfair Display',serif;font-size:14px;margin-bottom:2px">${s.title}</div>
-          <div style="font-size:11px;color:var(--muted)">${catLabel[s.cat]||s.cat} · ${s.level} · ${s.time}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream);margin-bottom:2px">${esc(s.title)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.3)">${esc(s.artist||'')}${s.theme?' · '+s.theme:''}</div>
         </div>
-        <div style="font-size:11px;color:var(--green);font-weight:500">✓ read</div>
+        <div style="font-size:11px;color:var(--sage)">✓</div>
       </div>`;
     }).filter(Boolean).join('');
   }
-  document.getElementById('readHistoryOverlay').style.display = 'flex';
+  document.getElementById('readHistoryOverlay').classList.add('on');
 }
-function closeReadHistory() {
-  document.getElementById('readHistoryOverlay').style.display = 'none';
-}
+function closeReadHistory(){ document.getElementById('readHistoryOverlay').classList.remove('on'); }
 
 // ── ADMIN ──
-function openAdmin() {
-  if(!currentUser || currentUser.email !== ADMIN_EMAIL) {
-    alert('Admin access restricted.');
-    return;
-  }
+function openAdmin(){
+  if(!currentUser||currentUser.email!==ADMIN_EMAIL){ alert('Admin access restricted.'); return; }
   document.getElementById('adminOverlay').classList.add('on');
-  renderStoryAdminList();
-  renderPodAdminList();
+  renderSongAdminList();
 }
-function closeAdmin() { document.getElementById('adminOverlay').classList.remove('on'); }
-function aTab(name, btn) {
-  document.getElementById('aStories').style.display = name==='stories' ? 'block' : 'none';
-  document.getElementById('aPodcasts').style.display = name==='podcasts' ? 'block' : 'none';
-  document.getElementById('aSettings').style.display = name==='settings' ? 'block' : 'none';
-  document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
+function closeAdmin(){ document.getElementById('adminOverlay').classList.remove('on'); }
+function aTab(name,btn){
+  document.getElementById('aSongs').style.display=name==='songs'?'block':'none';
+  document.getElementById('aSettings').style.display=name==='settings'?'block':'none';
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
   if(btn) btn.classList.add('on');
 }
 
-// ── STORY ADMIN ──
-function renderStoryAdminList() {
-  const el = document.getElementById('storyList');
-  if(appData.stories.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No stories yet.</p>'; return; }
-  el.innerHTML = appData.stories.map(s => `
+function renderSongAdminList(){
+  const el=document.getElementById('songAdminList');
+  if(songs.length===0){ el.innerHTML='<p style="font-size:13px;color:rgba(255,255,255,.3)">No songs yet.</p>'; return; }
+  el.innerHTML=songs.map(s=>`
     <div class="aitem">
       <div class="aitem-info">
-        <div class="aitem-title">${s.title}</div>
-        <div class="aitem-meta">${s.level} · ${s.time} · ${(s.vocab||[]).length} vocab</div>
+        <div class="aitem-title">${esc(s.artist?s.artist+' — ':'')}${esc(s.title)}</div>
+        <div class="aitem-meta">${s.theme||''}${s.difficulty?' · '+s.difficulty:''} · ${(s.vocab||[]).length} vocab words${s.youtube_id?' · ▶ YT':''}</div>
       </div>
-      <button class="aitem-edit" onclick="editStory(${s.id})">Edit</button>
-      <button class="aitem-del" onclick="deleteStory(${s.id})">Delete</button>
+      <button class="aitem-edit" onclick="editSong(${s.id})">Edit</button>
+      <button class="aitem-del" onclick="deleteSong(${s.id})">Delete</button>
     </div>`).join('');
 }
 
-function showAddStory() {
-  editingStoryId = null;
-  ['editId','fTitle','fTime','fEmoji','fAudio','fText'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fCat').value = 'fable';
-  document.getElementById('fLevel').value = 'A2';
-  document.getElementById('fRegion').value = '';
-  document.getElementById('vocabText').value = '';
-  document.getElementById('storyForm').style.display = 'block';
-  document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
+function showAddSong(){
+  editingId=null;
+  ['editId','fTitle','fArtist','fYT','fAudio','fText','fGrammar','vocabText'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fTheme').value='Amore e cuore';
+  document.getElementById('fDiff').value='Intermediate';
+  document.getElementById('songForm').style.display='block';
+  document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
 }
 
-function editStory(id) {
-  const s = appData.stories.find(x => x.id === id);
+function editSong(id){
+  const s=songs.find(x=>x.id===id);
   if(!s) return;
-  editingStoryId = id;
-  document.getElementById('editId').value = id;
-  document.getElementById('fTitle').value = s.title;
-  document.getElementById('fCat').value = s.cat;
-  document.getElementById('fLevel').value = s.level;
-  document.getElementById('fTime').value = s.time;
-  document.getElementById('fEmoji').value = s.emoji||'';
-  document.getElementById('fRegion').value = s.region||'';
-  document.getElementById('fAudio').value = s.audio||'';
-  document.getElementById('fText').value = s.text||'';
-  document.getElementById('vocabText').value = (s.vocab||[]).map(v => v.it + ' | ' + v.tr).join('\n');
-  document.getElementById('storyForm').style.display = 'block';
-  document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
+  editingId=id;
+  document.getElementById('editId').value=id;
+  document.getElementById('fTitle').value=s.title;
+  document.getElementById('fArtist').value=s.artist||'';
+  document.getElementById('fTheme').value=s.theme||'Amore e cuore';
+  document.getElementById('fDiff').value=s.difficulty||'Intermediate';
+  document.getElementById('fYT').value=s.youtube_id||'';
+  document.getElementById('fAudio').value=s.audio||'';
+  document.getElementById('fText').value=s.text||'';
+  document.getElementById('fGrammar').value=s.grammar||'';
+  document.getElementById('vocabText').value=(s.vocab||[]).map(v=>v.it+' | '+v.tr).join('\n');
+  document.getElementById('songForm').style.display='block';
+  document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
 }
 
-
-
-
-async function saveStory() {
+async function saveSong(){
   if(!sb) return;
-  const title = document.getElementById('fTitle').value.trim();
-  if(!title) { alert('Please add a title.'); return; }
-  const vocab = document.getElementById('vocabText').value
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line.includes('|'))
-    .map(line => {
-      const [it, tr] = line.split('|').map(s => s.trim());
-      return it && tr ? {it, ph:'', tr} : null;
-    })
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){ alert('Please add a song title.'); return; }
+  const vocab=document.getElementById('vocabText').value
+    .split('\n').map(l=>l.trim()).filter(l=>l.includes('|'))
+    .map(l=>{ const [it,tr]=l.split('|').map(s=>s.trim()); return it&&tr?{it,ph:'',tr}:null; })
     .filter(Boolean);
-  const story = {
-    cat: document.getElementById('fCat').value,
-    emoji: document.getElementById('fEmoji').value.trim()||'📖',
-    region: document.getElementById('fRegion').value || null,
+  const song={
     title,
-    level: document.getElementById('fLevel').value,
-    time: document.getElementById('fTime').value.trim(),
-    audio: document.getElementById('fAudio').value.trim(),
-    text: document.getElementById('fText').value,
+    artist:document.getElementById('fArtist').value.trim(),
+    theme:document.getElementById('fTheme').value,
+    difficulty:document.getElementById('fDiff').value,
+    youtube_id:document.getElementById('fYT').value.trim(),
+    audio:document.getElementById('fAudio').value.trim(),
+    text:document.getElementById('fText').value,
+    grammar:document.getElementById('fGrammar').value,
     vocab
   };
-  if(editingStoryId) {
-    const { error } = await sb.from('stories').update(story).eq('id', editingStoryId);
-    if(error) { alert('Save failed: '+error.message); return; }
-    const idx = appData.stories.findIndex(x => x.id === editingStoryId);
-    if(idx >= 0) appData.stories[idx] = {...appData.stories[idx], ...story};
+  if(editingId){
+    const {error}=await sb.from('songs').update(song).eq('id',editingId);
+    if(error){ alert('Save failed: '+error.message); return; }
+    const idx=songs.findIndex(x=>x.id===editingId);
+    if(idx>=0) songs[idx]={...songs[idx],...song};
   } else {
-    const { data, error } = await sb.from('stories').insert(story).select().single();
-    if(error) { alert('Save failed: '+error.message); return; }
-    appData.stories.unshift(data);
+    const {data,error}=await sb.from('songs').insert(song).select().single();
+    if(error){ alert('Save failed: '+error.message); return; }
+    songs.unshift(data);
   }
   cancelForm();
-  renderStoryAdminList();
-  renderLibrary();
+  renderSongAdminList();
+  renderCatalogue();
 }
 
-async function deleteStory(id) {
-  if(!confirm('Delete this story?')) return;
-  const { error } = await sb.from('stories').delete().eq('id', id);
-  if(error) { alert('Delete failed: '+error.message); return; }
-  appData.stories = appData.stories.filter(x => x.id !== id);
-  renderStoryAdminList();
-  renderLibrary();
+async function deleteSong(id){
+  if(!confirm('Delete this song?')) return;
+  const {error}=await sb.from('songs').delete().eq('id',id);
+  if(error){ alert('Delete failed: '+error.message); return; }
+  songs=songs.filter(x=>x.id!==id);
+  renderSongAdminList();
+  renderCatalogue();
 }
 
-function cancelForm() {
-  document.getElementById('storyForm').style.display = 'none';
-  editingStoryId = null;
+function cancelForm(){
+  document.getElementById('songForm').style.display='none';
+  editingId=null;
 }
 
-// ── PODCAST ADMIN ──
-function renderPodAdminList() {
-  const el = document.getElementById('podAdminList');
-  if(appData.podcasts.length === 0) { el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No episodes yet.</p>'; return; }
-  el.innerHTML = appData.podcasts.map(p => `
-    <div class="aitem">
-      <div class="aitem-info">
-        <div class="aitem-title">${p.title}</div>
-        <div class="aitem-meta">${p.level} · ${p.dur} ${p.audio?'· ✓ audio':''}</div>
-      </div>
-      <button class="aitem-edit" onclick="editPod(${p.id})">Edit</button>
-      <button class="aitem-del" onclick="deletePod(${p.id})">Delete</button>
-    </div>`).join('');
-}
-
-function showAddPod() {
-  editingPodId = null;
-  ['peditId','pTitle','pDesc','pDur','pAudio','pTranscript'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pLevel').value = 'B1';
-  document.getElementById('podForm').style.display = 'block';
-  document.getElementById('podForm').scrollIntoView({behavior:'smooth'});
-}
-
-function editPod(id) {
-  const p = appData.podcasts.find(x => x.id === id);
-  if(!p) return;
-  editingPodId = id;
-  document.getElementById('peditId').value = id;
-  document.getElementById('pTitle').value = p.title;
-  document.getElementById('pDesc').value = p.description;
-  document.getElementById('pLevel').value = p.level;
-  document.getElementById('pDur').value = p.dur;
-  document.getElementById('pAudio').value = p.audio||'';
-  document.getElementById('pTranscript').value = p.transcript||'';
-  document.getElementById('podForm').style.display = 'block';
-  document.getElementById('podForm').scrollIntoView({behavior:'smooth'});
-}
-
-async function savePod() {
-  if(!sb) return;
-  const title = document.getElementById('pTitle').value.trim();
-  if(!title) { alert('Please add a title.'); return; }
-  const ep = {
-    title,
-    description: document.getElementById('pDesc').value.trim(),
-    level: document.getElementById('pLevel').value,
-    dur: document.getElementById('pDur').value.trim(),
-    audio: document.getElementById('pAudio').value.trim(),
-    transcript: document.getElementById('pTranscript').value
-  };
-  if(editingPodId) {
-    const { error } = await sb.from('podcasts').update(ep).eq('id', editingPodId);
-    if(error) { alert('Save failed: '+error.message); return; }
-    const idx = appData.podcasts.findIndex(x => x.id === editingPodId);
-    if(idx >= 0) appData.podcasts[idx] = {...appData.podcasts[idx], ...ep};
-  } else {
-    const { data, error } = await sb.from('podcasts').insert(ep).select().single();
-    if(error) { alert('Save failed: '+error.message); return; }
-    appData.podcasts.unshift(data);
-  }
-  cancelPodForm();
-  renderPodAdminList();
-  renderPods();
-}
-
-async function deletePod(id) {
-  if(!confirm('Delete this episode?')) return;
-  const { error } = await sb.from('podcasts').delete().eq('id', id);
-  if(error) { alert('Delete failed: '+error.message); return; }
-  appData.podcasts = appData.podcasts.filter(x => x.id !== id);
-  renderPodAdminList();
-  renderPods();
-}
-
-function cancelPodForm() {
-  document.getElementById('podForm').style.display = 'none';
-  editingPodId = null;
-}
-
-// ── SETTINGS / EXPORT / IMPORT ──
-function exportData() {
-  const blob = new Blob([JSON.stringify(appData,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'storyclub-backup-'+new Date().toISOString().slice(0,10)+'.json';
+// ── EXPORT / IMPORT ──
+function exportData(){
+  const blob=new Blob([JSON.stringify({songs},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='colonna-sonora-backup-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
 }
 
-async function importData(e) {
+async function importData(e){
   if(!sb) return;
-  const file = e.target.files[0];
+  const file=e.target.files[0];
   if(!file) return;
-  const r = new FileReader();
-  r.onload = async ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      if(d.stories && d.podcasts) {
-        if(confirm('This will add all stories and podcasts from the backup to Supabase. Continue?')) {
-          for(const s of d.stories) {
-            const {id, ...rest} = s;
-            await sb.from('stories').insert(rest);
-          }
-          for(const p of d.podcasts) {
-            const {id, ...rest} = p;
-            await sb.from('podcasts').insert(rest);
-          }
-          await loadFromSupabase();
-          renderStoryAdminList();
-          renderPodAdminList();
-          renderLibrary();
-          alert('Content imported successfully.');
+  const r=new FileReader();
+  r.onload=async ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.songs&&Array.isArray(d.songs)){
+        if(confirm('Add '+d.songs.length+' songs from this backup?')){
+          for(const s of d.songs){ const{id,...rest}=s; await sb.from('songs').insert(rest); }
+          await loadSongs();
+          renderSongAdminList();
+          renderCatalogue();
+          alert('Imported successfully.');
         }
-      } else { alert('Invalid backup file.'); }
-    } catch(err) { alert('Could not read file.'); }
+      } else alert('Invalid backup file.');
+    } catch{ alert('Could not read file.'); }
   };
   r.readAsText(file);
 }
 
-// ── INIT: check session ──
-(async function init() {
+// ── INIT ──
+(async function init(){
   if(!isConfigured) return;
-  const { data: { session } } = await sb.auth.getSession();
-  if(session) {
-    await onLogin(session.user);
-  }
-  // Listen for auth changes
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if(event === 'SIGNED_IN' && session) await onLogin(session.user);
-    if(event === 'SIGNED_OUT') {
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await onLogin(session.user);
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session) await onLogin(session.user);
+    if(event==='SIGNED_OUT'){
       document.getElementById('app').classList.remove('on');
-      document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('authScreen').style.display='flex';
     }
   });
 })();
 
-// Secret admin shortcut: hold Shift and type LA
+// Admin shortcut: Shift + L + A
 (function(){
-  let seq = '';
-  document.addEventListener('keydown', function(e) {
-    if(e.shiftKey && (e.key==='L'||e.key==='A')) {
-      seq += e.key;
-      if(seq.length > 2) seq = seq.slice(-2);
-      if(seq === 'LA') openAdmin();
-    } else { seq = ''; }
+  let seq='';
+  document.addEventListener('keydown',function(e){
+    if(e.shiftKey&&(e.key==='L'||e.key==='A')){ seq+=e.key; if(seq.length>2) seq=seq.slice(-2); if(seq==='LA') openAdmin(); }
+    else seq='';
   });
 })();
 </script>
