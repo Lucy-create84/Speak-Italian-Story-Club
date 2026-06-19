@@ -235,6 +235,28 @@ audio{display:none}
 .grammar-box td{padding:8px 11px;border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
 .grammar-box tr:hover td{background:rgba(255,255,255,.03)}
 
+/* ── EXERCISES ── */
+.ex-box{background:var(--night2);border:1px solid rgba(212,168,75,.2);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.ex-box h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);margin-bottom:6px}
+.ex-box .ex-intro{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:16px;line-height:1.6}
+.ex-item{margin-bottom:20px}
+.ex-prompt{font-size:14px;color:rgba(255,255,255,.8);line-height:1.8;margin-bottom:8px}
+.ex-prompt em{color:var(--gold);font-style:italic}
+.ex-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.ex-input{background:var(--night3);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--cream);min-width:120px;max-width:220px;transition:border .15s}
+.ex-input:focus{outline:none;border-color:var(--gold)}
+.ex-input.correct{border-color:var(--sage);background:rgba(107,143,113,.12);color:#a8d5ba}
+.ex-input.wrong{border-color:var(--rose);background:rgba(201,115,106,.1);color:#f4a79e}
+.ex-check-btn{background:rgba(212,168,75,.12);border:1px solid rgba(212,168,75,.25);color:var(--gold);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap}
+.ex-check-btn:hover{background:rgba(212,168,75,.22)}
+.ex-check-btn:disabled{opacity:.4;cursor:default}
+.ex-feedback{font-size:12px;min-height:18px;line-height:1.5}
+.ex-feedback.ok{color:#a8d5ba}
+.ex-feedback.err{color:#f4a79e}
+.ex-divider{border:none;border-top:1px solid rgba(255,255,255,.06);margin:18px 0}
+.ex-reset{background:none;border:1px dashed rgba(255,255,255,.12);border-radius:8px;padding:7px 14px;font-size:12px;color:rgba(255,255,255,.3);margin-top:4px;transition:all .15s}
+.ex-reset:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.55)}
+
 /* ── TOOLTIP ── */
 .tip{position:fixed;background:var(--night);border:1px solid var(--night3);color:var(--cream);padding:12px 14px;border-radius:12px;font-size:12px;min-width:170px;max-width:240px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;display:none}
 .tipw{font-family:'Cormorant Garamond',serif;font-size:17px;margin-bottom:2px}
@@ -354,7 +376,7 @@ audio{display:none}
     <input readonly value="const SUPABASE_URL = 'YOUR_SUPABASE_URL'">
     <input readonly value="const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'">
     <p><strong>SQL to run in Supabase SQL Editor:</strong></p>
-    <p><code>create table songs (id bigint generated always as identity primary key, title text, artist text, youtube_id text, audio text, theme text, difficulty text, text text, grammar text, vocab jsonb, created_at timestamptz default now());</code></p>
+    <p><code>create table songs (id bigint generated always as identity primary key, title text, artist text, youtube_id text, audio text, theme text, difficulty text, text text, grammar text, exercises jsonb, vocab jsonb, created_at timestamptz default now());</code></p>
     <p>The <code>user_progress</code> table is the same as the course app — reuse it if you already have it, or create a new one per the comments in the script.</p>
     <button class="setup-close" onclick="document.getElementById('setupNotice').classList.remove('on')">Got it</button>
   </div>
@@ -481,8 +503,7 @@ audio{display:none}
 
     <!-- Lesson content revealed after watching -->
     <div class="yt-lesson-content" id="lessonContent">
-      <!-- Commentary -->
-      <div class="section-label">Lucy's commentary</div>
+      <!-- Save bar -->
       <div class="tbar">
         <div><div class="tlbl">Tap words to save</div><div class="tsub">Build your personal vocabulary deck</div></div>
         <div class="tswitch on" id="tswitch" onclick="this.classList.toggle('on');showTrans=!showTrans"></div>
@@ -491,10 +512,12 @@ audio{display:none}
         <span>Words you save appear in your flashcard deck</span>
         <span class="savecount" id="savedCount">0 saved</span>
       </div>
-      <div class="commentary" id="storyText"></div>
 
-      <!-- Grammar note -->
+      <!-- Grammar note (tappable vocab embedded) -->
       <div class="grammar-box" id="grammarBox" style="display:none"></div>
+
+      <!-- Exercises -->
+      <div class="ex-box" id="exercisesBox" style="display:none"></div>
     </div>
   </div>
 
@@ -594,6 +617,12 @@ audio{display:none}
           <div class="afield">
             <label>Grammar note (HTML allowed)</label>
             <textarea id="fGrammar" placeholder="<h3>Il congiuntivo</h3><p>This song uses...</p>" style="font-family:monospace;font-size:12px;min-height:80px"></textarea>
+            <div class="atip">Tappable vocab words work here — use the same Italian chunks as in your vocabulary list.</div>
+          </div>
+          <div class="afield">
+            <label>Exercises (JSON)</label>
+            <textarea id="fExercises" placeholder='[{"type":"cloze","instruction":"Fill in the missing verb forms","items":[{"prompt":"Io ___ (cercare) l'\''estate tutto l'\''anno.","answer":"cerco","hint":"presente indicativo"}]}]' style="font-family:monospace;font-size:11px;min-height:120px"></textarea>
+            <div class="atip">JSON array of exercise blocks. Each block: <code>type</code> (cloze), <code>instruction</code>, <code>items</code> (array of {prompt, answer, hint?}). Use ___ for blanks in prompts.</div>
           </div>
           <div class="afield">
             <label>Vocabulary</label>
@@ -663,6 +692,7 @@ const ADMIN_EMAIL = 'cookitalia@gmail.com';
 //   difficulty text default 'Intermediate',
 //   text text default '',
 //   grammar text default '',
+//   exercises jsonb default null,
 //   vocab jsonb default '[]',
 //   created_at timestamptz default now()
 // );
@@ -1007,12 +1037,16 @@ function openSong(id) {
     lc.classList.add('revealed');
   }
 
-  // Grammar
+  // Grammar (with tappable vocab annotation)
   const gb=document.getElementById('grammarBox');
-  if(s.grammar&&s.grammar.trim()){ gb.style.display='block'; gb.innerHTML=s.grammar; }
-  else gb.style.display='none';
+  if(s.grammar&&s.grammar.trim()){
+    gb.style.display='block';
+    gb.innerHTML=annotateHTML(s.grammar, s.vocab||[]);
+  } else gb.style.display='none';
 
-  renderSongText(s);
+  // Exercises
+  renderExercises(s);
+
   spinVinyl(true);
 
   if(!progress.read.includes(id)){
@@ -1043,37 +1077,130 @@ function spinVinyl(on){
   if(on) v.classList.add('spinning'); else v.classList.remove('spinning');
 }
 
-function renderSongText(s){
-  const vocab=Array.isArray(s.vocab)?s.vocab:[];
-  const vocabMap={};
-  vocab.forEach(v=>{ vocabMap[v.it.toLowerCase()]={ph:v.ph||'',tr:v.tr,it:v.it}; });
-  const vocabKeys=Object.keys(vocabMap).sort((a,b)=>b.length-a.length);
+// ── ANNOTATE HTML (grammar note tappable vocab) ──
+function buildVocabMap(vocab){
+  const map={};
+  (vocab||[]).forEach(v=>{ map[v.it.toLowerCase()]={ph:v.ph||'',tr:v.tr,it:v.it}; });
+  return map;
+}
 
-  function annotatePara(para){
-    if(!para.trim()) return '<br>';
-    let result='',i=0;
-    const lower=para.toLowerCase();
-    while(i<para.length){
-      let matched=false;
-      for(const key of vocabKeys){
-        if(lower.startsWith(key,i)){
-          const orig=para.slice(i,i+key.length);
-          const v=vocabMap[key];
-          result+=`<span class="sw sw-known" data-word="${esc(key)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(orig)}" onclick="wordClick(event,this)">${orig}</span>`;
-          i+=key.length; matched=true; break;
-        }
-      }
-      if(!matched){
-        const wm=para.slice(i).match(/^([a-zA-ZÀ-ÿ]+)/);
-        if(wm){ result+=`<span class="sw" data-word="${esc(wm[1].toLowerCase())}" onclick="wordClick(event,this)">${wm[1]}</span>`; i+=wm[1].length; }
-        else { result+=para[i]; i++; }
+function annotateTextNode(text, vocabMap, vocabKeys){
+  let result='', i=0;
+  const lower=text.toLowerCase();
+  while(i<text.length){
+    let matched=false;
+    for(const key of vocabKeys){
+      if(lower.startsWith(key,i)){
+        const orig=text.slice(i,i+key.length);
+        const v=vocabMap[key];
+        result+=`<span class="sw sw-known" data-word="${esc(key)}" data-ph="${esc(v.ph)}" data-tr="${esc(v.tr)}" data-it="${esc(orig)}" onclick="wordClick(event,this)">${orig}</span>`;
+        i+=key.length; matched=true; break;
       }
     }
-    return '<p style="margin-bottom:10px">'+result+'</p>';
+    if(!matched){
+      const wm=text.slice(i).match(/^([a-zA-ZÀ-ÿ]+)/);
+      if(wm){ result+=`<span class="sw" data-word="${esc(wm[1].toLowerCase())}" onclick="wordClick(event,this)">${wm[1]}</span>`; i+=wm[1].length; }
+      else { result+=text[i]; i++; }
+    }
   }
+  return result;
+}
 
-  const paras=(s.text||'').split('\n');
-  document.getElementById('storyText').innerHTML=paras.map(p=>annotatePara(p)).join('');
+function annotateHTML(html, vocab){
+  const vocabMap=buildVocabMap(vocab);
+  const vocabKeys=Object.keys(vocabMap).sort((a,b)=>b.length-a.length);
+  if(!vocabKeys.length) return html;
+  // Parse into a temporary container and walk text nodes
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  walkAndAnnotate(tmp, vocabMap, vocabKeys);
+  return tmp.innerHTML;
+}
+
+function walkAndAnnotate(node, vocabMap, vocabKeys){
+  if(node.nodeType===3){
+    // Text node — annotate it
+    const annotated=annotateTextNode(node.textContent, vocabMap, vocabKeys);
+    if(annotated!==node.textContent){
+      const span=document.createElement('span');
+      span.innerHTML=annotated;
+      node.parentNode.replaceChild(span,node);
+    }
+  } else if(node.nodeType===1){
+    // Skip script/style/already-annotated spans
+    const tag=node.tagName.toLowerCase();
+    if(tag==='script'||tag==='style') return;
+    // Walk children (copy array since we may mutate)
+    Array.from(node.childNodes).forEach(child=>walkAndAnnotate(child,vocabMap,vocabKeys));
+  }
+}
+
+// ── EXERCISES ──
+function renderExercises(s){
+  const box=document.getElementById('exercisesBox');
+  const ex=s.exercises;
+  if(!ex||!Array.isArray(ex)||ex.length===0){ box.style.display='none'; return; }
+  box.style.display='block';
+
+  let html='<h3>Esercizi</h3><p class="ex-intro">Practice what you\'ve just learned. Type your answer and tap Check.</p>';
+
+  ex.forEach((block,bi)=>{
+    if(bi>0) html+='<hr class="ex-divider">';
+    if(block.instruction) html+=`<p style="font-size:13px;font-weight:500;color:var(--cream);margin-bottom:12px">${esc(block.instruction)}</p>`;
+
+    if(block.type==='cloze'&&Array.isArray(block.items)){
+      block.items.forEach((item,ii)=>{
+        const uid=`ex-${bi}-${ii}`;
+        // Replace ___ in prompt with an input field
+        const promptHTML=esc(item.prompt).replace(/___/g,
+          `<input class="ex-input" id="${uid}-inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="?">`
+        );
+        html+=`<div class="ex-item" id="${uid}-wrap">
+          <div class="ex-prompt">${promptHTML}</div>
+          <div class="ex-input-row">
+            ${item.hint?`<span style="font-size:12px;color:rgba(255,255,255,.3);font-style:italic">${esc(item.hint)}</span>`:''}
+            <button class="ex-check-btn" onclick="checkAnswer('${uid}','${esc(item.answer)}')">Check</button>
+          </div>
+          <div class="ex-feedback" id="${uid}-fb"></div>
+        </div>`;
+      });
+    }
+  });
+
+  html+=`<button class="ex-reset" onclick="resetExercises()">Reset all answers</button>`;
+  box.innerHTML=html;
+}
+
+function checkAnswer(uid, correctRaw){
+  const inp=document.getElementById(uid+'-inp');
+  const fb=document.getElementById(uid+'-fb');
+  if(!inp||!fb) return;
+  const userVal=inp.value.trim().toLowerCase();
+  const correct=correctRaw.trim().toLowerCase();
+  // Accept comma-separated alternatives
+  const alts=correct.split(',').map(a=>a.trim());
+  const isOk=alts.includes(userVal);
+  inp.classList.remove('correct','wrong');
+  inp.classList.add(isOk?'correct':'wrong');
+  if(isOk){
+    fb.className='ex-feedback ok';
+    fb.textContent='✓ Esatto!';
+    inp.disabled=true;
+    document.querySelectorAll(`[onclick*="${uid}"]`).forEach(b=>{ if(b.classList.contains('ex-check-btn')) b.disabled=true; });
+  } else {
+    fb.className='ex-feedback err';
+    fb.textContent=userVal?'Not quite — try again.':'Type your answer first.';
+  }
+}
+
+function resetExercises(){
+  document.querySelectorAll('.ex-input').forEach(inp=>{
+    inp.value='';
+    inp.classList.remove('correct','wrong');
+    inp.disabled=false;
+  });
+  document.querySelectorAll('.ex-feedback').forEach(fb=>{ fb.textContent=''; fb.className='ex-feedback'; });
+  document.querySelectorAll('.ex-check-btn').forEach(b=>b.disabled=false);
 }
 
 function esc(str){ return (str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1340,7 +1467,7 @@ function renderSongAdminList(){
 
 function showAddSong(){
   editingId=null;
-  ['editId','fTitle','fArtist','fYT','fAudio','fText','fGrammar','vocabText'].forEach(id=>document.getElementById(id).value='');
+  ['editId','fTitle','fArtist','fYT','fAudio','fText','fGrammar','fExercises','vocabText'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fTheme').value='Amore e cuore';
   document.getElementById('fDiff').value='Intermediate';
   document.getElementById('songForm').style.display='block';
@@ -1360,6 +1487,7 @@ function editSong(id){
   document.getElementById('fAudio').value=s.audio||'';
   document.getElementById('fText').value=s.text||'';
   document.getElementById('fGrammar').value=s.grammar||'';
+  document.getElementById('fExercises').value=s.exercises?JSON.stringify(s.exercises,null,2):'';
   document.getElementById('vocabText').value=(s.vocab||[]).map(v=>v.it+' | '+v.tr).join('\n');
   document.getElementById('songForm').style.display='block';
   document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
@@ -1373,6 +1501,11 @@ async function saveSong(){
     .split('\n').map(l=>l.trim()).filter(l=>l.includes('|'))
     .map(l=>{ const [it,tr]=l.split('|').map(s=>s.trim()); return it&&tr?{it,ph:'',tr}:null; })
     .filter(Boolean);
+  let exercises=null;
+  const exRaw=document.getElementById('fExercises').value.trim();
+  if(exRaw){
+    try{ exercises=JSON.parse(exRaw); } catch(err){ alert('Exercises JSON is invalid. Please check the format and try again.\n\n'+err.message); return; }
+  }
   const song={
     title,
     artist:document.getElementById('fArtist').value.trim(),
@@ -1382,6 +1515,7 @@ async function saveSong(){
     audio:document.getElementById('fAudio').value.trim(),
     text:document.getElementById('fText').value,
     grammar:document.getElementById('fGrammar').value,
+    exercises,
     vocab
   };
   if(editingId){
