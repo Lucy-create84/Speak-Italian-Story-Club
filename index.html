@@ -32,6 +32,9 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .auth-btn:hover{background:#235c43}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed}
 .auth-err{font-size:12px;color:var(--red);margin-top:10px;text-align:center;min-height:18px}
+.auth-err.ok{color:var(--green)}
+.auth-link{font-size:12px;text-align:center;margin-top:12px}
+.auth-link a{color:var(--green);text-decoration:underline;cursor:pointer}
 .auth-note{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
 
 /* ── SETUP NOTICE ── */
@@ -202,12 +205,12 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 <!-- ═══ ACCOUNT MODAL ═══ -->
 <div class="acct-overlay" id="acctOverlay">
   <div class="acct-box">
-    <div class="acct-title">Change password</div>
+    <div class="acct-title" id="acctTitle">Change password</div>
     <div class="acct-sub" id="acctEmail"></div>
     <div class="acct-field"><label>New password</label><input type="password" id="acctPw1" placeholder="At least 6 characters" autocomplete="new-password"></div>
     <div class="acct-field"><label>Confirm new password</label><input type="password" id="acctPw2" placeholder="Repeat password" autocomplete="new-password"></div>
     <div class="acct-actions">
-      <button class="acct-btn secondary" onclick="closeAccount()">Cancel</button>
+      <button class="acct-btn secondary" id="acctCancel" onclick="closeAccount()">Cancel</button>
       <button class="acct-btn primary" id="acctBtn" onclick="doChangePassword()">Update password</button>
     </div>
     <div class="acct-msg" id="acctMsg"></div>
@@ -224,6 +227,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <div class="auth-field"><label>Password</label><input type="password" id="loginPw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()"></div>
     <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in</button>
     <div class="auth-err" id="loginErr"></div>
+    <div class="auth-link"><a onclick="doForgot()">Forgot password?</a></div>
     <div class="auth-note">Access is invite-only. If you are a paid subscriber and haven't received your invite email yet, reply to your latest Coffee Break issue and Lucy will send it.</div>
   </div>
 </div>
@@ -417,6 +421,8 @@ const ADMIN_EMAIL = 'cookitalia@gmail.com';
 const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
 if(!isConfigured) document.getElementById('setupNotice').classList.add('on');
 
+const isRecoveryLink = location.hash.includes('type=recovery');
+let recoveryMode = false;
 const { createClient } = supabase;
 const sb = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -456,6 +462,39 @@ async function doLogout() {
   document.getElementById('authScreen').style.display = 'flex';
 }
 
+// ── FORGOT / RECOVER PASSWORD ──
+async function doForgot() {
+  if(!sb) { alert('Supabase not configured yet.'); return; }
+  const email = document.getElementById('loginEmail').value.trim();
+  const err = document.getElementById('loginErr');
+  err.className = 'auth-err';
+  if(!email) { err.textContent = 'Enter your email above first, then tap "Forgot password?".'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  if(error) { err.textContent = error.message; return; }
+  err.className = 'auth-err ok';
+  err.textContent = 'Check your email for the reset link.';
+}
+function openRecovery() {
+  recoveryMode = true;
+  document.getElementById('acctTitle').textContent = 'Set a new password';
+  document.getElementById('acctEmail').textContent = 'Choose a new password to finish resetting your account.';
+  document.getElementById('acctCancel').style.display = 'none';
+  document.getElementById('acctPw1').value = '';
+  document.getElementById('acctPw2').value = '';
+  document.getElementById('acctMsg').textContent = '';
+  document.getElementById('acctMsg').className = 'acct-msg';
+  document.getElementById('acctOverlay').classList.add('on');
+}
+// Show a clear message if the reset link was expired or already used
+(function(){
+  if(location.hash.includes('error_description')) {
+    const params = new URLSearchParams(location.hash.slice(1));
+    const msg = (params.get('error_description')||'').replace(/\+/g,' ');
+    document.getElementById('loginErr').textContent = (msg ? msg + '. ' : '') + 'Enter your email and tap "Forgot password?" to get a new link.';
+    history.replaceState(null,'',location.pathname);
+  }
+})();
+
 // ── ACCOUNT MODAL ──
 function openAccount() {
   document.getElementById('acctEmail').textContent = currentUser ? currentUser.email : '';
@@ -480,6 +519,17 @@ async function doChangePassword() {
   msg.className='acct-msg ok'; msg.textContent = 'Password updated successfully.';
   document.getElementById('acctPw1').value = '';
   document.getElementById('acctPw2').value = '';
+  if(recoveryMode) {
+    recoveryMode = false;
+    history.replaceState(null,'',location.pathname);
+    const { data: { user } } = await sb.auth.getUser();
+    setTimeout(async () => {
+      closeAccount();
+      document.getElementById('acctTitle').textContent = 'Change password';
+      document.getElementById('acctCancel').style.display = '';
+      if(user) await onLogin(user);
+    }, 900);
+  }
 }
 
 // ── ON LOGIN ──
@@ -987,15 +1037,19 @@ async function importData(e) {
 // ── INIT: check session ──
 (async function init() {
   if(!isConfigured) return;
-  const { data: { session } } = await sb.auth.getSession();
-  if(session) await onLogin(session.user);
   sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'PASSWORD_RECOVERY') { openRecovery(); return; }
+    if(recoveryMode || isRecoveryLink) return;
     if(event === 'SIGNED_IN' && session) await onLogin(session.user);
     if(event === 'SIGNED_OUT') {
       document.getElementById('app').classList.remove('on');
       document.getElementById('authScreen').style.display = 'flex';
     }
   });
+  if(!isRecoveryLink) {
+    const { data: { session } } = await sb.auth.getSession();
+    if(session) await onLogin(session.user);
+  }
 })();
 
 // Secret admin shortcut: hold Shift and type LA
