@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canta Tu &amp; Story Club</title>
+<title>Story Club</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -88,7 +88,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .ppbtn{width:36px;height:36px;border-radius:50%;background:var(--green);border:none;font-size:13px;color:#fff;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center}
 .ppbtn:hover{background:#235c43;transform:scale(1.05)}
 
-/* ── READER (shared by songs & stories) ── */
+/* ── READER ── */
 .rhdr{display:flex;align-items:center;gap:9px;margin-bottom:15px}
 .backbtn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--text);transition:all .15s}
 .backbtn:hover{background:var(--border)}
@@ -136,6 +136,19 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .pstat>div{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
 .pstat b{display:block;font-family:'Playfair Display',serif;font-size:22px;color:var(--green)}
 .pstat span{font-size:11px;color:var(--muted)}
+.fc-count{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px}
+.fc-wrap{perspective:900px;height:170px;margin-bottom:12px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.fc-inner.flipped{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:16px;border:1px solid var(--border);background:#fff;font-family:'Playfair Display',serif;font-size:28px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+.fc-face small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted)}
+.fc-back{transform:rotateY(180deg);background:var(--green-l);color:var(--green);border-color:#a8d5ba}
+.fc-none{font-size:14px;font-family:'DM Sans',sans-serif;color:var(--muted)}
+.fc-btns{display:flex;gap:10px}
+.fc-btns button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);font-size:13px;font-weight:500}
+.fc-again{background:#fff;color:var(--text)}
+.fc-got{background:var(--green);color:#fff;border-color:var(--green)}
+.fc-empty{background:#fff;border:1px dashed var(--border);border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:13px}
 .sect{font-family:'Playfair Display',serif;font-size:16px;margin:18px 0 10px}
 .prow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer}
 .prow .pt{flex:1;font-size:13px}
@@ -143,6 +156,28 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .wrow .w{font-weight:500}
 .wrow .tr{font-size:12px;color:var(--muted)}
 .wrow button{margin-left:auto;background:var(--green-l);border:none;color:var(--green);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500}
+
+/* ── SYNC TOOL ── */
+.sync-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10500;overflow-y:auto}
+.sync-overlay.on{display:block}
+.sync-box{background:#fff;margin:24px auto;max-width:560px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.sync-hdr{background:var(--green);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.sync-hdr h3{font-family:'Playfair Display',serif;font-weight:400;font-size:18px}
+.sync-body{padding:16px 18px}
+.sync-player{display:flex;align-items:center;gap:8px;margin:12px 0}
+.sync-player button{padding:9px 14px}
+.sync-time{margin-left:auto;font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+.sync-offset{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.sync-offset input{width:70px;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:13px}
+.sync-current{background:var(--gold-l);border:1px solid #e8d099;border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.5;margin:10px 0;min-height:56px}
+.sync-mark{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:18px;font-size:16px;font-weight:600;letter-spacing:.06em}
+.sync-mark:active{background:#235c43}
+.sync-lines{position:relative;max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;margin-top:12px}
+.sync-row{display:flex;gap:10px;padding:7px 10px;font-size:13px;border-bottom:1px solid var(--border);cursor:pointer;line-height:1.4}
+.sync-row:last-child{border-bottom:none}
+.sync-row.cur{background:var(--gold-l)}
+.sync-row .t{width:56px;flex-shrink:0;color:var(--green);font-variant-numeric:tabular-nums}
+.sync-row .t.none{color:#c9c4b8}
 
 /* ── ADMIN PANEL ── */
 .admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;overflow-y:auto}
@@ -206,6 +241,42 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 
 <div id="glTip"></div>
 
+<!-- ═══ SYNC TOOL ═══ -->
+<div class="sync-overlay" id="syncOverlay">
+  <div class="sync-box">
+    <div class="sync-hdr"><h3>Sync timestamps</h3><button class="admin-close" onclick="closeSync()">✕</button></div>
+    <div class="sync-body">
+      <div class="anotice">Play the recording and press <strong>MARK</strong> (or the <strong>Space</strong> bar) the moment each highlighted line starts. The time is written next to the line. <strong>Backspace</strong> undoes the last mark. Tap a line in the list to redo it.</div>
+      <div class="afield" style="margin-bottom:0">
+        <label>Audio</label>
+        <div class="atip" id="syncSrc" style="margin:0 0 6px"></div>
+        <input type="file" accept="audio/*" onchange="syncUseFile(event)" style="font-size:12px;padding:6px">
+        <div class="atip">You can choose the recording from your computer here and sync it before uploading it.</div>
+      </div>
+      <div class="sync-player">
+        <button class="aprimary" id="syncPlay" onclick="syncTogglePlay()">▶ Play</button>
+        <button class="asecondary" onclick="syncBack()">↺ 3s</button>
+        <button class="asecondary" id="syncSpd" onclick="syncSpeed()">1×</button>
+        <span class="sync-time" id="syncTime">0:00.0</span>
+      </div>
+      <div class="sync-offset">
+        <label for="syncOffset">Reaction offset (seconds)</label>
+        <input type="number" id="syncOffset" value="0.25" step="0.05" min="0" max="1">
+        <span>Your press comes slightly after the line starts, so this is taken off each mark.</span>
+      </div>
+      <div class="sync-current" id="syncCurrent"></div>
+      <button class="sync-mark" onclick="syncMark()">MARK</button>
+      <div class="sync-lines" id="syncLines"></div>
+      <div class="abtnrow">
+        <button class="asecondary" onclick="syncUndo()">Undo</button>
+        <button class="asecondary" onclick="closeSync()">Cancel</button>
+        <button class="aprimary" onclick="syncApply()">Apply to text</button>
+      </div>
+    </div>
+    <audio id="syncAudio" ontimeupdate="syncTick()" onended="syncEnded()"></audio>
+  </div>
+</div>
+
 <!-- ═══ SETUP NOTICE ═══ -->
 <div id="setupNotice">
   <div class="setup-card">
@@ -239,8 +310,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 <!-- ═══ AUTH SCREEN ═══ -->
 <div id="authScreen">
   <div class="auth-card">
-    <div class="auth-logo">Canta Tu<span> &amp; Story Club</span></div>
-    <div class="auth-tagline">Sign in to sing and listen along in Italian.</div>
+    <div class="auth-logo">Story<span> Club</span></div>
+    <div class="auth-tagline">Sign in to listen, read and practise your Italian.</div>
     <div style="margin-bottom:24px"></div>
     <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"></div>
     <div class="auth-field"><label>Password</label><input type="password" id="loginPw" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()"></div>
@@ -263,26 +334,16 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     </div>
     <div class="user-email" id="userEmailDisplay"></div>
     <div class="nav">
-      <button class="nb on" id="nb-songs" onclick="showScreen('songs')">🎵 Canta Tu</button>
-      <button class="nb" id="nb-stories" onclick="showScreen('stories')">🎧 Story Club</button>
+      <button class="nb on" id="nb-stories" onclick="showScreen('stories')">🎧 Story Club</button>
       <button class="nb" id="nb-progress" onclick="showScreen('progress')">📈 Progress</button>
     </div>
   </div>
 
-  <!-- SONGS LIST -->
-  <div class="scr on" id="scr-songs">
-    <div style="margin:4px 0 14px">
-      <div class="stitle">Canta Tu</div>
-      <div class="ssub">Sing along. A pencil follows the lyrics, and some words are missing.</div>
-    </div>
-    <div class="plist" id="songList"></div>
-  </div>
-
   <!-- STORIES LIST -->
-  <div class="scr" id="scr-stories">
+  <div class="scr on" id="scr-stories">
     <div style="margin:4px 0 14px">
       <div class="stitle">Story Club</div>
-      <div class="ssub">Listen to a text read aloud. A pencil follows the narration, and some words are missing.</div>
+      <div class="ssub">Listen to a text read aloud. A pencil follows the narration, and some words are missing. Tap an underlined word to see it in English.</div>
     </div>
     <div class="plist" id="storyList"></div>
   </div>
@@ -291,12 +352,12 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
   <div class="scr" id="scr-progress">
     <div style="margin:4px 0 14px">
       <div class="stitle">Your progress</div>
-      <div class="ssub">Your best scores and the words to review.</div>
+      <div class="ssub">Your best scores, and flashcards for the words you missed.</div>
     </div>
     <div id="progressBody"></div>
   </div>
 
-  <!-- SHARED READER (used for both songs and stories) -->
+  <!-- READER -->
   <div class="scr" id="scr-reader">
     <div class="rhdr">
       <button class="backbtn" onclick="showScreen(lastListScreen)">← Back</button>
@@ -339,49 +400,13 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
         <button class="admin-close" onclick="closeAdmin()">✕</button>
       </div>
       <div class="admin-tabs">
-        <button class="atab on" onclick="aTab('songs',this)">Songs</button>
-        <button class="atab" onclick="aTab('stories',this)">Stories</button>
+        <button class="atab on" onclick="aTab('stories',this)">Texts</button>
         <button class="atab" onclick="aTab('settings',this)">Settings</button>
       </div>
-      <!-- SONGS TAB -->
-      <div id="aSongs" class="admin-body">
-        <div class="anotice">
-          <strong>Format:</strong> one line per lyric line. Start a line with a timestamp like <code>[0:15]</code> so the pencil follows precisely (without one, lines are spaced evenly).<br>
-          <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 songs it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter lyrics you have the rights to use.<br>
-          <strong>Tip for A1/A2:</strong> write your own options with words of the same type as the answer (a verb among verbs), otherwise learners can guess by elimination. B1/B2 answers must have the correct accent.
-        </div>
-        <div class="alist" id="songAdminList"></div>
-        <button class="aprimary" onclick="showAddSong()">+ Add new song</button>
-        <div id="songForm" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
-          <input type="hidden" id="seditId">
-          <div class="arow">
-            <div class="afield"><label>Title</label><input type="text" id="sTitle" placeholder="Title"></div>
-            <div class="afield"><label>Artist</label><input type="text" id="sArtist" placeholder="Artist"></div>
-          </div>
-          <div class="arow">
-            <div class="afield"><label>Level</label><select id="sLevel"><option value="A1">A1</option><option value="A2" selected>A2</option><option value="B1">B1</option><option value="B2">B2</option></select></div>
-            <div class="afield"><label>Duration</label><input type="text" id="sDur" placeholder="3 min"></div>
-          </div>
-          <div class="afield"><label>Audio URL</label><input type="url" id="sAudio" placeholder="https://.../song.mp3"></div>
-          <div class="afield">
-            <label>Lyrics</label>
-            <textarea id="sLyrics" placeholder="[0:00] Prima riga con una {parola} nascosta&#10;[0:04] Seconda riga con {altra|opzione2|opzione3}" style="min-height:160px;font-family:monospace;font-size:13px"></textarea>
-          </div>
-          <div class="afield">
-            <label>Glossary (optional)</label>
-            <textarea id="sGloss" placeholder="tegola = roof tile&#10;ambra = amber" style="min-height:80px;font-family:monospace;font-size:13px"></textarea>
-            <div class="atip">One word per line as <code>word = translation</code>. Learners tap the underlined words in the text to see the translation. Single words only.</div>
-          </div>
-          <div class="abtnrow">
-            <button class="asecondary" onclick="cancelSongForm()">Cancel</button>
-            <button class="aprimary" onclick="saveSong()">Save song</button>
-          </div>
-        </div>
-      </div>
       <!-- STORIES TAB -->
-      <div id="aStories" class="admin-body" style="display:none">
+      <div id="aStories" class="admin-body">
         <div class="anotice">
-          <strong>Format:</strong> one line per spoken line. Start a line with a timestamp like <code>[0:15]</code> so the pencil follows the narration precisely (without one, lines are spaced evenly).<br>
+          <strong>Format:</strong> one line per spoken line. Start a line with a timestamp like <code>[0:15]</code> or <code>[0:15.4]</code> so the pencil follows the narration precisely (without one, lines are spaced evenly). The Sync button below the text field writes them for you.<br>
           <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 texts it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter text you have the rights to use, or that you wrote yourself.<br>
           <strong>Tip for A1/A2:</strong> write your own options with words of the same type as the answer (a verb among verbs), otherwise learners can guess by elimination. B1/B2 answers must have the correct accent.
         </div>
@@ -402,10 +427,15 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
             <label>Text</label>
             <textarea id="tText" placeholder="[0:00] Prima frase con una {parola} nascosta&#10;[0:05] Seconda frase con {altra|opzione2|opzione3}" style="min-height:160px;font-family:monospace;font-size:13px"></textarea>
           </div>
+          <div class="afield" style="margin-top:-6px">
+            <button type="button" class="asecondary" onclick="openSync()">⏱ Sync timestamps with the audio</button>
+            <div class="atip">Paste the text first (one line per spoken line), then play your recording and tap along. It writes the <code>[0:15.4]</code> times for you.</div>
+          </div>
           <div class="afield">
-            <label>Glossary (optional)</label>
+            <label>Translation (optional)</label>
             <textarea id="tGloss" placeholder="tegola = roof tile&#10;ambra = amber" style="min-height:80px;font-family:monospace;font-size:13px"></textarea>
-            <div class="atip">One word per line as <code>word = translation</code>. Learners tap the underlined words in the text to see the translation. Single words only.</div>
+            <button type="button" class="asecondary" onclick="fillTranslationWords()" style="margin-top:6px">List all words from the text</button>
+            <div class="atip">One word per line as <code>word = English</code>. The English stays hidden until a learner taps that word in the text, and it appears on the back of the flashcards. Include the words that are blanks, since those are the ones that end up in the flashcards. Single words only. Use the button to list every word of the text, then type the English next to the ones you want and delete the rest.</div>
           </div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelStoryForm()">Cancel</button>
@@ -415,7 +445,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       </div>
       <!-- SETTINGS TAB -->
       <div id="aSettings" class="admin-body" style="display:none">
-        <div class="anotice">You are logged in as admin. Songs and texts you add here appear instantly for all subscribers.</div>
+        <div class="anotice">You are logged in as admin. Texts you add here appear instantly for all subscribers.</div>
         <div class="afield">
           <label>Export all content (backup)</label>
           <button class="asecondary" onclick="exportData()">Download JSON backup</button>
@@ -441,29 +471,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const ADMIN_EMAIL = 'cookitalia@gmail.com';
 
 // ════════════════════════════════════════
-// SUPABASE TABLES NEEDED (run this SQL in Supabase SQL Editor):
-//
-// create table songs (
-//   id bigint generated always as identity primary key,
-//   title text, artist text, level text, dur text,
-//   audio text, lyrics text, created_at timestamptz default now()
-// );
-// create table stories (
-//   id bigint generated always as identity primary key,
-//   title text, author text, level text, dur text,
-//   audio text, text text, created_at timestamptz default now()
-// );
-// alter table songs enable row level security;
-// alter table stories enable row level security;
-// create policy "Authenticated users can read songs" on songs for select to authenticated using (true);
-// create policy "Authenticated users can read stories" on stories for select to authenticated using (true);
-// create policy "Admin can manage songs" on songs for all to authenticated using (true);
-// create policy "Admin can manage stories" on stories for all to authenticated using (true);
-//
-// Added later (glossary + saved progress):
-// alter table songs add column if not exists glossary text;
-// alter table stories add column if not exists glossary text;
-// create table if not exists progress (...);  -- see the SQL block given with this version
+// SUPABASE TABLES USED: stories (id, title, author, level, dur, audio, text, glossary, created_at)
+// and progress (user_id, kind, item_id, best_score, total, missed, updated_at).
+// The old "songs" table is no longer used by the app.
 // ════════════════════════════════════════
 
 const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
@@ -476,16 +486,17 @@ const sb = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // ── STATE ──
 let currentUser = null;
-let appData = { songs: [], stories: [] };
-let currentKind = null;      // 'song' | 'story' — which item is open in the shared reader
+let appData = { stories: [] };
+let currentKind = 'story';
 let currentItem = null;
-let lastListScreen = 'songs'; // where the back button returns to
+let lastListScreen = 'stories'; // where the back button returns to
 let passageLines = [];
 let activeLine = -1;
 let allBlanksShown = false;
 let speeds = [1,1.25,1.5,0.75];
 let spdIdx = 0;
-let editingSongId = null;
+let fcIndex = 0;
+let fcFlipped = false;
 let editingStoryId = null;
 let progressMap = {};
 let sessionMissed = new Set();
@@ -595,17 +606,12 @@ async function onLogin(user) {
   document.getElementById('userEmailDisplay').textContent = user.email;
   await loadFromSupabase();
   await loadProgress();
-  renderSongs();
   renderStories();
 }
 
 async function loadFromSupabase() {
   if(!sb) return;
-  const [{ data: songs }, { data: stories }] = await Promise.all([
-    sb.from('songs').select('*').order('created_at', { ascending: false }),
-    sb.from('stories').select('*').order('created_at', { ascending: false })
-  ]);
-  appData.songs = songs || [];
+  const { data: stories } = await sb.from('stories').select('*').order('created_at', { ascending: false });
   appData.stories = stories || [];
 }
 
@@ -648,14 +654,12 @@ function progressBadge(kind, id) {
   return '<span class="badge bg">Best ' + p.best_score + '/' + p.total + '</span>';
 }
 function renderProgress() {
-  const all = [
-    ...appData.songs.map(x => ({kind:'song', item:x})),
-    ...appData.stories.map(x => ({kind:'story', item:x}))
-  ];
-  const rows = all.map(x => ({...x, p: progressMap[x.kind+':'+x.item.id]})).filter(x => x.p && x.p.total > 0);
+  const rows = appData.stories
+    .map(x => ({ kind:'story', item:x, p: progressMap['story:'+x.id] }))
+    .filter(x => x.p && x.p.total > 0);
   const el = document.getElementById('progressBody');
   if(!rows.length) {
-    el.innerHTML = '<div class="empty-state"><div class="ei">📈</div><p>Nothing here yet. Fill in some blanks in a song or a text and your scores will appear.</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="ei">📈</div><p>Nothing here yet. Fill in some blanks in a text and your scores and flashcards will appear.</p></div>';
     reviewWords = [];
     return;
   }
@@ -666,12 +670,38 @@ function renderProgress() {
     (x.p.missed||[]).forEach(w => words.push({ w, kind: x.kind, id: x.item.id, title: x.item.title, tr: g[norm(w)] || '' }));
   });
   reviewWords = words;
+  if(fcIndex >= words.length) fcIndex = 0;
   el.innerHTML =
     '<div class="pstat"><div><b>' + rows.length + '</b><span>started</span></div><div><b>' + done + '</b><span>completed</span></div><div><b>' + words.length + '</b><span>words to review</span></div></div>' +
+    '<div class="sect">Words to review</div><div id="deckBox"></div>' +
     '<div class="sect">Scores</div>' +
-    rows.map(x => '<div class="prow" onclick="' + (x.kind==='song'?'openSong':'openStory') + '(' + x.item.id + ')"><div class="pt">' + x.item.title + '</div>' + progressBadge(x.kind, x.item.id) + '</div>').join('') +
-    (words.length ? '<div class="sect">Words to review</div>' + words.map((w,i) =>
-      '<div class="wrow"><div><div class="w">' + w.w + '</div><div class="tr">' + (w.tr || w.title) + '</div></div><button onclick="dismissMissed(' + i + ')">Got it</button></div>').join('') : '');
+    rows.map(x => '<div class="prow" onclick="openStory(' + x.item.id + ')"><div class="pt">' + x.item.title + '</div>' + progressBadge(x.kind, x.item.id) + '</div>').join('');
+  renderDeck();
+}
+function renderDeck() {
+  const box = document.getElementById('deckBox');
+  if(!box) return;
+  if(!reviewWords.length) { box.innerHTML = '<div class="fc-empty">No words to review. Nice work.</div>'; return; }
+  if(fcIndex >= reviewWords.length) fcIndex = 0;
+  const w = reviewWords[fcIndex];
+  box.innerHTML =
+    '<div class="fc-count">' + (fcIndex+1) + ' / ' + reviewWords.length + '</div>' +
+    '<div class="fc-wrap" onclick="flipCard()"><div class="fc-inner' + (fcFlipped ? ' flipped' : '') + '" id="fcInner">' +
+      '<div class="fc-face">' + w.w + '<small>Tap to see it in English</small></div>' +
+      '<div class="fc-face fc-back">' + (w.tr ? w.tr : '<span class="fc-none">No translation added yet</span>') + '<small>' + w.title + '</small></div>' +
+    '</div></div>' +
+    '<div class="fc-btns"><button class="fc-again" onclick="fcNext(false)">Still learning</button><button class="fc-got" onclick="fcNext(true)">Got it</button></div>';
+}
+function flipCard() {
+  fcFlipped = !fcFlipped;
+  const inner = document.getElementById('fcInner');
+  if(inner) inner.classList.toggle('flipped', fcFlipped);
+}
+function fcNext(known) {
+  fcFlipped = false;
+  if(known) { dismissMissed(fcIndex); return; }
+  fcIndex = (fcIndex + 1) % Math.max(1, reviewWords.length);
+  renderDeck();
 }
 function dismissMissed(i) {
   const w = reviewWords[i];
@@ -680,7 +710,7 @@ function dismissMissed(i) {
   const p = progressMap[key];
   if(!p) return;
   const row = { ...p, missed: (p.missed||[]).filter(m => m !== w.w), updated_at: new Date().toISOString() };
-  if(currentItem && currentKind === w.kind && currentItem.id === w.id) sessionMissed.delete(w.w);
+  if(currentItem && currentItem.id === w.id) sessionMissed.delete(w.w);
   saveProgressRow(row);
   renderProgress();
 }
@@ -738,35 +768,15 @@ function showScreen(name) {
   }
   document.querySelectorAll('.scr').forEach(x => x.classList.remove('on'));
   document.getElementById('scr-' + name).classList.add('on');
-  if(['songs','stories','progress'].includes(name)) {
+  if(['stories','progress'].includes(name)) {
     lastListScreen = name;
-    ['songs','stories','progress'].forEach(n => document.getElementById('nb-'+n).classList.toggle('on', n === name));
+    ['stories','progress'].forEach(n => document.getElementById('nb-'+n).classList.toggle('on', n === name));
   }
-  if(name === 'songs') renderSongs();
   if(name === 'stories') renderStories();
   if(name === 'progress') renderProgress();
 }
 
 // ── LISTS ──
-function renderSongs() {
-  const list = document.getElementById('songList');
-  if(appData.songs.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="ei">🎵</div><p>No songs yet. Add one via the content manager.</p></div>';
-    return;
-  }
-  list.innerHTML = appData.songs.map(s => `
-    <div class="pitem">
-      <div class="pmain">
-        <div class="picon">🎵</div>
-        <div class="pinfo">
-          <div class="ptitle">${s.title}</div>
-          <div class="pdesc">${s.artist||''}</div>
-          <div class="pmeta2"><span class="badge bo">${s.level}</span>${progressBadge('song',s.id)}<span style="font-size:11px;color:var(--muted)">${s.dur||''}</span></div>
-        </div>
-        <button class="ppbtn" onclick="openSong(${s.id})">▶</button>
-      </div>
-    </div>`).join('');
-}
 function renderStories() {
   const list = document.getElementById('storyList');
   if(appData.stories.length === 0) {
@@ -787,7 +797,7 @@ function renderStories() {
     </div>`).join('');
 }
 
-// ── TEXT PARSING (shared by songs & stories) ──
+// ── TEXT PARSING ──
 // Line format: optional [m:ss] timestamp, then text with {answer} or {answer|opt2|opt3} blanks
 function parsePassage(raw, level, gmap) {
   const rawLines = (raw||'').split('\n').filter(l => l.trim() !== '');
@@ -795,7 +805,7 @@ function parsePassage(raw, level, gmap) {
 
   const allAnswers = [];
   rawLines.forEach(line => {
-    const text = line.replace(/^\s*\[(\d+):(\d{1,2})\]\s*/, '');
+    const text = line.replace(/^\s*\[\d+:\d{1,2}(?:\.\d+)?\]\s*/, '');
     const matches = [...text.matchAll(/\{([^}]+)\}/g)];
     matches.forEach(m => {
       const answer = m[1].split('|')[0].trim();
@@ -807,8 +817,8 @@ function parsePassage(raw, level, gmap) {
   const lines = rawLines.map(line => {
     let time = null;
     let text = line;
-    const m = line.match(/^\s*\[(\d+):(\d{1,2})\]\s*(.*)$/);
-    if(m) { time = parseInt(m[1],10)*60 + parseInt(m[2],10); text = m[3]; }
+    const m = line.match(/^\s*\[(\d+):(\d{1,2}(?:\.\d+)?)\]\s*(.*)$/);
+    if(m) { time = parseInt(m[1],10)*60 + parseFloat(m[2]); text = m[3]; }
     text = wrapGlossary(text, gmap);
     const html = text.replace(/\{([^}]+)\}/g, (full, content) => {
       const parts = content.split('|').map(s => s.trim());
@@ -843,12 +853,7 @@ function parsePassage(raw, level, gmap) {
   return { lines, totalBlanks: blankCount };
 }
 
-// ── OPEN A SONG OR STORY INTO THE SHARED READER ──
-function openSong(id) {
-  const s = appData.songs.find(x => x.id === id);
-  if(!s) return;
-  openReader('song', s);
-}
+// ── OPEN A TEXT INTO THE READER ──
 function openStory(id) {
   const s = appData.stories.find(x => x.id === id);
   if(!s) return;
@@ -862,9 +867,9 @@ function openReader(kind, item) {
   document.getElementById('revealAllBtn').textContent = 'Show all words';
   document.getElementById('readerTitle').textContent = item.title;
   document.getElementById('playerTitle').textContent = item.title;
-  const person = kind === 'song' ? item.artist : item.author;
+  const person = item.author;
   document.getElementById('playerSub').textContent = (person?person+' · ':'')+'Italian '+item.level;
-  const rawText = kind === 'song' ? item.lyrics : item.text;
+  const rawText = item.text;
   const parsed = parsePassage(rawText, item.level, parseGlossary(item.glossary));
   passageLines = parsed.lines;
   activeLine = -1;
@@ -1058,92 +1063,14 @@ function buildWaveform() {
 function openAdmin() {
   if(!currentUser || currentUser.email !== ADMIN_EMAIL) { alert('Admin access restricted.'); return; }
   document.getElementById('adminOverlay').classList.add('on');
-  renderSongAdminList();
   renderStoryAdminList();
 }
 function closeAdmin() { document.getElementById('adminOverlay').classList.remove('on'); }
 function aTab(name, btn) {
-  document.getElementById('aSongs').style.display = name==='songs' ? 'block' : 'none';
   document.getElementById('aStories').style.display = name==='stories' ? 'block' : 'none';
   document.getElementById('aSettings').style.display = name==='settings' ? 'block' : 'none';
   document.querySelectorAll('.atab').forEach(t => t.classList.remove('on'));
   if(btn) btn.classList.add('on');
-}
-
-// ── SONG ADMIN ──
-function renderSongAdminList() {
-  const el = document.getElementById('songAdminList');
-  if(!appData.songs.length) { el.innerHTML = '<p style="font-size:13px;color:var(--muted)">No songs yet.</p>'; return; }
-  el.innerHTML = appData.songs.map(s => `
-    <div class="aitem">
-      <div class="aitem-info">
-        <div class="aitem-title">${s.title}</div>
-        <div class="aitem-meta">${s.artist||''} · ${s.level} · ${s.dur||''}</div>
-      </div>
-      <button class="aitem-edit" onclick="editSong(${s.id})">Edit</button>
-      <button class="aitem-del" onclick="deleteSong(${s.id})">Delete</button>
-    </div>`).join('');
-}
-function showAddSong() {
-  editingSongId = null;
-  ['seditId','sTitle','sArtist','sDur','sAudio','sLyrics','sGloss'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('sLevel').value = 'A2';
-  document.getElementById('songForm').style.display = 'block';
-  document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
-}
-function editSong(id) {
-  const s = appData.songs.find(x => x.id === id);
-  if(!s) return;
-  editingSongId = id;
-  document.getElementById('seditId').value = id;
-  document.getElementById('sTitle').value = s.title;
-  document.getElementById('sArtist').value = s.artist||'';
-  document.getElementById('sLevel').value = s.level;
-  document.getElementById('sDur').value = s.dur||'';
-  document.getElementById('sAudio').value = s.audio||'';
-  document.getElementById('sLyrics').value = s.lyrics||'';
-  document.getElementById('sGloss').value = s.glossary||'';
-  document.getElementById('songForm').style.display = 'block';
-  document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
-}
-async function saveSong() {
-  if(!sb) return;
-  const title = document.getElementById('sTitle').value.trim();
-  if(!title) { alert('Please add a title.'); return; }
-  const song = {
-    title,
-    artist: document.getElementById('sArtist').value.trim(),
-    level: document.getElementById('sLevel').value,
-    dur: document.getElementById('sDur').value.trim(),
-    audio: document.getElementById('sAudio').value.trim(),
-    lyrics: document.getElementById('sLyrics').value,
-    glossary: document.getElementById('sGloss').value
-  };
-  if(editingSongId) {
-    const { error } = await sb.from('songs').update(song).eq('id', editingSongId);
-    if(error) { alert('Save failed: '+error.message); return; }
-    const idx = appData.songs.findIndex(x => x.id === editingSongId);
-    if(idx >= 0) appData.songs[idx] = {...appData.songs[idx], ...song};
-  } else {
-    const { data, error } = await sb.from('songs').insert(song).select().single();
-    if(error) { alert('Save failed: '+error.message); return; }
-    appData.songs.unshift(data);
-  }
-  cancelSongForm();
-  renderSongAdminList();
-  renderSongs();
-}
-async function deleteSong(id) {
-  if(!confirm('Delete this song?')) return;
-  const { error } = await sb.from('songs').delete().eq('id', id);
-  if(error) { alert('Delete failed: '+error.message); return; }
-  appData.songs = appData.songs.filter(x => x.id !== id);
-  renderSongAdminList();
-  renderSongs();
-}
-function cancelSongForm() {
-  document.getElementById('songForm').style.display = 'none';
-  editingSongId = null;
 }
 
 // ── STORY ADMIN ──
@@ -1160,6 +1087,148 @@ function renderStoryAdminList() {
       <button class="aitem-del" onclick="deleteStory(${s.id})">Delete</button>
     </div>`).join('');
 }
+function fillTranslationWords() {
+  const raw = document.getElementById('tText').value;
+  const text = raw.replace(/^\s*\[\d+:\d{1,2}(?:\.\d+)?\]\s*/gm, '').replace(/\{([^}|]*)(\|[^}]*)?\}/g, '$1');
+  const box = document.getElementById('tGloss');
+  const listed = new Set(box.value.split('\n').map(l => norm(l.split('=')[0])).filter(Boolean));
+  const seen = new Set();
+  const add = [];
+  (text.match(/\p{L}+/gu) || []).forEach(w => {
+    const k = norm(w);
+    if(k.length < 2 || listed.has(k) || seen.has(k)) return;
+    seen.add(k);
+    add.push(w.toLowerCase() + ' = ');
+  });
+  if(!add.length) { alert('Every word of the text is already listed (or the text field is empty).'); return; }
+  box.value = (box.value.trim() ? box.value.trim() + '\n' : '') + add.join('\n');
+}
+// ── SYNC TOOL: tap along with the recording to write the timestamps ──
+let syncRaw = [], syncTimes = [], syncIdx = 0, syncSpdIdx = 0, syncObjUrl = null;
+const SYNC_SPEEDS = [1, 0.75, 0.5];
+function fmtStamp(t) {
+  const r = Math.round(t * 10) / 10;
+  const m = Math.floor(r / 60);
+  let sec = (r - m * 60).toFixed(1);
+  if(sec.length < 4) sec = '0' + sec;
+  return m + ':' + sec;
+}
+function plainLine(t) { return t.replace(/\{([^}|]*)(\|[^}]*)?\}/g, '$1'); }
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function openSync() {
+  const raw = document.getElementById('tText').value;
+  const lines = raw.split('\n').filter(l => l.trim() !== '');
+  if(!lines.length) { alert('Paste the text first, one line per spoken line.'); return; }
+  syncRaw = []; syncTimes = [];
+  lines.forEach(l => {
+    const m = l.match(/^\s*\[(\d+):(\d{1,2}(?:\.\d+)?)\]\s*(.*)$/);
+    if(m) { syncTimes.push(parseInt(m[1],10)*60 + parseFloat(m[2])); syncRaw.push(m[3]); }
+    else { syncTimes.push(null); syncRaw.push(l.trim()); }
+  });
+  syncIdx = syncTimes.findIndex(t => t === null);
+  if(syncIdx < 0) syncIdx = 0;
+  const a = document.getElementById('syncAudio');
+  a.pause();
+  syncSpdIdx = 0; a.playbackRate = 1;
+  document.getElementById('syncSpd').textContent = '1×';
+  document.getElementById('syncPlay').textContent = '▶ Play';
+  const url = document.getElementById('tAudio').value.trim();
+  if(syncObjUrl) { URL.revokeObjectURL(syncObjUrl); syncObjUrl = null; }
+  if(url) { a.src = url; document.getElementById('syncSrc').textContent = 'Using the Audio URL from the form.'; }
+  else { a.removeAttribute('src'); document.getElementById('syncSrc').textContent = 'No Audio URL in the form yet. Choose a file below.'; }
+  document.getElementById('syncTime').textContent = '0:00.0';
+  document.getElementById('syncOverlay').classList.add('on');
+  renderSync();
+}
+function closeSync() {
+  document.getElementById('syncAudio').pause();
+  document.getElementById('syncOverlay').classList.remove('on');
+}
+function syncUseFile(e) {
+  const f = e.target.files[0];
+  if(!f) return;
+  if(syncObjUrl) URL.revokeObjectURL(syncObjUrl);
+  syncObjUrl = URL.createObjectURL(f);
+  const a = document.getElementById('syncAudio');
+  a.src = syncObjUrl;
+  document.getElementById('syncSrc').textContent = 'Using the file: ' + f.name;
+}
+function syncTogglePlay() {
+  const a = document.getElementById('syncAudio');
+  if(!a.getAttribute('src')) { alert('Add an Audio URL in the form or choose a file first.'); return; }
+  if(a.paused) { a.play(); document.getElementById('syncPlay').textContent = '⏸ Pause'; }
+  else { a.pause(); document.getElementById('syncPlay').textContent = '▶ Play'; }
+  if(document.activeElement) document.activeElement.blur();
+}
+function syncEnded() { document.getElementById('syncPlay').textContent = '▶ Play'; }
+function syncTick() {
+  document.getElementById('syncTime').textContent = fmtStamp(document.getElementById('syncAudio').currentTime);
+}
+function syncBack() {
+  const a = document.getElementById('syncAudio');
+  a.currentTime = Math.max(0, a.currentTime - 3);
+  if(document.activeElement) document.activeElement.blur();
+}
+function syncSpeed() {
+  syncSpdIdx = (syncSpdIdx + 1) % SYNC_SPEEDS.length;
+  document.getElementById('syncAudio').playbackRate = SYNC_SPEEDS[syncSpdIdx];
+  document.getElementById('syncSpd').textContent = SYNC_SPEEDS[syncSpdIdx] + '×';
+}
+function syncMark() {
+  if(syncIdx >= syncRaw.length) return;
+  const a = document.getElementById('syncAudio');
+  const off = parseFloat(document.getElementById('syncOffset').value) || 0;
+  let t = Math.max(0, a.currentTime - off);
+  const prev = syncIdx > 0 ? syncTimes[syncIdx-1] : null;
+  if(prev !== null && t < prev) t = prev;
+  syncTimes[syncIdx] = t;
+  syncIdx++;
+  renderSync();
+}
+function syncUndo() {
+  if(syncIdx <= 0) return;
+  syncIdx--;
+  const a = document.getElementById('syncAudio');
+  const old = syncTimes[syncIdx];
+  syncTimes[syncIdx] = null;
+  a.currentTime = Math.max(0, (old !== null ? old : a.currentTime) - 2);
+  renderSync();
+}
+function syncJump(i) {
+  syncIdx = i;
+  const a = document.getElementById('syncAudio');
+  const t = syncTimes[i] !== null ? syncTimes[i] : (i > 0 && syncTimes[i-1] !== null ? syncTimes[i-1] : 0);
+  a.currentTime = Math.max(0, t - 1);
+  renderSync();
+}
+function renderSync() {
+  document.getElementById('syncCurrent').textContent =
+    syncIdx < syncRaw.length ? plainLine(syncRaw[syncIdx]) : 'All lines are marked. Press "Apply to text".';
+  const box = document.getElementById('syncLines');
+  box.innerHTML = syncRaw.map((t,i) =>
+    '<div class="sync-row' + (i === syncIdx ? ' cur' : '') + '" onclick="syncJump(' + i + ')"><span class="t' + (syncTimes[i] === null ? ' none' : '') + '">' +
+    (syncTimes[i] === null ? '--' : fmtStamp(syncTimes[i])) + '</span><span>' + escHtml(plainLine(t)) + '</span></div>').join('');
+  const row = box.querySelector('.cur');
+  if(row) box.scrollTop = Math.max(0, row.offsetTop - box.clientHeight / 2);
+}
+function syncApply() {
+  const marked = syncTimes.filter(t => t !== null).length;
+  if(!marked) { alert('No lines are marked yet.'); return; }
+  if(marked < syncRaw.length && !confirm((syncRaw.length - marked) + ' line(s) have no time. They will be spaced evenly between the marked ones. Apply anyway?')) return;
+  document.getElementById('tText').value = syncRaw.map((t,i) => (syncTimes[i] !== null ? '[' + fmtStamp(syncTimes[i]) + '] ' : '') + t).join('\n');
+  closeSync();
+}
+document.addEventListener('keydown', function(e) {
+  if(!document.getElementById('syncOverlay').classList.contains('on')) return;
+  if(e.target.matches && e.target.matches('input,textarea,select')) return;
+  if(e.code === 'Space') { e.preventDefault(); syncMark(); }
+  else if(e.key === 'Backspace') { e.preventDefault(); syncUndo(); }
+  else if(e.key === 'p' || e.key === 'P') { syncTogglePlay(); }
+});
+document.addEventListener('keyup', function(e) {
+  if(e.code === 'Space' && document.getElementById('syncOverlay').classList.contains('on')) e.preventDefault();
+});
+
 function showAddStory() {
   editingStoryId = null;
   ['teditId','tTitle','tAuthor','tDur','tAudio','tText','tGloss'].forEach(id => document.getElementById(id).value = '');
@@ -1227,7 +1296,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(appData,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'canta-tu-story-club-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.download = 'story-club-backup-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
 }
 async function importData(e) {
@@ -1238,20 +1307,14 @@ async function importData(e) {
   r.onload = async ev => {
     try {
       const d = JSON.parse(ev.target.result);
-      if(d.songs || d.stories) {
-        if(confirm('This will add all songs and texts from the backup to Supabase. Continue?')) {
-          for(const g of (d.songs||[])) {
-            const {id, ...rest} = g;
-            await sb.from('songs').insert(rest);
-          }
+      if(d.stories) {
+        if(confirm('This will add all texts from the backup to Supabase. Continue?')) {
           for(const t of (d.stories||[])) {
             const {id, ...rest} = t;
             await sb.from('stories').insert(rest);
           }
           await loadFromSupabase();
-          renderSongAdminList();
           renderStoryAdminList();
-          renderSongs();
           renderStories();
           alert('Content imported successfully.');
         }
