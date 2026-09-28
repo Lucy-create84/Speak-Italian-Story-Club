@@ -127,6 +127,23 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .blank-select.correct{border-color:var(--green-m);background:var(--green-l);color:var(--green)}
 .blank-select.incorrect{border-color:var(--red);background:var(--red-l);color:var(--red)}
 
+.gl{border-bottom:1px dotted var(--muted);cursor:help}
+#glTip{display:none;position:fixed;z-index:9500;background:#1a1a1a;color:#fff;font-size:12px;padding:6px 10px;border-radius:8px;max-width:220px;line-height:1.4;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.blank-input.revealed,.blank-select.revealed{border-color:var(--gold);background:var(--gold-l);color:var(--muted)}
+.bg{background:var(--green-l);color:var(--green)}
+.bestlbl{font-size:11px;color:var(--muted)}
+.pstat{display:flex;gap:10px;margin-bottom:6px}
+.pstat>div{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.pstat b{display:block;font-family:'Playfair Display',serif;font-size:22px;color:var(--green)}
+.pstat span{font-size:11px;color:var(--muted)}
+.sect{font-family:'Playfair Display',serif;font-size:16px;margin:18px 0 10px}
+.prow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer}
+.prow .pt{flex:1;font-size:13px}
+.wrow{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.wrow .w{font-weight:500}
+.wrow .tr{font-size:12px;color:var(--muted)}
+.wrow button{margin-left:auto;background:var(--green-l);border:none;color:var(--green);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:500}
+
 /* ── ADMIN PANEL ── */
 .admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;overflow-y:auto}
 .admin-overlay.on{display:block}
@@ -187,6 +204,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 </head>
 <body>
 
+<div id="glTip"></div>
+
 <!-- ═══ SETUP NOTICE ═══ -->
 <div id="setupNotice">
   <div class="setup-card">
@@ -246,6 +265,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <div class="nav">
       <button class="nb on" id="nb-songs" onclick="showScreen('songs')">🎵 Canta Tu</button>
       <button class="nb" id="nb-stories" onclick="showScreen('stories')">🎧 Story Club</button>
+      <button class="nb" id="nb-progress" onclick="showScreen('progress')">📈 Progress</button>
     </div>
   </div>
 
@@ -267,6 +287,15 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     <div class="plist" id="storyList"></div>
   </div>
 
+  <!-- PROGRESS -->
+  <div class="scr" id="scr-progress">
+    <div style="margin:4px 0 14px">
+      <div class="stitle">Your progress</div>
+      <div class="ssub">Your best scores and the words to review.</div>
+    </div>
+    <div id="progressBody"></div>
+  </div>
+
   <!-- SHARED READER (used for both songs and stories) -->
   <div class="scr" id="scr-reader">
     <div class="rhdr">
@@ -280,6 +309,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
           <div class="atitle2" id="playerTitle"></div>
           <div class="asub" id="playerSub"></div>
         </div>
+        <button class="spdbtn" onclick="repeatLine()" title="Replay this line">↺ Line</button>
         <button class="spdbtn" id="spdBtn" onclick="cycleSpeed()">1×</button>
       </div>
       <div class="waveform" id="waveform" onclick="seekAudio(event)"></div>
@@ -288,6 +318,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
     </div>
     <div class="scorebar">
       <span>Correct so far</span>
+      <span class="bestlbl" id="bestLbl"></span>
       <span id="scoreLbl">0 / 0</span>
     </div>
     <div class="lyrics-toolbar">
@@ -316,7 +347,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       <div id="aSongs" class="admin-body">
         <div class="anotice">
           <strong>Format:</strong> one line per lyric line. Start a line with a timestamp like <code>[0:15]</code> so the pencil follows precisely (without one, lines are spaced evenly).<br>
-          <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 songs it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter lyrics you have the rights to use.
+          <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 songs it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter lyrics you have the rights to use.<br>
+          <strong>Tip for A1/A2:</strong> write your own options with words of the same type as the answer (a verb among verbs), otherwise learners can guess by elimination. B1/B2 answers must have the correct accent.
         </div>
         <div class="alist" id="songAdminList"></div>
         <button class="aprimary" onclick="showAddSong()">+ Add new song</button>
@@ -335,6 +367,11 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
             <label>Lyrics</label>
             <textarea id="sLyrics" placeholder="[0:00] Prima riga con una {parola} nascosta&#10;[0:04] Seconda riga con {altra|opzione2|opzione3}" style="min-height:160px;font-family:monospace;font-size:13px"></textarea>
           </div>
+          <div class="afield">
+            <label>Glossary (optional)</label>
+            <textarea id="sGloss" placeholder="tegola = roof tile&#10;ambra = amber" style="min-height:80px;font-family:monospace;font-size:13px"></textarea>
+            <div class="atip">One word per line as <code>word = translation</code>. Learners tap the underlined words in the text to see the translation. Single words only.</div>
+          </div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelSongForm()">Cancel</button>
             <button class="aprimary" onclick="saveSong()">Save song</button>
@@ -345,7 +382,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
       <div id="aStories" class="admin-body" style="display:none">
         <div class="anotice">
           <strong>Format:</strong> one line per spoken line. Start a line with a timestamp like <code>[0:15]</code> so the pencil follows the narration precisely (without one, lines are spaced evenly).<br>
-          <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 texts it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter text you have the rights to use, or that you wrote yourself.
+          <strong>Missing word:</strong> wrap it in curly braces, e.g. <code>{cuore}</code>. For A1/A2 texts it becomes multiple choice automatically (or list your own options with <code>{cuore|amore|casa|sole}</code>, correct word first). For B1/B2 it's always typed. Only enter text you have the rights to use, or that you wrote yourself.<br>
+          <strong>Tip for A1/A2:</strong> write your own options with words of the same type as the answer (a verb among verbs), otherwise learners can guess by elimination. B1/B2 answers must have the correct accent.
         </div>
         <div class="alist" id="storyAdminList"></div>
         <button class="aprimary" onclick="showAddStory()">+ Add new text</button>
@@ -363,6 +401,11 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
           <div class="afield">
             <label>Text</label>
             <textarea id="tText" placeholder="[0:00] Prima frase con una {parola} nascosta&#10;[0:05] Seconda frase con {altra|opzione2|opzione3}" style="min-height:160px;font-family:monospace;font-size:13px"></textarea>
+          </div>
+          <div class="afield">
+            <label>Glossary (optional)</label>
+            <textarea id="tGloss" placeholder="tegola = roof tile&#10;ambra = amber" style="min-height:80px;font-family:monospace;font-size:13px"></textarea>
+            <div class="atip">One word per line as <code>word = translation</code>. Learners tap the underlined words in the text to see the translation. Single words only.</div>
           </div>
           <div class="abtnrow">
             <button class="asecondary" onclick="cancelStoryForm()">Cancel</button>
@@ -416,6 +459,11 @@ const ADMIN_EMAIL = 'cookitalia@gmail.com';
 // create policy "Authenticated users can read stories" on stories for select to authenticated using (true);
 // create policy "Admin can manage songs" on songs for all to authenticated using (true);
 // create policy "Admin can manage stories" on stories for all to authenticated using (true);
+//
+// Added later (glossary + saved progress):
+// alter table songs add column if not exists glossary text;
+// alter table stories add column if not exists glossary text;
+// create table if not exists progress (...);  -- see the SQL block given with this version
 // ════════════════════════════════════════
 
 const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
@@ -439,6 +487,12 @@ let speeds = [1,1.25,1.5,0.75];
 let spdIdx = 0;
 let editingSongId = null;
 let editingStoryId = null;
+let progressMap = {};
+let sessionMissed = new Set();
+let saveTimer = null;
+let reviewWords = [];
+let glShownAt = 0;
+let glTimer = null;
 
 // ── LOGIN ──
 async function doLogin() {
@@ -458,6 +512,7 @@ async function doLogout() {
   if(!sb) return;
   await sb.auth.signOut();
   currentUser = null;
+  progressMap = {};
   document.getElementById('app').classList.remove('on');
   document.getElementById('authScreen').style.display = 'flex';
 }
@@ -539,6 +594,7 @@ async function onLogin(user) {
   document.getElementById('app').classList.add('on');
   document.getElementById('userEmailDisplay').textContent = user.email;
   await loadFromSupabase();
+  await loadProgress();
   renderSongs();
   renderStories();
 }
@@ -553,21 +609,142 @@ async function loadFromSupabase() {
   appData.stories = stories || [];
 }
 
+// ── PROGRESS (saved per user in Supabase table "progress") ──
+async function loadProgress() {
+  progressMap = {};
+  if(!sb || !currentUser) return;
+  const { data, error } = await sb.from('progress').select('*').eq('user_id', currentUser.id);
+  if(error) { console.warn('Could not load progress:', error.message); return; }
+  (data||[]).forEach(r => { progressMap[r.kind+':'+r.item_id] = r; });
+}
+async function saveProgressRow(row) {
+  progressMap[row.kind+':'+row.item_id] = row;
+  if(!sb) return;
+  const { error } = await sb.from('progress').upsert(row, { onConflict: 'user_id,kind,item_id' });
+  if(error) console.warn('Could not save progress:', error.message);
+}
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveProgress, 700); }
+function saveProgress() {
+  saveTimer = null;
+  if(!sb || !currentUser || !currentItem) return;
+  const fields = document.querySelectorAll('#lyricsEl .blank-input, #lyricsEl .blank-select');
+  let correct = 0;
+  fields.forEach(f => { if(f.classList.contains('correct')) correct++; });
+  const prev = progressMap[currentKind+':'+currentItem.id];
+  const row = {
+    user_id: currentUser.id, kind: currentKind, item_id: currentItem.id,
+    best_score: Math.max(prev ? (prev.best_score||0) : 0, correct),
+    total: fields.length,
+    missed: Array.from(sessionMissed),
+    updated_at: new Date().toISOString()
+  };
+  saveProgressRow(row);
+  document.getElementById('bestLbl').textContent = 'Best: ' + row.best_score + ' / ' + row.total;
+}
+function progressBadge(kind, id) {
+  const p = progressMap[kind+':'+id];
+  if(!p || !p.total) return '';
+  if(p.best_score >= p.total) return '<span class="badge bg">✓ done</span>';
+  return '<span class="badge bg">Best ' + p.best_score + '/' + p.total + '</span>';
+}
+function renderProgress() {
+  const all = [
+    ...appData.songs.map(x => ({kind:'song', item:x})),
+    ...appData.stories.map(x => ({kind:'story', item:x}))
+  ];
+  const rows = all.map(x => ({...x, p: progressMap[x.kind+':'+x.item.id]})).filter(x => x.p && x.p.total > 0);
+  const el = document.getElementById('progressBody');
+  if(!rows.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">📈</div><p>Nothing here yet. Fill in some blanks in a song or a text and your scores will appear.</p></div>';
+    reviewWords = [];
+    return;
+  }
+  const done = rows.filter(x => x.p.best_score >= x.p.total).length;
+  const words = [];
+  rows.forEach(x => {
+    const g = parseGlossary(x.item.glossary);
+    (x.p.missed||[]).forEach(w => words.push({ w, kind: x.kind, id: x.item.id, title: x.item.title, tr: g[norm(w)] || '' }));
+  });
+  reviewWords = words;
+  el.innerHTML =
+    '<div class="pstat"><div><b>' + rows.length + '</b><span>started</span></div><div><b>' + done + '</b><span>completed</span></div><div><b>' + words.length + '</b><span>words to review</span></div></div>' +
+    '<div class="sect">Scores</div>' +
+    rows.map(x => '<div class="prow" onclick="' + (x.kind==='song'?'openSong':'openStory') + '(' + x.item.id + ')"><div class="pt">' + x.item.title + '</div>' + progressBadge(x.kind, x.item.id) + '</div>').join('') +
+    (words.length ? '<div class="sect">Words to review</div>' + words.map((w,i) =>
+      '<div class="wrow"><div><div class="w">' + w.w + '</div><div class="tr">' + (w.tr || w.title) + '</div></div><button onclick="dismissMissed(' + i + ')">Got it</button></div>').join('') : '');
+}
+function dismissMissed(i) {
+  const w = reviewWords[i];
+  if(!w) return;
+  const key = w.kind + ':' + w.id;
+  const p = progressMap[key];
+  if(!p) return;
+  const row = { ...p, missed: (p.missed||[]).filter(m => m !== w.w), updated_at: new Date().toISOString() };
+  if(currentItem && currentKind === w.kind && currentItem.id === w.id) sessionMissed.delete(w.w);
+  saveProgressRow(row);
+  renderProgress();
+}
+
+// ── GLOSSARY (tap a word to see its translation) ──
+function parseGlossary(raw) {
+  const map = {};
+  (raw||'').split('\n').forEach(line => {
+    const i = line.indexOf('=');
+    if(i < 1) return;
+    const w = line.slice(0,i).trim(), t = line.slice(i+1).trim();
+    if(w && t) map[norm(w)] = t;
+  });
+  return map;
+}
+function wrapGlossary(text, gmap) {
+  if(!gmap || !Object.keys(gmap).length) return text;
+  return text.split(/(\{[^}]*\})/).map(seg => seg.startsWith('{') ? seg :
+    seg.replace(/\p{L}+/gu, w => { const t = gmap[norm(w)]; return t ? '<span class="gl" data-t="' + esc(t) + '">' + w + '</span>' : w; })
+  ).join('');
+}
+function showTip(anchor, text, ms) {
+  const tip = document.getElementById('glTip');
+  tip.textContent = text;
+  tip.style.display = 'block';
+  const r = anchor.getBoundingClientRect();
+  const left = Math.min(Math.max(8, r.left), window.innerWidth - tip.offsetWidth - 8);
+  let top = r.top - tip.offsetHeight - 6;
+  if(top < 8) top = r.bottom + 6;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+  glShownAt = Date.now();
+  clearTimeout(glTimer);
+  glTimer = setTimeout(() => { tip.style.display = 'none'; }, ms || 4000);
+}
+document.addEventListener('click', function(e) {
+  const g = e.target.closest ? e.target.closest('.gl') : null;
+  if(g) { showTip(g, g.dataset.t); return; }
+  if(Date.now() - glShownAt < 400) return;
+  document.getElementById('glTip').style.display = 'none';
+});
+
 function esc(str){ return (str||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmtTime(s) { if(!s||isNaN(s)) return '0:00'; return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'); }
 function norm(s) { return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
 function shuffle(arr) { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 function showScreen(name) {
-  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  const reader = document.getElementById('scr-reader');
+  if(reader.classList.contains('on') && name !== 'reader') {
+    document.getElementById('audioEl').pause();
+    document.getElementById('playBtn').textContent = '▶';
+    resumeAfterAnswer = false;
+    if(saveTimer) { clearTimeout(saveTimer); saveProgress(); }
+  }
+  document.querySelectorAll('.scr').forEach(x => x.classList.remove('on'));
   document.getElementById('scr-' + name).classList.add('on');
-  if(name === 'songs' || name === 'stories') {
+  if(['songs','stories','progress'].includes(name)) {
     lastListScreen = name;
-    document.getElementById('nb-songs').classList.toggle('on', name==='songs');
-    document.getElementById('nb-stories').classList.toggle('on', name==='stories');
+    ['songs','stories','progress'].forEach(n => document.getElementById('nb-'+n).classList.toggle('on', n === name));
   }
   if(name === 'songs') renderSongs();
   if(name === 'stories') renderStories();
+  if(name === 'progress') renderProgress();
 }
 
 // ── LISTS ──
@@ -584,7 +761,7 @@ function renderSongs() {
         <div class="pinfo">
           <div class="ptitle">${s.title}</div>
           <div class="pdesc">${s.artist||''}</div>
-          <div class="pmeta2"><span class="badge bo">${s.level}</span><span style="font-size:11px;color:var(--muted)">${s.dur||''}</span></div>
+          <div class="pmeta2"><span class="badge bo">${s.level}</span>${progressBadge('song',s.id)}<span style="font-size:11px;color:var(--muted)">${s.dur||''}</span></div>
         </div>
         <button class="ppbtn" onclick="openSong(${s.id})">▶</button>
       </div>
@@ -603,7 +780,7 @@ function renderStories() {
         <div class="pinfo">
           <div class="ptitle">${s.title}</div>
           <div class="pdesc">${s.author||''}</div>
-          <div class="pmeta2"><span class="badge bb">${s.level}</span><span style="font-size:11px;color:var(--muted)">${s.dur||''}</span></div>
+          <div class="pmeta2"><span class="badge bb">${s.level}</span>${progressBadge('story',s.id)}<span style="font-size:11px;color:var(--muted)">${s.dur||''}</span></div>
         </div>
         <button class="ppbtn" onclick="openStory(${s.id})">▶</button>
       </div>
@@ -612,7 +789,7 @@ function renderStories() {
 
 // ── TEXT PARSING (shared by songs & stories) ──
 // Line format: optional [m:ss] timestamp, then text with {answer} or {answer|opt2|opt3} blanks
-function parsePassage(raw, level) {
+function parsePassage(raw, level, gmap) {
   const rawLines = (raw||'').split('\n').filter(l => l.trim() !== '');
   const isBeginner = (level === 'A1' || level === 'A2');
 
@@ -632,6 +809,7 @@ function parsePassage(raw, level) {
     let text = line;
     const m = line.match(/^\s*\[(\d+):(\d{1,2})\]\s*(.*)$/);
     if(m) { time = parseInt(m[1],10)*60 + parseInt(m[2],10); text = m[3]; }
+    text = wrapGlossary(text, gmap);
     const html = text.replace(/\{([^}]+)\}/g, (full, content) => {
       const parts = content.split('|').map(s => s.trim());
       const answer = parts[0];
@@ -644,8 +822,12 @@ function parsePassage(raw, level) {
         if(explicitOptions.length >= 2) {
           options = shuffle([answer, ...explicitOptions.slice(0,3)]);
         } else {
-          const others = shuffle(allAnswers.filter(a => norm(a) !== norm(answer)));
-          if(others.length >= 2) options = shuffle([answer, ...others.slice(0,3)]);
+          // closer in length and ending to the answer = more plausible wrong options (a rough proxy for word type)
+          const others = allAnswers.filter(a => norm(a) !== norm(answer))
+            .map(a => ({ a, d: Math.abs(a.length - answer.length) - (norm(a).slice(-2) === norm(answer).slice(-2) ? 2 : 0) }))
+            .sort((x,y) => x.d - y.d).slice(0,5).map(x => x.a);
+          const picked = shuffle(others).slice(0,3);
+          if(picked.length >= 2) options = shuffle([answer, ...picked]);
         }
       }
 
@@ -675,7 +857,6 @@ function openStory(id) {
 function openReader(kind, item) {
   currentKind = kind;
   currentItem = item;
-  lastListScreen = kind === 'song' ? 'songs' : 'stories';
   allBlanksShown = false;
   resumeAfterAnswer = false;
   document.getElementById('revealAllBtn').textContent = 'Show all words';
@@ -684,10 +865,13 @@ function openReader(kind, item) {
   const person = kind === 'song' ? item.artist : item.author;
   document.getElementById('playerSub').textContent = (person?person+' · ':'')+'Italian '+item.level;
   const rawText = kind === 'song' ? item.lyrics : item.text;
-  const parsed = parsePassage(rawText, item.level);
+  const parsed = parsePassage(rawText, item.level, parseGlossary(item.glossary));
   passageLines = parsed.lines;
   activeLine = -1;
   document.getElementById('scoreLbl').textContent = '0 / ' + parsed.totalBlanks;
+  const prevP = progressMap[kind+':'+item.id];
+  sessionMissed = new Set(prevP ? (prevP.missed||[]) : []);
+  document.getElementById('bestLbl').textContent = (prevP && prevP.total) ? 'Best: ' + prevP.best_score + ' / ' + prevP.total : '';
   renderLyricsDOM();
   const audio = document.getElementById('audioEl');
   if(item.audio) { audio.src = item.audio; audio.load(); }
@@ -732,13 +916,31 @@ function assignFallbackTimes(duration) {
 }
 
 // ── BLANKS: check & reveal ──
+function sameWord(val, answer) {
+  const a = (val||'').normalize('NFC').toLowerCase().trim();
+  const b = (answer||'').normalize('NFC').toLowerCase().trim();
+  if(a === b) return 'exact';
+  if(norm(a) === norm(b)) return 'accent';
+  return 'no';
+}
+function isStrictLevel() { return !!currentItem && (currentItem.level === 'B1' || currentItem.level === 'B2'); }
 function checkBlank(el) {
   const val = el.value;
-  if(!val) { el.classList.remove('correct','incorrect'); return; }
-  const ok = norm(val) === norm(el.dataset.answer);
+  if(!val) { el.classList.remove('correct','incorrect'); el.title = ''; return; }
+  const strict = isStrictLevel();
+  const r = sameWord(val, el.dataset.answer);
+  const ok = r === 'exact' || (r === 'accent' && !strict);
+  if(r === 'accent' && !strict) el.value = el.dataset.answer; // beginners: accept it and show the right accent
+  el.title = (r === 'accent' && strict) ? 'Check the accent' : '';
   el.classList.toggle('correct', ok);
   el.classList.toggle('incorrect', !ok);
+  if(r === 'accent' && strict) showTip(el, 'Almost. Check the accent.', 3000);
+  if(!el.dataset.tried) {
+    el.dataset.tried = '1';
+    if(ok) sessionMissed.delete(el.dataset.answer); else sessionMissed.add(el.dataset.answer);
+  }
   updateScore();
+  scheduleSave();
   if(ok && resumeAfterAnswer) {
     resumeAfterAnswer = false;
     const a = document.getElementById('audioEl');
@@ -757,10 +959,22 @@ function toggleAllBlanks() {
   allBlanksShown = !allBlanksShown;
   document.getElementById('revealAllBtn').textContent = allBlanksShown ? 'Hide words' : 'Show all words';
   document.querySelectorAll('#lyricsEl .blank-input, #lyricsEl .blank-select').forEach(f => {
-    if(allBlanksShown) { f.dataset.prev = f.value; f.value = f.dataset.answer; f.disabled = true; f.classList.add('correct'); f.classList.remove('incorrect'); }
-    else { f.value = f.dataset.prev || ''; f.disabled = false; checkBlank(f); }
+    if(allBlanksShown) {
+      if(!f.dataset.tried) { f.dataset.tried = '1'; sessionMissed.add(f.dataset.answer); } // needed help, so review it later
+      f.dataset.prev = f.value; f.value = f.dataset.answer; f.disabled = true;
+      f.classList.add('revealed'); f.classList.remove('correct','incorrect');
+    } else {
+      f.value = f.dataset.prev || ''; f.disabled = false;
+      f.classList.remove('revealed','correct','incorrect');
+      if(f.value) {
+        const r = sameWord(f.value, f.dataset.answer);
+        const ok = r === 'exact' || (r === 'accent' && !isStrictLevel());
+        f.classList.toggle('correct', ok); f.classList.toggle('incorrect', !ok);
+      }
+    }
   });
   updateScore();
+  scheduleSave();
 }
 
 // ── AUDIO (shared) ──
@@ -797,6 +1011,15 @@ function audioTick() {
   }
 }
 function audioEnded() { document.getElementById('playBtn').textContent = '▶'; }
+function repeatLine() {
+  const a = document.getElementById('audioEl');
+  if(!a.getAttribute('src')) return;
+  const i = activeLine >= 0 ? activeLine : 0;
+  const t = passageLines[i] ? passageLines[i].time : null;
+  a.currentTime = t || 0;
+  resumeAfterAnswer = false;
+  a.play().then(() => { document.getElementById('playBtn').textContent = '⏸'; }).catch(() => {});
+}
 
 // Pause the audio as soon as the user taps a blank to type or choose a word
 let resumeAfterAnswer = false;
@@ -863,7 +1086,7 @@ function renderSongAdminList() {
 }
 function showAddSong() {
   editingSongId = null;
-  ['seditId','sTitle','sArtist','sDur','sAudio','sLyrics'].forEach(id => document.getElementById(id).value = '');
+  ['seditId','sTitle','sArtist','sDur','sAudio','sLyrics','sGloss'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('sLevel').value = 'A2';
   document.getElementById('songForm').style.display = 'block';
   document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
@@ -879,6 +1102,7 @@ function editSong(id) {
   document.getElementById('sDur').value = s.dur||'';
   document.getElementById('sAudio').value = s.audio||'';
   document.getElementById('sLyrics').value = s.lyrics||'';
+  document.getElementById('sGloss').value = s.glossary||'';
   document.getElementById('songForm').style.display = 'block';
   document.getElementById('songForm').scrollIntoView({behavior:'smooth'});
 }
@@ -892,7 +1116,8 @@ async function saveSong() {
     level: document.getElementById('sLevel').value,
     dur: document.getElementById('sDur').value.trim(),
     audio: document.getElementById('sAudio').value.trim(),
-    lyrics: document.getElementById('sLyrics').value
+    lyrics: document.getElementById('sLyrics').value,
+    glossary: document.getElementById('sGloss').value
   };
   if(editingSongId) {
     const { error } = await sb.from('songs').update(song).eq('id', editingSongId);
@@ -937,7 +1162,7 @@ function renderStoryAdminList() {
 }
 function showAddStory() {
   editingStoryId = null;
-  ['teditId','tTitle','tAuthor','tDur','tAudio','tText'].forEach(id => document.getElementById(id).value = '');
+  ['teditId','tTitle','tAuthor','tDur','tAudio','tText','tGloss'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('tLevel').value = 'A2';
   document.getElementById('storyForm').style.display = 'block';
   document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
@@ -953,6 +1178,7 @@ function editStory(id) {
   document.getElementById('tDur').value = s.dur||'';
   document.getElementById('tAudio').value = s.audio||'';
   document.getElementById('tText').value = s.text||'';
+  document.getElementById('tGloss').value = s.glossary||'';
   document.getElementById('storyForm').style.display = 'block';
   document.getElementById('storyForm').scrollIntoView({behavior:'smooth'});
 }
@@ -966,7 +1192,8 @@ async function saveStory() {
     level: document.getElementById('tLevel').value,
     dur: document.getElementById('tDur').value.trim(),
     audio: document.getElementById('tAudio').value.trim(),
-    text: document.getElementById('tText').value
+    text: document.getElementById('tText').value,
+    glossary: document.getElementById('tGloss').value
   };
   if(editingStoryId) {
     const { error } = await sb.from('stories').update(story).eq('id', editingStoryId);
