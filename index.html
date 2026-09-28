@@ -627,6 +627,7 @@ function openReader(kind, item) {
   currentItem = item;
   lastListScreen = kind === 'song' ? 'songs' : 'stories';
   allBlanksShown = false;
+  resumeAfterAnswer = false;
   document.getElementById('revealAllBtn').textContent = 'Show all words';
   document.getElementById('readerTitle').textContent = item.title;
   document.getElementById('playerTitle').textContent = item.title;
@@ -688,6 +689,11 @@ function checkBlank(el) {
   el.classList.toggle('correct', ok);
   el.classList.toggle('incorrect', !ok);
   updateScore();
+  if(ok && resumeAfterAnswer) {
+    resumeAfterAnswer = false;
+    const a = document.getElementById('audioEl');
+    a.play().then(() => { document.getElementById('playBtn').textContent = '⏸'; }).catch(() => {});
+  }
 }
 function updateScore() {
   const fields = document.querySelectorAll('#lyricsEl .blank-input, #lyricsEl .blank-select');
@@ -697,6 +703,7 @@ function updateScore() {
   document.getElementById('scoreLbl').textContent = correct + ' / ' + total;
 }
 function toggleAllBlanks() {
+  resumeAfterAnswer = false;
   allBlanksShown = !allBlanksShown;
   document.getElementById('revealAllBtn').textContent = allBlanksShown ? 'Hide words' : 'Show all words';
   document.querySelectorAll('#lyricsEl .blank-input, #lyricsEl .blank-select').forEach(f => {
@@ -740,6 +747,18 @@ function audioTick() {
   }
 }
 function audioEnded() { document.getElementById('playBtn').textContent = '▶'; }
+
+// Pause the audio as soon as the user taps a blank to type or choose a word
+let resumeAfterAnswer = false;
+document.getElementById('lyricsEl').addEventListener('focusin', function(e) {
+  if(!e.target.matches('.blank-input, .blank-select')) return;
+  const a = document.getElementById('audioEl');
+  if(!a.paused) {
+    a.pause();
+    resumeAfterAnswer = true;
+    document.getElementById('playBtn').textContent = '▶';
+  }
+});
 function seekAudio(e) {
   const a = document.getElementById('audioEl');
   if(!a.duration) return;
